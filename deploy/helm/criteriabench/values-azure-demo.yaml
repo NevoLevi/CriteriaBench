@@ -1,0 +1,21 @@
+api:
+  replicaCount: 1
+  podDisruptionBudget:
+    enabled: false
+
+worker:
+  replicaCount: 1
+
+config:
+  redisUrl: ""
+  otelEndpoint: ""
+
+demoDependencies:
+  enabled: true
+
+service:
+  type: ClusterIP
+
+networkPolicy:
+  enabled: true
+  allowInternetHttpsEgress: false

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: criteriabench
+description: Cloud-native LLM evaluation service for structured clinical-trial criteria
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - llm
+  - evaluation
+  - clinical-trials
+  - fastapi
+maintainers:
+  - name: Nevo Levi

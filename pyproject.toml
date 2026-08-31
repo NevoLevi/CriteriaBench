@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "criteriabench"
+version = "0.1.0"
+description = "Reproducible evaluation of structured clinical-trial eligibility extraction"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Nevo Levi" }]
+dependencies = [
+  "alembic>=1.14,<2",
+  "aiosqlite>=0.20,<1",
+  "asyncpg>=0.30,<1",
+  "fastapi>=0.115,<1",
+  "httpx>=0.28,<1",
+  "openai>=1.68,<3",
+  "prometheus-client>=0.21,<1",
+  "pydantic>=2.10,<3",
+  "pydantic-settings>=2.7,<3",
+  "redis>=5.2,<7",
+  "sqlalchemy[asyncio]>=2.0.36,<3",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.14,<2",
+  "pytest>=8.3,<9",
+  "pytest-asyncio>=0.25,<1",
+  "pytest-cov>=6,<8",
+  "ruff>=0.9,<1",
+]
+
+[project.scripts]
+criteriabench-api = "criteriabench.cli:api"
+criteriabench-worker = "criteriabench.cli:worker"
+criteriabench-download = "criteriabench.cli:download"
+criteriabench-benchmark = "criteriabench.benchmark_cli:main"
+
+[tool.uv]
+required-version = "==0.12.8"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/criteriabench"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config -ra"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "integration: requires a local service such as PostgreSQL or Redis",
+  "live: makes an explicitly authorized paid or network API request",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["criteriabench"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "RUF"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+

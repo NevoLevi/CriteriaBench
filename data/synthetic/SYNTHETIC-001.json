@@ -1,0 +1,7 @@
+{
+  "trial_id": "SYNTHETIC-001",
+  "title": "Synthetic oncology eligibility example",
+  "eligibility_text": "Inclusion Criteria:\n- Age >= 18 years\n- ECOG performance status <= 1\n- Able to provide informed consent\n\nExclusion Criteria:\n- Pregnancy\n- Chemotherapy within 30 days before enrollment",
+  "source_url": null
+}
+

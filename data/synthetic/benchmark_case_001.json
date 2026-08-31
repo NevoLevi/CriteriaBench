@@ -1,0 +1,81 @@
+{
+  "fixture_version": "1.0",
+  "trial": {
+    "trial_id": "SYNTHETIC-BENCH-001",
+    "title": "Synthetic benchmark case with gold labels",
+    "eligibility_text": "Inclusion Criteria:\n- Age >= 18 years\n\nExclusion Criteria:\n- Pregnancy",
+    "source_url": null
+  },
+  "reference": {
+    "schema_version": "1.0",
+    "trial_id": "SYNTHETIC-BENCH-001",
+    "inclusion_criteria": [
+      {
+        "criterion_id": "I001",
+        "kind": "inclusion",
+        "category": "age",
+        "source_text": "Age >= 18 years",
+        "normalized_text": "age >= 18 years",
+        "concept": "age",
+        "operator": "greater_than_or_equal",
+        "value": 18,
+        "unit": "years",
+        "negated": false,
+        "temporal_constraint": {
+          "relation": "unspecified",
+          "quantity": null,
+          "unit": null,
+          "reference_event": null,
+          "raw_text": ""
+        },
+        "logic_group": {
+          "group_id": "IG001",
+          "connector": "single",
+          "parent_group_id": null
+        },
+        "evidence": {
+          "start_char": 22,
+          "end_char": 37,
+          "quote": "Age >= 18 years"
+        }
+      }
+    ],
+    "exclusion_criteria": [
+      {
+        "criterion_id": "E001",
+        "kind": "exclusion",
+        "category": "reproductive",
+        "source_text": "Pregnancy",
+        "normalized_text": "pregnancy",
+        "concept": "pregnancy",
+        "operator": "exists",
+        "value": true,
+        "unit": null,
+        "negated": false,
+        "temporal_constraint": {
+          "relation": "unspecified",
+          "quantity": null,
+          "unit": null,
+          "reference_event": null,
+          "raw_text": ""
+        },
+        "logic_group": {
+          "group_id": "EG001",
+          "connector": "single",
+          "parent_group_id": null
+        },
+        "evidence": {
+          "start_char": 61,
+          "end_char": 70,
+          "quote": "Pregnancy"
+        }
+      }
+    ],
+    "ambiguities": []
+  },
+  "provenance": {
+    "kind": "synthetic",
+    "annotation_method": "manually specified deterministic fixture"
+  }
+}
+

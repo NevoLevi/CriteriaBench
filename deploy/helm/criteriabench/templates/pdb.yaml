@@ -1,0 +1,14 @@
+{{- if and .Values.api.podDisruptionBudget.enabled (gt (int .Values.api.replicaCount) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "criteriabench.fullname" . }}-api
+  labels:
+    {{- include "criteriabench.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.api.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "criteriabench.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+{{- end }}

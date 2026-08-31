@@ -1,0 +1,15 @@
+{
+  "dataset_version": "synthetic.2026-08-31.v1",
+  "records": [
+    {
+      "path": "benchmark_case_001.json",
+      "sha256": "879a1f5785752e4086020b9569c679643b27e002dff3100cb3638d8ecceda779",
+      "has_reference": true
+    },
+    {
+      "path": "SYNTHETIC-001.json",
+      "sha256": "5e0827a742b874e531036b2f79efc3c31331f7633d43f69ba83bb82cd591004e",
+      "has_reference": false
+    }
+  ]
+}

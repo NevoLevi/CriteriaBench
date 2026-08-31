@@ -1,0 +1,12 @@
+{
+  "dataset_version": "2026-08-31.v1",
+  "source": "ClinicalTrials.gov API v2",
+  "retrieved_on": "2026-08-31",
+  "records": [
+    {
+      "path": "NCT04280705.json",
+      "trial_id": "NCT04280705",
+      "sha256": "0db857d69af87da5d783212679f9c3ea3389a582c27bd76caecff6b702196c3a"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app.kubernetes.io/name: criteriabench
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: criteriabench
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: criteriabench
+        app.kubernetes.io/component: worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9090"
+    spec:
+      serviceAccountName: criteriabench
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: wait-for-migration
+          image: ghcr.io/nevolevi/criteriabench:0.1.0
+          command: ["sh", "-ec"]
+          args:
+            - |
+              for attempt in $(seq 1 90); do
+                if alembic -c migrations/alembic.ini current 2>&1 | grep -q '(head)'; then
+                  exit 0
+                fi
+                sleep 2
+              done
+              echo "database migration did not reach head" >&2
+              exit 1
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: criteriabench-database
+                  key: DATABASE_URL
+          resources:
+            requests:
+              cpu: 25m
+              memory: 48Mi
+            limits:
+              cpu: 200m
+              memory: 192Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: worker
+          image: ghcr.io/nevolevi/criteriabench:0.1.0
+          imagePullPolicy: IfNotPresent
+          args: ["python", "-m", "criteriabench.worker"]
+          envFrom:
+            - configMapRef:
+                name: criteriabench-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: criteriabench-database
+                  key: DATABASE_URL
+          ports:
+            - name: metrics
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 750m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-metrics
+  labels:
+    app.kubernetes.io/name: criteriabench
+    app.kubernetes.io/component: worker
+spec:
+  selector:
+    app.kubernetes.io/name: criteriabench
+    app.kubernetes.io/component: worker
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: metrics

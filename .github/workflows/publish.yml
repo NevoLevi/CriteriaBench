@@ -1,0 +1,218 @@
+name: Publish container
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+  LLM_PROVIDER: mock
+  ALLOW_PAID_CALLS: "false"
+  COMPOSE_DISABLE_ENV_FILE: "1"
+  COMPOSE_ENV_FILES: ""
+  UV_NO_ENV_FILE: "1"
+  UV_PYTHON_DOWNLOADS: never
+
+jobs:
+  verify:
+    name: Verify exact SHA and image bytes before registry login
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      image_archive_sha256: ${{ steps.archive.outputs.sha256 }}
+    services:
+      postgres:
+        image: postgres:16.12-alpine
+        env:
+          POSTGRES_DB: criteriabench
+          POSTGRES_USER: criteriabench
+          POSTGRES_PASSWORD: criteriabench
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U criteriabench -d criteriabench"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7.4.9-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_POSTGRES_URL: postgresql+asyncpg://criteriabench:criteriabench@127.0.0.1:5432/criteriabench
+      TEST_REDIS_URL: redis://127.0.0.1:6379/15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Set up pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.8"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - uses: azure/setup-helm@bf6a7d304bc2fdb57e0331155b7ebf2c504acf0a # v4
+        with:
+          version: v4.2.4
+      - uses: azure/setup-kubectl@c0c8b32d33a5244f1e5947304550403b63930415 # v4
+        with:
+          version: v1.36.4
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: 1.16.0
+      - name: Verify dependency lock
+        run: uv lock --check
+      - name: Install project from lock
+        run: uv sync --frozen --extra dev
+      - name: Verify application
+        run: |
+          uv run --frozen --no-env-file ruff check .
+          uv run --frozen --no-env-file ruff format --check .
+          uv run --frozen --no-env-file mypy src
+          uv run --frozen --no-env-file pytest -m integration
+          uv run --frozen --no-env-file pytest -m "not live and not integration" --cov=criteriabench --cov-fail-under=75
+      - name: Frozen synthetic benchmark smoke
+        run: >-
+          uv run --frozen --no-env-file criteriabench-benchmark
+          data/synthetic/benchmark_case_001.json
+          --output artifacts/publish-benchmark-${{ github.run_id }}-${{ github.run_attempt }}.json
+      - name: Verify infrastructure
+        shell: pwsh
+        run: |
+          ./scripts/compose-safe.ps1 config --quiet
+          helm lint deploy/helm/criteriabench --strict
+          helm template criteriabench deploy/helm/criteriabench --namespace criteriabench | Out-File -Encoding utf8 "${{ runner.temp }}/criteriabench-rendered.yaml"
+          kubectl kustomize deploy/k8s/overlays/kind | Out-File -Encoding utf8 "${{ runner.temp }}/criteriabench-kind.yaml"
+          terraform -chdir=infra/azure fmt -check -recursive
+          terraform -chdir=infra/azure init -backend=false -input=false
+          terraform -chdir=infra/azure validate
+      - name: Generate immutable image labels
+        id: buildmeta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/nevolevi/criteriabench
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build the only publish candidate
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: criteriabench:publish-${{ github.sha }}
+          labels: ${{ steps.buildmeta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Save and bind the exact image archive
+        id: archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/publish-image
+          archive="artifacts/publish-image/criteriabench-image.tar"
+          docker save --output "$archive" "criteriabench:publish-${GITHUB_SHA}"
+          archive_sha256="$(sha256sum "$archive" | cut -d ' ' -f 1)"
+          printf '%s  %s\n' "$archive_sha256" "$archive" > artifacts/publish-image/SHA256SUMS
+          printf 'sha256=%s\n' "$archive_sha256" >> "$GITHUB_OUTPUT"
+      - name: Block publication on high or critical vulnerabilities
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        with:
+          input: artifacts/publish-image/criteriabench-image.tar
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Prove the scanned archive is unchanged
+        shell: bash
+        run: sha256sum --check artifacts/publish-image/SHA256SUMS
+      - name: Transfer only the scanned image bytes
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: publish-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/publish-image
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  ghcr:
+    name: Publish the verified immutable image
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download the scanned image archive
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: publish-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/publish-image
+      - name: Verify binding and load exact image bytes
+        shell: bash
+        env:
+          EXPECTED_SHA256: ${{ needs.verify.outputs.image_archive_sha256 }}
+        run: |
+          set -euo pipefail
+          archive="artifacts/publish-image/criteriabench-image.tar"
+          [[ "$EXPECTED_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          actual_sha256="$(sha256sum "$archive" | cut -d ' ' -f 1)"
+          test "$actual_sha256" = "$EXPECTED_SHA256"
+          sha256sum --check artifacts/publish-image/SHA256SUMS
+          docker load --input "$archive"
+          docker image inspect "criteriabench:publish-${GITHUB_SHA}" >/dev/null
+      - name: Generate registry tags
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/nevolevi/criteriabench
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - name: Sign in to GHCR only after artifact verification
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag and push the exact loaded image without rebuilding
+        id: push
+        shell: bash
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -euo pipefail
+          source_image="criteriabench:publish-${GITHUB_SHA}"
+          pushed_digest=""
+          pushed_count=0
+          while IFS= read -r tag; do
+            [[ -n "$tag" ]] || continue
+            docker tag "$source_image" "$tag"
+            push_output="$(docker push "$tag" 2>&1)"
+            printf '%s\n' "$push_output"
+            current_digest="$(printf '%s\n' "$push_output" | sed -nE 's/.*digest: (sha256:[0-9a-f]{64}).*/\1/p' | tail -n 1)"
+            [[ "$current_digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+            if [[ -n "$pushed_digest" && "$current_digest" != "$pushed_digest" ]]; then
+              echo "Registry tags did not resolve to identical image bytes." >&2
+              exit 1
+            fi
+            pushed_digest="$current_digest"
+            pushed_count=$((pushed_count + 1))
+          done <<< "$IMAGE_TAGS"
+          test "$pushed_count" -gt 0
+          printf 'digest=%s\n' "$pushed_digest" >> "$GITHUB_OUTPUT"
+      - name: Attest the pushed scanned image digest
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-name: ghcr.io/nevolevi/criteriabench
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

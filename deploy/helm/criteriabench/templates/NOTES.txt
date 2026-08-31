@@ -1,0 +1,13 @@
+CriteriaBench is installed in namespace {{ .Release.Namespace }} with the safe mock provider.
+
+Check rollout:
+  kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "criteriabench.fullname" . }}-api
+
+Open the API locally:
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "criteriabench.fullname" . }}-api 8000:{{ .Values.service.port }}
+
+Then visit http://127.0.0.1:8000/docs.
+
+{{- if .Values.demoDependencies.enabled }}
+The bundled PostgreSQL and Redis are ephemeral and intended only for local or short-lived demos.
+{{- end }}

@@ -1,0 +1,146 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/nevolevi/criteriabench
+  tag: "0.1.0"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+api:
+  replicaCount: 2
+  command: []
+  args:
+    - uvicorn
+    - criteriabench.api.app:create_app
+    - --factory
+    - --host
+    - 0.0.0.0
+    - --port
+    - "8000"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 750m
+      memory: 512Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+worker:
+  # At-least-once processing recovers one in-flight list. Keep one worker and
+  # Recreate strategy so old/new workers cannot overlap during a rollout.
+  replicaCount: 1
+  command: []
+  args: ["python", "-m", "criteriabench.worker"]
+  metricsPort: 9090
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 750m
+      memory: 512Mi
+
+migration:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+  nodePort: null
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: criteriabench.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+config:
+  openaiModel: gpt-5.6-luna
+  # Empty means the chart's release-scoped demo Redis service name.
+  redisUrl: ""
+  logLevel: INFO
+  otelEndpoint: ""
+
+database:
+  # When demoDependencies.enabled=false, this Secret and key are required.
+  existingSecret: ""
+  secretKey: DATABASE_URL
+
+demoDependencies:
+  # Ephemeral, in-cluster services for local/short-lived portfolio demos only.
+  # Disable these and supply a database Secret for a shared environment.
+  enabled: true
+  postgres:
+    image: postgres:16.12-alpine
+    database: criteriabench
+    username: criteriabench
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  redis:
+    image: redis:7.4.9-alpine
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+networkPolicy:
+  enabled: true
+  allowInternetHttpsEgress: false
+
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+topologySpreadConstraints: []

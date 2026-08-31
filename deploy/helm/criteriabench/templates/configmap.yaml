@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "criteriabench.fullname" . }}-config
+  labels:
+    {{- include "criteriabench.labels" . | nindent 4 }}
+data:
+  LLM_PROVIDER: "mock"
+  ALLOW_PAID_CALLS: "false"
+  OPENAI_MODEL: {{ .Values.config.openaiModel | quote }}
+  REDIS_URL: {{ include "criteriabench.redisUrl" . | quote }}
+  AUTO_CREATE_SCHEMA: "false"
+  READINESS_REQUIRES_REDIS: "true"
+  CRITERIABENCH_LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  WORKER_METRICS_PORT: {{ .Values.worker.metricsPort | quote }}
+  {{- with .Values.config.otelEndpoint }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ . | quote }}
+  {{- end }}

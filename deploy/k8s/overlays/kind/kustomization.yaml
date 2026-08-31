@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: criteriabench
+resources:
+  - ../../base
+  - demo-dependencies.yaml
+images:
+  - name: ghcr.io/nevolevi/criteriabench
+    newName: criteriabench
+    newTag: local
+patches:
+  - path: api-kind.yaml
+  - path: worker-kind.yaml

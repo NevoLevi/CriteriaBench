@@ -1,0 +1,14 @@
+# Copy values through the guarded deployment script; do not store credentials here.
+confirm_billable_deployment = false
+
+resource_group_name = "rg-criteriabench-demo"
+location            = "Germany West Central"
+cluster_name        = "aks-criteriabench-demo"
+node_vm_size        = "Standard_D2as_v5"
+
+deployment_ttl_hours = 8
+expires_at_utc       = ""
+
+# Amount is in the Azure subscription's billing currency, not necessarily EUR.
+budget_amount         = 15
+budget_contact_emails = []
