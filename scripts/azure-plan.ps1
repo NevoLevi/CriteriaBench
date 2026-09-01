@@ -54,22 +54,24 @@ $previousContactEmails = [Environment]::GetEnvironmentVariable("TF_VAR_budget_co
 $env:TF_VAR_budget_contact_emails = ConvertTo-Json -Compress -InputObject @($BudgetEmail)
 
 try {
-    Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
-        "-chdir=$terraformDirectory", "init", "-input=false"
-    ) -FailureMessage "Terraform initialization failed"
-    Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
-        "-chdir=$terraformDirectory", "fmt", "-check", "-recursive"
-    ) -FailureMessage "Terraform formatting check failed"
-    Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
-        "-chdir=$terraformDirectory", "validate"
-    ) -FailureMessage "Terraform validation failed"
-    Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
-        "-chdir=$terraformDirectory", "plan", "-input=false", "-out=$planPath",
-        "-var=confirm_billable_deployment=true",
-        "-var=deployment_ttl_hours=$TtlHours",
-        "-var=expires_at_utc=$expiresAtText",
-        "-var=budget_amount=$BudgetAmount"
-    ) -FailureMessage "Terraform could not create a reviewed plan; nothing was applied"
+    Invoke-CriteriaBenchWithAzureCliOnPath -AzPath $az -Action {
+        Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
+            "-chdir=$terraformDirectory", "init", "-input=false"
+        ) -FailureMessage "Terraform initialization failed"
+        Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
+            "-chdir=$terraformDirectory", "fmt", "-check", "-recursive"
+        ) -FailureMessage "Terraform formatting check failed"
+        Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
+            "-chdir=$terraformDirectory", "validate"
+        ) -FailureMessage "Terraform validation failed"
+        Invoke-CriteriaBenchNative -FilePath $terraform -ArgumentList @(
+            "-chdir=$terraformDirectory", "plan", "-input=false", "-out=$planPath",
+            "-var=confirm_billable_deployment=true",
+            "-var=deployment_ttl_hours=$TtlHours",
+            "-var=expires_at_utc=$expiresAtText",
+            "-var=budget_amount=$BudgetAmount"
+        ) -FailureMessage "Terraform could not create a reviewed plan; nothing was applied"
+    }
 }
 finally {
     [Environment]::SetEnvironmentVariable("TF_VAR_budget_contact_emails", $previousContactEmails, "Process")
