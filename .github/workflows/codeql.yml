@@ -21,6 +21,6 @@ jobs:
         with:
           languages: python
           queries: security-extended
-      - uses: github/codeql-action/analyze@5ba2889ada762081db2c4f32a729827dce632c7b # v3 reviewed 2026-09-01
+      - uses: github/codeql-action/analyze@6f5948dfacef28e207b48d0905cf90c03365536d # v3 reviewed 2026-09-01
         with:
           category: /language:python
