@@ -134,51 +134,53 @@ Invoke-CriteriaBenchWithAzureCliOnPath -AzPath $az -Action {
             "convert-kubeconfig", "-l", "azurecli", "--kubeconfig", $kubeconfigPath
         ) -FailureMessage "Microsoft Entra kubeconfig conversion failed"
 
-        $authorized = $false
-        for ($attempt = 1; $attempt -le 12; $attempt++) {
-            $canI = & $kubectl auth can-i get pods --all-namespaces --request-timeout=10s
-            $canIExitCode = $LASTEXITCODE
-            if ($canIExitCode -eq 0 -and (($canI -join "`n").Trim() -eq "yes")) {
-                $authorized = $true
-                break
+        Invoke-CriteriaBenchWithKubeloginOnPath -KubeloginPath $kubelogin -Action {
+            $authorized = $false
+            for ($attempt = 1; $attempt -le 12; $attempt++) {
+                $canI = & $kubectl auth can-i get pods --all-namespaces --request-timeout=10s
+                $canIExitCode = $LASTEXITCODE
+                if ($canIExitCode -eq 0 -and (($canI -join "`n").Trim() -eq "yes")) {
+                    $authorized = $true
+                    break
+                }
+                Start-Sleep -Seconds 10
             }
-            Start-Sleep -Seconds 10
-        }
-        if (-not $authorized) {
-            throw "Azure RBAC did not become effective within two minutes."
-        }
+            if (-not $authorized) {
+                throw "Azure RBAC did not become effective within two minutes."
+            }
 
-        $namespaceYaml = & $kubectl create namespace criteriabench --dry-run=client --output yaml
-        if ($LASTEXITCODE -ne 0) {
-            throw "kubectl could not render the CriteriaBench namespace."
-        }
-        $namespaceYaml | & $kubectl apply -f -
-        if ($LASTEXITCODE -ne 0) {
-            throw "kubectl could not apply the CriteriaBench namespace."
-        }
-        Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
-            "label", "namespace", "criteriabench",
-            "pod-security.kubernetes.io/enforce=restricted",
-            "pod-security.kubernetes.io/audit=restricted",
-            "pod-security.kubernetes.io/warn=restricted", "--overwrite"
-        ) -FailureMessage "Could not apply restricted Pod Security Admission labels"
+            $namespaceYaml = & $kubectl create namespace criteriabench --dry-run=client --output yaml
+            if ($LASTEXITCODE -ne 0) {
+                throw "kubectl could not render the CriteriaBench namespace."
+            }
+            $namespaceYaml | & $kubectl apply -f -
+            if ($LASTEXITCODE -ne 0) {
+                throw "kubectl could not apply the CriteriaBench namespace."
+            }
+            Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
+                "label", "namespace", "criteriabench",
+                "pod-security.kubernetes.io/enforce=restricted",
+                "pod-security.kubernetes.io/audit=restricted",
+                "pod-security.kubernetes.io/warn=restricted", "--overwrite"
+            ) -FailureMessage "Could not apply restricted Pod Security Admission labels"
 
-        Invoke-CriteriaBenchNative -FilePath $helm -ArgumentList @(
-            "upgrade", "--install", "criteriabench", (Join-Path $projectRoot "deploy\helm\criteriabench"),
-            "--namespace", "criteriabench",
-            "--values", (Join-Path $projectRoot "deploy\helm\criteriabench\values-azure-demo.yaml"),
-            "--set-string", "image.repository=ghcr.io/nevolevi/criteriabench",
-            "--set-string", "image.digest=$ImageDigest",
-            "--rollback-on-failure", "--wait", "--wait-for-jobs", "--timeout", "10m"
-        ) -FailureMessage "Helm deployment failed"
-        Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
-            "--namespace", "criteriabench", "rollout", "status",
-            "deployment/criteriabench-api", "--timeout=5m"
-        ) -FailureMessage "The API rollout did not become healthy"
-        Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
-            "--namespace", "criteriabench", "rollout", "status",
-            "deployment/criteriabench-worker", "--timeout=5m"
-        ) -FailureMessage "The worker rollout did not become healthy"
+            Invoke-CriteriaBenchNative -FilePath $helm -ArgumentList @(
+                "upgrade", "--install", "criteriabench", (Join-Path $projectRoot "deploy\helm\criteriabench"),
+                "--namespace", "criteriabench",
+                "--values", (Join-Path $projectRoot "deploy\helm\criteriabench\values-azure-demo.yaml"),
+                "--set-string", "image.repository=ghcr.io/nevolevi/criteriabench",
+                "--set-string", "image.digest=$ImageDigest",
+                "--rollback-on-failure", "--wait", "--wait-for-jobs", "--timeout", "10m"
+            ) -FailureMessage "Helm deployment failed"
+            Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
+                "--namespace", "criteriabench", "rollout", "status",
+                "deployment/criteriabench-api", "--timeout=5m"
+            ) -FailureMessage "The API rollout did not become healthy"
+            Invoke-CriteriaBenchNative -FilePath $kubectl -ArgumentList @(
+                "--namespace", "criteriabench", "rollout", "status",
+                "deployment/criteriabench-worker", "--timeout=5m"
+            ) -FailureMessage "The worker rollout did not become healthy"
+        }
     }
     catch {
         $originalError = $_

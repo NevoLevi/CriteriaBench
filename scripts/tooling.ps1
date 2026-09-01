@@ -93,3 +93,61 @@ function Invoke-CriteriaBenchWithAzureCliOnPath {
         [Environment]::SetEnvironmentVariable("PATH", $previousPath, "Process")
     }
 }
+
+function Invoke-CriteriaBenchWithKubeloginOnPath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$KubeloginPath,
+        [Parameter(Mandatory)][scriptblock]$Action
+    )
+
+    if (-not (Test-Path -LiteralPath $KubeloginPath -PathType Leaf)) {
+        throw "The resolved kubelogin launcher does not exist."
+    }
+    $resolvedKubelogin = (Resolve-Path -LiteralPath $KubeloginPath).Path
+    $launcherName = [System.IO.Path]::GetFileName($resolvedKubelogin).ToLowerInvariant()
+    if ($launcherName -notin @("kubelogin", "kubelogin.cmd", "kubelogin.exe", "kubelogin.bat")) {
+        throw "The kubelogin launcher must be kubelogin, kubelogin.cmd, kubelogin.exe, or kubelogin.bat."
+    }
+
+    $kubeloginDirectory = [System.IO.Path]::GetDirectoryName($resolvedKubelogin)
+    if ([string]::IsNullOrWhiteSpace($kubeloginDirectory) -or
+        $kubeloginDirectory.Contains([string][System.IO.Path]::PathSeparator)) {
+        throw "The kubelogin directory cannot be safely added to PATH."
+    }
+
+    $previousPath = [Environment]::GetEnvironmentVariable("PATH", "Process")
+    $separator = [string][System.IO.Path]::PathSeparator
+    $scopedPath = if ([string]::IsNullOrEmpty($previousPath)) {
+        $kubeloginDirectory
+    }
+    else {
+        $kubeloginDirectory + $separator + $previousPath
+    }
+
+    try {
+        [Environment]::SetEnvironmentVariable("PATH", $scopedPath, "Process")
+        $visibleKubelogin = Get-Command kubelogin -CommandType Application -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+        if ($null -eq $visibleKubelogin) {
+            throw "kubelogin is not executable by name after its trusted directory was added to PATH."
+        }
+
+        $visiblePath = [System.IO.Path]::GetFullPath($visibleKubelogin.Source)
+        $expectedPath = [System.IO.Path]::GetFullPath($resolvedKubelogin)
+        $comparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+            [StringComparison]::OrdinalIgnoreCase
+        }
+        else {
+            [StringComparison]::Ordinal
+        }
+        if (-not [string]::Equals($visiblePath, $expectedPath, $comparison)) {
+            throw "kubelogin name resolution did not select the trusted launcher."
+        }
+
+        & $Action
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable("PATH", $previousPath, "Process")
+    }
+}
