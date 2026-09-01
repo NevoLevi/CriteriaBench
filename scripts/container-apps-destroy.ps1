@@ -12,6 +12,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "tooling.ps1")
 . (Join-Path $PSScriptRoot "azure-safety.ps1")
 . (Join-Path $PSScriptRoot "live-benchmark-support.ps1")
+. (Join-Path $PSScriptRoot "container-apps-safety.ps1")
 
 $az = Resolve-CriteriaBenchTool -ProjectRoot $projectRoot -Name az
 $terraform = Resolve-CriteriaBenchTool -ProjectRoot $projectRoot -Name terraform
@@ -24,10 +25,8 @@ $vaultName = $null
 Invoke-CriteriaBenchNative -FilePath $az -ArgumentList @(
     "account", "set", "--subscription", $Subscription
 ) -FailureMessage "Unable to select the requested Azure subscription"
-$emailOutput = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-    "account", "show", "--query", "user.name", "--output", "tsv", "--only-show-errors"
-) -FailureMessage "Unable to resolve the signed-in budget contact"
-$budgetEmail = ([string]($emailOutput -join "")).Trim()
+$account = Get-CriteriaBenchAzureAccountSnapshot -AzPath $az
+$budgetEmail = [string]$account.UserName
 if ($budgetEmail -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') {
     throw "The signed-in Azure identity is not an email-shaped budget contact."
 }
@@ -67,15 +66,12 @@ Invoke-CriteriaBenchWithAzureCliOnPath -AzPath $az -Action {
     }
 
     if (-not [string]::IsNullOrWhiteSpace($vaultName)) {
-        $deletedCountOutput = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-            "keyvault", "list-deleted", "--query",
-            "[?name=='$vaultName'] | length(@)", "--output", "tsv", "--only-show-errors"
-        ) -FailureMessage "Azure could not inspect the soft-deleted project Key Vault"
-        $deletedCount = ([string]$deletedCountOutput).Trim()
-        if ($deletedCount -notin @("0", "1")) {
+        $deletedCount = Get-CriteriaBenchDeletedKeyVaultExactMatchCount `
+            -AzPath $az -VaultName $vaultName
+        if ($deletedCount -notin @(0, 1)) {
             throw "Azure returned an unexpected soft-deleted Key Vault count."
         }
-        if ($deletedCount -eq "1") {
+        if ($deletedCount -eq 1) {
             Write-Warning "The exact project Key Vault remains soft-deleted as an expected non-billable residual. Ordinary cleanup never purges it."
         }
         else {

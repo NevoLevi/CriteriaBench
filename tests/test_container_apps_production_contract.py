@@ -118,8 +118,30 @@ def test_deployment_imports_secret_in_memory_and_starts_only_once() -> None:
     assert "api-version=7.4" in helper
     assert "ReadAsString" not in helper
     assert '"keyvault", "secret", "set"' not in deploy
-    assert deploy.count('"containerapp", "job", "start"') == 1
-    assert "length(@)" in deploy
+    assert helper.count('"containerapp", "job", "start"') == 1
+    assert deploy.count("Start-CriteriaBenchContainerAppJobExecution") == 1
+    assert "length(@)" not in helper
+    assert "length(@)" not in deploy
+    assert "length(@)" not in destroy
+    assert "{trigger:" not in helper
+    assert "{trigger:" not in deploy
+    assert "[?name==" not in destroy
+    assert helper.count('"--query"') == 1  # Key Vault access-token scalar only.
+    assert deploy.count('"--query"') == 1  # Provider registration scalar only.
+    assert '"--query"' not in destroy
+    assert "ConvertFrom-CriteriaBenchContainerAppsJsonObject" in helper
+    assert "ConvertFrom-CriteriaBenchContainerAppsJsonObjectArray" in helper
+    assert "properties.configuration.*" in helper
+    assert "properties.template.containers[0].image" in helper
+    assert "Get-CriteriaBenchContainerAppJobContract" in deploy
+    assert "Get-CriteriaBenchContainerAppJobExecutions" in deploy
+    assert "Start-CriteriaBenchContainerAppJobExecution" in deploy
+    assert "Get-CriteriaBenchContainerAppJobExecutionStatus" in deploy
+    assert "$job.Name -ne $containerName" in deploy
+    assert "safe job execution name" in deploy
+    assert "job start returned an unsafe execution name" in helper
+    assert "Get-CriteriaBenchDeletedKeyVaultExactMatchCount" in destroy
+    assert "ValidatePattern('^[a-z][a-z0-9-]{1,22}[a-z0-9]$')" in helper
     assert "StartExactlyOnePaidExecution" in deploy
     assert "AutoDestroyOnFailure" in deploy
     assert "$deploymentState = [pscustomobject]@{ TerraformStarted = $false }" in deploy
@@ -131,7 +153,7 @@ def test_deployment_imports_secret_in_memory_and_starts_only_once() -> None:
     assert deploy.count("$budgetStartDate = [DateTimeOffset]::UtcNow.ToString") == 1
     assert destroy.count("$budgetStartDate = [DateTimeOffset]::UtcNow.ToString") == 1
     assert 'keyvault", "purge' not in destroy
-    assert "list-deleted" in destroy
+    assert "list-deleted" in helper
 
 
 @pytest.mark.parametrize(

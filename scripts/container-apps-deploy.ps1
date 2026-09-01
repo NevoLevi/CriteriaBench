@@ -52,16 +52,12 @@ if (Test-Path -LiteralPath $evidenceFullPath) {
 Invoke-CriteriaBenchNative -FilePath $az -ArgumentList @(
     "account", "set", "--subscription", $Subscription
 ) -FailureMessage "Unable to select the requested Azure subscription"
-$accountJson = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-    "account", "show", "--query", "{state:state,user:user.name}",
-    "--output", "json", "--only-show-errors"
-) -FailureMessage "Unable to validate the signed-in Azure account"
-$account = (($accountJson -join [Environment]::NewLine) | ConvertFrom-Json)
-if ($account.state -ne "Enabled") {
+$account = Get-CriteriaBenchAzureAccountSnapshot -AzPath $az
+if ($account.State -ne "Enabled") {
     throw "The selected Azure subscription is not enabled."
 }
 if ([string]::IsNullOrWhiteSpace($BudgetEmail)) {
-    $BudgetEmail = [string]$account.user
+    $BudgetEmail = [string]$account.UserName
 }
 if ($BudgetEmail -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') {
     throw "A valid budget notification email is required."
@@ -163,48 +159,34 @@ try {
             ) -FailureMessage "The reviewed no-ingress Container Apps Job apply failed"
         }
 
-        $jobJson = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-            "containerapp", "job", "show", "--name", $jobName,
-            "--resource-group", $resourceGroup,
-            "--query", "{trigger:properties.configuration.triggerType,retry:properties.configuration.replicaRetryLimit,timeout:properties.configuration.replicaTimeout,parallelism:properties.configuration.manualTriggerConfig.parallelism,completions:properties.configuration.manualTriggerConfig.replicaCompletionCount,image:properties.template.containers[0].image}",
-            "--output", "json", "--only-show-errors"
-        ) -FailureMessage "Azure could not verify the deployed job contract"
-        $job = (($jobJson -join [Environment]::NewLine) | ConvertFrom-Json)
-        if ($job.trigger -ne "Manual" -or [int]$job.retry -ne 0 -or
-            [int]$job.timeout -ne 300 -or [int]$job.parallelism -ne 1 -or
-            [int]$job.completions -ne 1 -or
-            $job.image -ne "ghcr.io/nevolevi/criteriabench@$ImageDigest") {
+        $job = Get-CriteriaBenchContainerAppJobContract `
+            -AzPath $az -JobName $jobName -ResourceGroup $resourceGroup
+        if ($job.TriggerType -ne "Manual" -or $job.ReplicaRetryLimit -ne 0 -or
+            $job.ReplicaTimeout -ne 300 -or $job.Parallelism -ne 1 -or
+            $job.ReplicaCompletionCount -ne 1 -or $job.Name -ne $containerName -or
+            $job.Image -ne "ghcr.io/nevolevi/criteriabench@$ImageDigest") {
             throw "The deployed job differs from the frozen execution contract."
         }
 
-        $existingExecutions = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-            "containerapp", "job", "execution", "list", "--name", $jobName,
-            "--resource-group", $resourceGroup, "--query", "length(@)",
-            "--output", "tsv", "--only-show-errors"
-        ) -FailureMessage "Azure could not verify the one-execution boundary"
-        if (([string]$existingExecutions).Trim() -ne "0") {
+        $existingExecutions = @(
+            Get-CriteriaBenchContainerAppJobExecutions `
+                -AzPath $az -JobName $jobName -ResourceGroup $resourceGroup
+        )
+        if ($existingExecutions.Count -ne 0) {
             throw "The fresh job already has an execution; refusing a second paid start."
         }
 
-        $executionOutput = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-            "containerapp", "job", "start", "--name", $jobName,
-            "--resource-group", $resourceGroup, "--query", "name",
-            "--output", "tsv", "--only-show-errors"
-        ) -FailureMessage "Azure could not start the single approved job execution"
-        $executionName = ([string]($executionOutput -join "")).Trim()
-        if ([string]::IsNullOrWhiteSpace($executionName)) {
-            throw "Azure did not return a job execution name."
+        $executionName = Start-CriteriaBenchContainerAppJobExecution `
+            -AzPath $az -JobName $jobName -ResourceGroup $resourceGroup
+        if ($executionName -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$') {
+            throw "Azure did not return a safe job execution name."
         }
 
         $executionStatus = ""
         for ($attempt = 1; $attempt -le 72; $attempt++) {
-            $statusOutput = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-                "containerapp", "job", "execution", "show", "--name", $jobName,
-                "--resource-group", $resourceGroup,
-                "--job-execution-name", $executionName,
-                "--query", "properties.status", "--output", "tsv", "--only-show-errors"
-            ) -FailureMessage "Azure could not inspect the job execution"
-            $executionStatus = ([string]($statusOutput -join "")).Trim()
+            $executionStatus = Get-CriteriaBenchContainerAppJobExecutionStatus `
+                -AzPath $az -JobName $jobName -ResourceGroup $resourceGroup `
+                -ExecutionName $executionName
             if ($executionStatus -in @("Succeeded", "Failed")) {
                 break
             }
