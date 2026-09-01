@@ -60,7 +60,7 @@ The API/worker path accepts an already captured `TrialDocument`; it does not con
 
 Mock extraction is local and sends nothing to a provider.
 
-If a separately approved live CLI run occurs, the provider receives the mapped `TrialDocument` JSON (including title, eligibility text, and source URL), extraction instructions, and strict JSON schema. Upstream registry contact modules or the full original response are not sent. No live run has occurred in the current evidence.
+Separately approved local and Azure Container Apps live runs have now sent the single synthetic `TrialDocument` JSON, extraction instructions, and strict JSON schema to the provider. The Container Apps run used an embedded, hash-bound copy of that synthetic fixture. No ClinicalTrials.gov contact modules or full upstream registry response were sent. These were one-case engineering-smoke executions within the public/synthetic data boundary; no patient, protected, private, or proprietary data was used.
 
 OpenAI request storage is disabled where supported by the request interface, but operators must still review the provider's current data controls and organizational policy before sending even public text.
 

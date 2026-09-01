@@ -15,12 +15,12 @@ Last factual review: **2026-09-01**.
 | Worker and storage | PostgreSQL persistence plus a single Redis worker with atomic claim, acknowledgement, restart recovery, bounded dead-letter storage, frozen job contracts, and fail-closed payload checks. Delivery is **at least once**, not exactly once. |
 | Evaluation | Duplicate-safe exact precision/recall/F1, token F1, eight structured-field accuracies, and a macro field score. Alignment uses deterministic maximum-weight one-to-one assignment among same-kind criteria with a 0.25 token-F1 floor. |
 | Benchmark | A zero-cost synthetic gold smoke and JSON evidence artifact written through a temporary file and atomic replace. The built-in gold set has one case; it proves the pipeline, not model quality. |
-| Paid model path | Available only through the benchmark CLI. It is pinned to the reviewed `gpt-5.6-luna` model/rates, official OpenAI endpoint, explicit opt-ins, manifested input bytes, a required run budget, and a USD 2 application ceiling. Two approved guarded attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live result is claimed. |
+| Paid model path | Available through the guarded local benchmark CLI and a separately guarded, no-ingress manual Azure Container Apps Job. Both pin the reviewed `gpt-5.6-luna` model/rates and official OpenAI endpoint. Two local attempts failed closed on provenance, followed by one successful local smoke; two ACA attempts failed before job start, followed by exactly one successful ACA execution. These are one-case engineering smokes, not model-quality evidence. |
 | Data input | A bounded, fixed-host ClinicalTrials.gov downloader maps NCT ID, brief title, eligibility text, and source URL. The worker never downloads studies. |
 | Packaging | A non-root multi-stage image consumes `uv.lock` with digest-pinned Python and uv bases. Compose, Kustomize, Helm, and Terraform definitions are present. |
 | Automation | GitHub Actions runs frozen static/unit/integration checks, produces the offline benchmark artifact, validates infrastructure, scans the exact image bytes later published, and attests the pushed digest. |
 
-OpenTelemetry traces, API authentication, GitHub-to-Azure OIDC, Key Vault, workload identity, and a production data plane are future work.
+OpenTelemetry traces, API authentication, GitHub-to-Azure OIDC, remote locked Terraform state, end-to-end AKS workload identity, and a production API data plane are future work. The narrow Container Apps benchmark path implements a user-assigned managed identity and Key Vault-backed secret reference.
 
 ## How it fits together
 
@@ -41,9 +41,12 @@ flowchart LR
     B --> X["Deterministic mock"]
     B -. "explicit paid opt-in" .-> O["Official OpenAI API"]
     B --> J["Temporary write + atomic-replace JSON"]
+    F --> ACA["Manual ACA benchmark Job<br/>no ingress"]
+    KV["Azure Key Vault"] -->|"managed-identity secret reference"| ACA
+    ACA -. "explicit paid authorization" .-> O
 ```
 
-The important cost boundary is simple: the web API and worker are always mock-only. A live model can run only from one guarded command-line process.
+The important cost boundary is simple: the web API and worker are always mock-only. A live model can run only through the guarded local CLI or the separately authorized manual Container Apps Job.
 
 ## What the smoke benchmark measures
 
@@ -123,7 +126,9 @@ The Helm chart is independently linted/rendered in CI and can be installed into 
 
 ## Paid benchmark boundary
 
-The provided CI, Compose, Kubernetes, Helm, and Azure paths do not inject or use `OPENAI_API_KEY` in the API or worker. A source-launched API or worker may inherit an ambient key through `Settings`, but both runtime surfaces enforce mock-only execution and prohibit paid calls. A deliberate live CLI run requires all of the following:
+The API and worker remain mock-only across CI, Compose, Kubernetes, Helm, and AKS. A source-launched API or worker may inherit an ambient key through `Settings`, but both runtime surfaces enforce mock-only execution and prohibit paid calls. The separate manual Container Apps benchmark Job resolves its key through a user-assigned managed identity and Key Vault secret reference; no key literal is stored in Terraform or the job definition.
+
+A deliberate local live CLI run requires all of the following:
 
 1. `LLM_PROVIDER=openai` in that process;
 2. `ALLOW_PAID_CALLS=true` in that process;
@@ -134,13 +139,13 @@ The provided CI, Compose, Kubernetes, Helm, and Azure paths do not inject or use
 7. a manifest-approved input whose verified bytes are the bytes parsed; and
 8. an output beneath the repository `artifacts/` directory.
 
-Inspect the exact current interface before any run:
+Inspect the exact current interface before any local run:
 
 ```powershell
 uv run --frozen --no-env-file python -m criteriabench.benchmark_cli --help
 ```
 
-The application does not automatically load `.env` files. Never put a key in source, YAML, a Docker argument, shell history, an issue, or an artifact. The CLI's budget is an authorization guard, not a provider spending cap: failed or retried calls can still be billable. Verify model pricing against the official [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before use and reconcile any result with the provider dashboard.
+The application does not automatically load `.env` files. Never put a key in source, YAML, a Docker argument, shell history, an issue, or an artifact. The CLI's budget and the Container Apps authorization guard are application controls, not provider spending caps: failed or retried calls can still be billable. Verify model pricing against the official [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before use and reconcile any result with the provider dashboard.
 
 ## Data boundary
 
@@ -150,7 +155,7 @@ See the official [ClinicalTrials.gov API documentation](https://clinicaltrials.g
 
 ## Verification evidence
 
-Verified locally and through an explicitly approved ephemeral Azure proof on 2026-09-01:
+Verified locally and through explicitly approved Azure proofs on 2026-09-01:
 
 - Ruff, formatting, strict mypy, bytecode compilation, and the complete non-live/non-integration suite pass above the 75% coverage gate.
 - Frozen dependency resolution and a digest-pinned production image build/import pass.
@@ -161,10 +166,13 @@ Verified locally and through an explicitly approved ephemeral Azure proof on 202
 - A separate Helm runtime install, migration, API/worker sync/async smoke, and uninstall pass.
 - Helm lint/render, Kustomize render, and Terraform offline format/init/validate pass.
 - The synthetic gold smoke reports exact F1 1.0, token F1 1.0, macro field accuracy 0.875, and USD 0 cost.
+- After two local provenance failures, one approved guarded local Luna smoke completed one case: 1,083 input and 295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 of application authorization consumed under a USD 0.02 guard, exact F1 0.5, token F1 0.75, and macro field accuracy 1.0. No zero-provider-billing claim is made for the earlier failures.
 - The approved AKS proof applied immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. Health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
-- Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent.
+- The AKS parent and managed-node resource groups and budget were independently confirmed absent after teardown; Terraform retained only data-source entries and temporary proof artifacts were absent.
+- A separate no-ingress manual Container Apps Job uses immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, `retries=0`, a 300-second timeout, 0.25 CPU, 0.5 GiB memory, and an identity-backed Key Vault secret reference with no literal key. Its EUR 15 budget alert is delayed notification, not a hard cap.
+- After two ACA attempts failed before job start with zero executions and were fully cleaned up, the approved proof produced exactly one `Succeeded` execution with one paid Luna attempt. It recorded 1,083 input and 296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 of application authorization consumed under a USD 0.02 guard, and latency 5,764.961 ms. The schema was valid; prediction and reference each contained two criteria—one inclusion and one exclusion—and scores were exact F1 0.0, token F1 0.5, and macro field accuracy 1.0.
 
-No Azure deployment currently exists, and the ephemeral proof was not a production deployment. Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.
+The successful Container Apps Job remains deployed but idle, with review-by date **2026-09-15**; it is not a public or continuously serving API. Both successful paid results are synthetic one-case engineering smokes of guarded execution, validation, provenance, and evaluation—not clinical evidence, statistically meaningful model-quality evidence, or proof that Luna outperforms another model.
 
 ## Documentation
 
@@ -178,8 +186,8 @@ No Azure deployment currently exists, and the ephemeral proof was not a producti
 
 ## Honest portfolio claims
 
-This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; and executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest.
+This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest; and deployed a bounded, no-ingress manual Container Apps benchmark Job with managed identity, a Key Vault secret reference, and one successful guarded synthetic Luna execution.
 
-It should not be described as clinically validated, production-ready, exactly-once, publicly secure, currently deployed to Azure, a production Azure deployment, proven to outperform another model, or backed by a successful scored live-model result.
+It should not be described as clinically validated, production-ready, exactly-once, publicly secure, a public or continuously serving production API, proven to outperform another model, backed by statistically meaningful model-quality evidence, or protected by a hard Azure or OpenAI spending cap. Current Azure status should be stated precisely: the AKS proof was destroyed, while one manual Container Apps Job remains deployed but idle pending its 2026-09-15 review.
 
 Licensed under the [MIT License](LICENSE).

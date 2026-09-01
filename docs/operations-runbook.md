@@ -83,7 +83,7 @@ This still requires separate approval before execution. The wrapper pins uv 0.12
 
 After a live run, inspect the JSON and reconcile its usage with the provider dashboard before publishing anything. The canonical manifested-live path omits the application key and redacts absolute machine paths, but operator review is still required. Never publish `.env.local` or shell/environment dumps.
 
-Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`. No successful or scored live-model result, and no zero-provider-billing claim, is made.
+Two early approved guarded Luna calls failed closed with `ProvenanceError`. After deterministic provenance repair, one separately approved local Luna run completed on 2026-09-01 against the single synthetic case: 1,083 input tokens, 295 output tokens, exact F1 0.5, token F1 0.75, macro field accuracy 1.0, and a USD 0.000571 usage-priced estimate. This is one-case engineering evidence, not clinical or comparative model-quality evidence. The estimate is not a provider invoice; provider billing can lag or differ.
 
 ## Local Kubernetes with kind/Kustomize
 
@@ -153,7 +153,7 @@ Real Redis integration tests exercise claim/ACK, simulated crash recovery, and p
 
 This safely validates canonical Compose, Helm, Kustomize, Terraform formatting/init/validation and prints that no Azure resources were created.
 
-## Azure guarded proof
+## Historical AKS guarded proof
 
 Do not use direct `terraform apply`/`destroy`. The supported sequence binds identity, subscription, reviewed plan bytes, immutable image digest, expiry, and cleanup.
 
@@ -185,9 +185,19 @@ The guarded default is one `Standard_D2as_v4` worker node. Preflight fails close
 
 An explicitly approved ephemeral mock-only proof followed this sequence on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
 
-Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment.
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No AKS deployment currently exists, and the proof was not a production deployment.
 
-Azure budget alerts cover both groups in subscription billing currency but are notifications, not caps. The current workflow uses local Azure CLI/Terraform identity and local state; OIDC, Key Vault, remote state, and workload identity are future work.
+AKS budget alerts cover both groups in subscription billing currency but are notifications, not caps. The AKS workflow uses local Azure CLI/Terraform identity and local state; it does not implement OIDC, Key Vault, remote state, or workload identity. The separate Container Apps proof below implements a narrow user-assigned-identity/Key Vault secret reference; GitHub-to-Azure OIDC, remote state, and a full production data plane remain future work.
+
+## Azure Container Apps production proof
+
+An explicitly approved bounded production-mode proof completed on 2026-09-01 in Germany West Central. Terraform deployed a manual, no-ingress Consumption Container Apps Job from immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, with a user-assigned identity, an identity-backed Key Vault secret reference and no literal secret value, 0.25 CPU, 0.5 GiB memory, a 300-second timeout, zero replica retries, parallelism one, and one required completion. Exactly one execution reached `Succeeded`.
+
+The successful job ran the reviewed Luna model once against the single synthetic case. Sanitized evidence reports 1,083 input tokens, 296 output tokens, 5,764.961 ms latency, one inclusion and one exclusion criterion, two predictions and two references, `schema_valid=true`, exact F1 0.0, token F1 0.5, and macro field accuracy 1.0. The USD 0.000572 usage-priced estimate and USD 0.0111 application authorization consumed under the USD 0.02 guard are repository accounting values, not a provider invoice. Provider and Azure billing data can lag or differ.
+
+The job remains deployed but idle. Never start or rerun it without fresh explicit paid authorization. Its review-by value, `2026-09-15T14:58:49Z`, is an operator-reminder tag, not automatic teardown. The exact EUR 15 Azure budget is a delayed alert, not a hard spending cap.
+
+Two earlier Container Apps infrastructure attempts failed before job start, produced zero executions, and were fully cleaned up before the successful run. They are useful as a repair trail, not model-run evidence. This proof demonstrates a bounded deployment/execution path only; one synthetic case does not establish clinical validity, model quality, or a customer-facing production service.
 
 ## Troubleshooting
 
@@ -213,4 +223,4 @@ Stop the affected run, revoke/rotate at the provider, inspect provider/audit log
 
 ## Evidence to retain
 
-For the committed revision, retain CI links/artifacts for static/tests, real services, offline benchmark, infrastructure render/validate, exact image scan/digest, and approved deployment teardown. Retain the approved Azure mock-proof evidence only as a historical apply/destroy result; there is no current or production deployment. Treat the two guarded Luna attempts only as fail-closed provenance evidence, with no successful/scored result or zero-provider-billing claim.
+For the committed revision, retain CI links/artifacts for static/tests, real services, offline benchmark, infrastructure render/validate, exact image scan/digest, and approved deployment evidence. Retain the AKS proof only as a historical apply/destroy result. Retain sanitized evidence for the successful local Luna run and the currently deployed but idle Container Apps Job, and reconcile usage-priced estimates with provider/Azure billing when available. Treat the two local `ProvenanceError` calls and two cleaned pre-start Container Apps failures as repair history, not successful-run evidence. Never publish credentials, private cloud/account identifiers, or unreviewed raw logs.

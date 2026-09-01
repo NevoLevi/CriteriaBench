@@ -19,7 +19,7 @@ The HTTP API has no authentication, tenant isolation, public rate limiting, glob
 | Benchmark CLI | Offline mock; explicitly authorized live benchmark | Unattended paid service, arbitrary model/rates/host, unlimited spending |
 | Downloader | One or more validated NCT IDs, fetched one at a time from the fixed ClinicalTrials.gov HTTPS host | Arbitrary URLs, complete upstream provenance, worker fetches |
 | Local orchestration | Loopback Compose and kind demonstrations | Production database, backup, identity, or secret management |
-| Azure | Approved ephemeral mock-only AKS proof, since destroyed; no current deployment | Hard cost cap, production security posture |
+| Azure | Destroyed ephemeral mock-only AKS proof; one currently deployed but idle, no-ingress manual Container Apps benchmark Job with managed identity and a Key Vault secret reference, review-by 2026-09-15 | Public or continuously serving service, hard cost cap, production security posture, sensitive input |
 
 ## Secrets and dotenv files
 
@@ -28,7 +28,8 @@ Implemented safeguards:
 - application settings do not automatically load repository dotenv files;
 - the OpenAI key uses a secret-aware settings type and is never returned by `/info`;
 - mock mode and `ALLOW_PAID_CALLS=false` are the defaults;
-- CI and the provided Compose, Kubernetes, Helm, and Azure paths do not inject a key; a source-launched API or worker may inherit an ambient key through `Settings`, but its runtime gate prohibits paid calls;
+- CI and the provided Compose, Kubernetes, Helm, and AKS API/worker paths do not inject a key; a source-launched API or worker may inherit an ambient key through `Settings`, but its runtime gate prohibits paid calls;
+- the manual Container Apps benchmark Job is an isolated paid path: it resolves the key through a user-assigned managed identity and Key Vault secret reference, and no key literal is stored in Terraform or the job definition;
 - the live adapter pins `https://api.openai.com/v1` instead of honoring an environment-supplied alternate base URL;
 - the adapter requests no provider-side response storage;
 - `.gitignore` and `.dockerignore` exclude dotenv files, artifacts, local databases, Terraform state, kubeconfigs, and tool/test outputs; and
@@ -40,14 +41,14 @@ Operator rules:
 
 - Never commit or paste a key, dotenv file, cloud credential, kubeconfig, Terraform state/plan, private fixture, Authorization header, or full process environment.
 - Never pass a key as a Docker build argument or literal command-line argument; image metadata, process listings, and shell history can retain it.
-- Supply a key only to the single deliberately started live benchmark process and remove it afterward.
+- Supply a key only to the deliberately started local live benchmark process or the guarded in-memory Key Vault import path; remove or revoke it when the corresponding proof environment is retired.
 - If exposure is possible, revoke/rotate first. Deleting text or history does not invalidate a credential.
 
 Kubernetes Secrets are not a complete secret-management system. See Kubernetes' [Secrets good practices](https://kubernetes.io/docs/concepts/security/secrets-good-practices/).
 
 ## Paid-model isolation
 
-The supported paid path is the benchmark CLI only. A live run requires, simultaneously:
+The supported paid surfaces are the guarded local benchmark CLI and the separately authorized manual Container Apps benchmark Job. The API and worker remain mock-only. A local live run requires, simultaneously:
 
 - `LLM_PROVIDER=openai`;
 - `ALLOW_PAID_CALLS=true`;
@@ -58,11 +59,11 @@ The supported paid path is the benchmark CLI only. A live run requires, simultan
 - manifested input whose verified bytes are the bytes parsed; and
 - an output beneath `artifacts/`, with overwrite refusal by default.
 
-The CLI reserves a retry-aware worst-case estimate for the entire batch before the first request, runs sequentially, conservatively consumes an authorization reservation once a provider call starts, stops after an error, writes a unique temporary artifact, and atomically replaces the requested output. It does not claim filesystem `fsync` durability. Extraction and evaluation hashes bind relevant implementation code and schema.
+The CLI reserves a retry-aware worst-case estimate for the entire batch before the first request, runs sequentially, conservatively consumes an authorization reservation once a provider call starts, stops after an error, writes a unique temporary artifact, and atomically replaces the requested output. It does not claim filesystem `fsync` durability. Extraction and evaluation hashes bind relevant implementation code and schema. The Container Apps path further fixes one manual execution, zero job retries, a 300-second timeout, and a USD 0.02 application authorization guard.
 
-These controls cannot guarantee a bill. Failed, timed-out, or retried requests can be charged; token estimates can differ from provider accounting; pricing can change; and other use of the same key is outside this repository. The USD 2 value is an application authorization ceiling, not an OpenAI account cap. Verify the current model and rates on the official [Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before a run and reconcile the artifact with the provider dashboard.
+These controls cannot guarantee a bill. Failed, timed-out, or retried requests can be charged; token estimates can differ from provider accounting; pricing can change; and other use of the same key is outside this repository. The USD 2 CLI maximum and USD 0.02 Container Apps guard are application authorization ceilings, not OpenAI account caps. The artifact's usage-priced cost is an estimate under configured rates, not a provider invoice. Verify the current model and rates on the official [Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before a run and reconcile the artifact with the provider dashboard.
 
-No paid run is necessary to demonstrate the architecture. Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.
+No paid run is necessary to demonstrate the architecture. The live history is deliberately narrow: two local attempts failed closed on provenance before a scored result, then one approved local one-case smoke succeeded; two Container Apps attempts failed before job start with zero executions and were fully cleaned up, then one approved execution succeeded. The successful results are synthetic one-case engineering smokes, not clinical validation or statistically meaningful model-quality evidence. No zero-provider-billing claim is made for the failed local attempts.
 
 ## Input and data privacy
 
@@ -116,13 +117,15 @@ The built-in PostgreSQL/Redis in kind/Helm are ephemeral demonstrations. They ar
 
 ## Azure cost and identity
 
-The Terraform definition is intentionally small: a parent resource group, AKS free-tier control plane, one bounded worker node, Azure CNI Overlay with Cilium, Microsoft Entra/Azure RBAC configuration, an explicit managed node resource group, TTL metadata, and combined budget alerts.
+The AKS Terraform definition is intentionally small: a parent resource group, AKS free-tier control plane, one bounded worker node, Azure CNI Overlay with Cilium, Microsoft Entra/Azure RBAC configuration, an explicit managed node resource group, TTL metadata, and combined budget alerts.
 
-An explicitly approved ephemeral mock-only proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+An explicitly approved ephemeral mock-only AKS proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
 
-Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists. The proof was not a production deployment.
+Teardown was independently confirmed: the AKS parent and managed-node resource groups and budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. That AKS proof was not a production deployment.
 
-The supported workflow is:
+The separate Container Apps definition creates one no-ingress, manually triggered benchmark Job pinned to image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, with `retries=0`, timeout 300 seconds, 0.25 CPU, 0.5 GiB memory, a user-assigned managed identity, and a Key Vault-backed secret reference with no literal key. Its EUR 15 budget alert is a delayed notification, not a hard cap or automatic deletion. The job is currently deployed but idle and tagged for review by 2026-09-15.
+
+The supported AKS workflow is:
 
 1. `scripts/azure-preflight.ps1` validates identity, subscription, tools, safety inputs, SKU availability, and sufficient live VM-family and total regional vCPU quota; the result is a point-in-time snapshot, not a capacity reservation or spending cap.
 2. `scripts/azure-plan.ps1` creates an expiring plan plus summary/hash.
@@ -130,9 +133,11 @@ The supported workflow is:
 4. `scripts/azure-apply-reviewed.ps1` accepts only the matching plan hash and image digest, waits for migrations/workloads, and attempts automatic cleanup after failure.
 5. `scripts/azure-destroy.ps1` destroys and verifies both the parent and AKS-managed node resource groups.
 
+The Container Apps workflow uses `scripts/container-apps-safety.ps1`, `scripts/container-apps-deploy.ps1`, and `scripts/container-apps-destroy.ps1`; failure before successful completion triggers cleanup of billable resources, while ordinary cleanup does not purge a soft-deleted Key Vault.
+
 The budget value is in the subscription's billing currency. Azure budget alerts are delayed notifications, not hard caps and not automatic deletion. Pay-as-you-go subscriptions generally do not have the credit-based spending-limit switch described for eligible subscriptions. See Microsoft's [spending-limit behavior](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/spending-limit) and [budget documentation](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets).
 
-Current execution uses a local Azure CLI/Terraform operator identity and local Terraform state. GitHub-to-Azure OIDC, Key Vault, remote locked state, and end-to-end AKS workload identity are future production work—not implemented controls.
+Current execution uses a local Azure CLI/Terraform operator identity and local Terraform state. The Container Apps path implements a user-assigned managed identity and Key Vault secret reference; GitHub-to-Azure OIDC, remote locked state, end-to-end AKS workload identity, and a full production API identity design remain future work.
 
 ## Evidence ledger
 
@@ -144,12 +149,13 @@ Current execution uses a local Azure CLI/Terraform operator identity and local T
 | Compose | Health/readiness, sync/async extraction, persistence, worker, and metrics pass in mock mode |
 | Kustomize/kind | Clean loopback cluster, non-root PostgreSQL, migration, API/worker, sync/async smoke, repeat-safe script, and teardown pass |
 | Helm | Lint/render plus separate runtime install, migration, sync/async smoke, and uninstall pass |
-| Terraform | Offline format/init/validate pass; the approved plan was applied and destroyed, leaving data-source-only state and no managed resources |
-| Live model | Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored quality evidence and no zero-provider-billing claim |
-| Azure | Approved ephemeral mock-only AKS health/readiness, sync 200, async 202-to-completion, schema 1.0 result, zero-token/USD 0 accounting, API/worker metrics, and independently confirmed teardown; no current deployment and no production claim |
-| OTel/OIDC/Key Vault/workload identity | Future work |
+| Terraform | Offline format/init/validate pass; the AKS plan was applied and destroyed; the Container Apps plan was applied and the manual job remains idle |
+| Local live model | Two provenance failures followed by one successful guarded one-case Luna smoke: 1,083 input/295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 authorization consumed under USD 0.02, exact F1 0.5, token F1 0.75, macro field accuracy 1.0; no zero-billing claim for failures |
+| Container Apps live model | Two pre-start attempts produced zero executions and fully cleaned; the next produced exactly one `Succeeded` execution and one Luna attempt: 1,083 input/296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 authorization consumed under USD 0.02, latency 5,764.961 ms, valid schema, prediction/reference 2/2 with one inclusion and one exclusion each, exact F1 0.0, token F1 0.5, macro field accuracy 1.0 |
+| Azure | Destroyed mock-only AKS proof plus one currently deployed but idle no-ingress manual Container Apps Job, review-by 2026-09-15; not a public service or production-readiness claim |
+| Identity and secrets | Key Vault secret reference and user-assigned managed identity implemented for the Container Apps job; OTel, OIDC, remote state, end-to-end AKS workload identity, and full production API identity remain future work |
 
-Infrastructure files demonstrate engineering intent; successful execution of the same committed revision is evidence. CI should be treated as the release source of truth after publication.
+Infrastructure files demonstrate engineering intent; successful execution of the same committed revision is evidence. CI should be treated as the release source of truth after publication. Both paid successes are one-case synthetic engineering smokes, not clinical or statistically meaningful model-quality evidence.
 
 ## Release checklist
 
@@ -159,4 +165,4 @@ Infrastructure files demonstrate engineering intent; successful execution of the
 4. Build and scan the locked image; smoke Compose.
 5. Lint/render Helm and Kustomize; run local cluster evidence when making deployment claims.
 6. Confirm API/worker remain mock-only and the official live endpoint/model/rates remain pinned.
-7. Treat the two prior guarded Luna attempts only as fail-closed provenance evidence; do not claim a scored result or zero provider billing. Describe Azure only as the approved, destroyed proof unless a new deployment is independently verified.
+7. Describe the evidence trail exactly: two local provenance failures then one local success; two Container Apps pre-start failures with zero executions and full cleanup, then one successful execution. Keep usage-priced cost, application authorization, provider billing, and delayed Azure budget alerts distinct, and describe all paid results only as one-case synthetic engineering smokes.

@@ -16,14 +16,18 @@ flowchart LR
 
     Download["Explicit downloader"] --> CTG["ClinicalTrials.gov"]
     CTG --> Fixture["Minimal TrialDocument"]
-    Fixture --> CLI["Benchmark CLI"]
+    Fixture --> CLI["Guarded benchmark CLI"]
     Gold["Synthetic gold reference"] --> CLI
     CLI --> Mock["Deterministic extractor"]
-    CLI -. "all paid gates" .-> OpenAI["Official OpenAI API"]
+    CLI -. "all local paid gates" .-> OpenAI["Official OpenAI API"]
     CLI --> Artifact["Atomic JSON artifact"]
+
+    Fixture --> ACA["Manual ACA benchmark Job<br/>no ingress"]
+    KeyVault["Azure Key Vault"] -->|"managed-identity secret reference"| ACA
+    ACA -. "explicit paid authorization" .-> OpenAI
 ```
 
-The downloader and live benchmark are separate operator paths. The worker never fetches ClinicalTrials.gov, never evaluates a result, and never calls a paid model.
+The downloader and paid benchmark paths are separate operator paths. The worker never fetches ClinicalTrials.gov, never evaluates a result, and never calls a paid model. The supported paid surfaces are the guarded local CLI and the separately authorized manual Container Apps Job.
 
 ## Application responsibilities
 
@@ -62,9 +66,15 @@ SQLite is used for fast unit tests. Real PostgreSQL migration/repository tests a
 
 ### Benchmark CLI
 
-The CLI is the only paid-capable surface. Mock mode accepts a caller-provided fixture. Live mode requires a repository-manifested fixture and hashes and parses the same single read. Both modes perform sequential extraction, optionally evaluate a gold reference, and write a temporary artifact before atomically replacing the requested output; live mode additionally applies whole-batch retry-aware cost preflight.
+The local CLI is one paid-capable surface. Mock mode accepts a caller-provided fixture. Live mode requires a repository-manifested fixture and hashes and parses the same single read. Both modes perform sequential extraction, optionally evaluate a gold reference, and write a temporary artifact before atomically replacing the requested output; live mode additionally applies whole-batch retry-aware cost preflight.
 
-Live use additionally pins the official OpenAI host, reviewed Luna model/rates, output directory, explicit paid flags, and a run budget no greater than USD 2. API/worker/cloud paths remain mock-only.
+Local live use additionally pins the official OpenAI host, reviewed Luna model/rates, output directory, explicit paid flags, and a run budget no greater than USD 2. API and worker paths remain mock-only.
+
+### Container Apps benchmark Job
+
+The other paid-capable surface is a no-ingress, manually triggered Azure Container Apps Job. It is pinned to immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, runs with 0.25 CPU and 0.5 GiB memory, has `retries=0` and a 300-second timeout, and resolves the OpenAI key through a user-assigned managed identity and Key Vault secret reference rather than a literal in Terraform or the job definition. Its USD 0.02 guard is application authorization, not an account cap.
+
+The successful proof produced exactly one `Succeeded` execution and the job remains deployed but idle, tagged for review by 2026-09-15. It has no ingress and is not a continuously serving API.
 
 ### ClinicalTrials.gov downloader
 
@@ -133,13 +143,19 @@ The API mapping is loopback-only at port 8080. kind is development evidence, not
 
 The Helm chart templates the same application with digest-addressable images, a migration Job, startup gates, one Recreate worker, security contexts, metrics service, and NetworkPolicies. `demoDependencies.enabled=true` creates an ephemeral non-root PostgreSQL/Redis pair and a random namespace-local credential. Outside a demo, an existing database Secret is required.
 
-### Azure definition
+### Azure definitions
 
-Terraform defines a short-lived AKS proof: free control-plane SKU, one bounded node, Azure CNI Overlay/Cilium, Microsoft Entra/Azure RBAC configuration, explicit parent and managed-node resource groups, TTL metadata, and combined budget alerts. The supported scripts bind apply to an expiring reviewed plan hash and immutable GHCR digest, and verify both resource groups after destroy.
+The AKS Terraform definition creates a short-lived mock proof: free control-plane SKU, one bounded node, Azure CNI Overlay/Cilium, Microsoft Entra/Azure RBAC configuration, explicit parent and managed-node resource groups, TTL metadata, and combined budget alerts. The supported scripts bind apply to an expiring reviewed plan hash and immutable GHCR digest, and verify both resource groups after destroy.
 
-An explicitly approved ephemeral mock-only proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+An explicitly approved ephemeral mock-only AKS proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
 
-Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment. OIDC, Key Vault, remote Terraform state, and end-to-end workload identity remain future work.
+Teardown was independently confirmed: the AKS parent and managed-node resource groups and budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. The AKS proof was not a production deployment.
+
+The Container Apps Terraform definition creates one no-ingress manual Job, a Consumption environment, a user-assigned managed identity, RBAC-backed Key Vault secret access, and a delayed EUR 15 budget alert. The job is pinned to the immutable digest and bounded resources described above. Two earlier deployment attempts failed before job start, produced zero executions, and fully cleaned up. The successful deployment produced exactly one `Succeeded` execution and remains idle pending the 2026-09-15 review.
+
+That execution made one Luna attempt and recorded 1,083 input and 296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 of application authorization consumed under a USD 0.02 guard, and latency 5,764.961 ms. The schema was valid; prediction and reference each contained two criteria—one inclusion and one exclusion—and scores were exact F1 0.0, token F1 0.5, and macro field accuracy 1.0. This is a synthetic one-case engineering smoke of the cloud execution path, not clinical or statistically meaningful model-quality evidence.
+
+Current execution uses a local Azure CLI/Terraform operator identity and local Terraform state. Container Apps Key Vault integration and its user-assigned managed identity are implemented; GitHub-to-Azure OIDC, remote locked state, end-to-end AKS workload identity, and a full production API identity design remain future work. The EUR 15 Azure alert is delayed notification, not a hard cap or automatic cleanup.
 
 ## Failure behavior
 
@@ -153,9 +169,10 @@ Teardown was independently confirmed: the parent and managed-node resource group
 | Job contract or stored-request mismatch | Stable terminal failure, no extraction call, then acknowledge |
 | Provider budget blocked | Reject before creating a paid run/call |
 | Provider failure after call starts | Treat conservative reservation as consumed; write only safe error type/status |
+| Container Apps deployment fails before success | Start no paid job execution and automatically clean up billable resources; ordinary cleanup does not purge a soft-deleted Key Vault |
 | ClinicalTrials response too large/mismatched | Raise a safe downloader error |
 
-There is no general delayed retry/backoff scheduler. The OpenAI SDK has bounded retries, and the authorization ledger reserves for all permitted attempts.
+There is no general delayed retry/backoff scheduler. The OpenAI SDK has bounded retries, and the authorization ledger reserves for all permitted attempts. The Container Apps Job separately sets platform retries to zero.
 
 ## Deliberate limitations
 
@@ -164,7 +181,7 @@ There is no general delayed retry/backoff scheduler. The OpenAI SDK has bounded 
 - demo data services are ephemeral and not backed up;
 - one synthetic gold reference;
 - no clinical validation or patient matching;
-- no production ingress/TLS/identity/secrets/retention system;
+- no public or continuously serving production API, TLS, retention system, or full production identity design;
 - no OpenTelemetry evidence;
-- no current or production Azure deployment; and
-- no successful or scored live-model result: two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`, with no zero-provider-billing claim.
+- one manual no-ingress Container Apps Job is currently deployed but idle, not a production-readiness claim; and
+- successful live evidence is limited to one local and one Container Apps synthetic one-case smoke and does not establish model quality or clinical validity.

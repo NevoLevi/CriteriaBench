@@ -114,7 +114,13 @@ The safe path is preflight → saved plan/hash review → explicit billing appro
 
 An explicitly approved ephemeral mock-only proof followed that path on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
 
-Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment. Budget alerts are not caps.
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No AKS deployment currently exists, and the proof was not a production deployment. Budget alerts are not caps.
+
+A separate, explicitly approved production-mode proof deployed a manual, no-ingress Azure Container Apps Job in Germany West Central from immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`. It uses a user-assigned identity and identity-backed Key Vault secret reference with no literal secret value. The Consumption job is limited to 0.25 CPU and 0.5 GiB memory, a 300-second timeout, zero retries, parallelism one, and one completion.
+
+On 2026-09-01 exactly one execution succeeded. Its single synthetic Luna case used 1,083 input and 296 output tokens in 5,764.961 ms; produced one inclusion and one exclusion criterion against two references; and scored `schema_valid=true`, exact F1 0.0, token F1 0.5, and macro field accuracy 1.0. The USD 0.000572 usage-priced estimate and USD 0.0111 application authorization consumed under the USD 0.02 guard are not a provider invoice. Provider and Azure billing data can lag or differ. The exact EUR 15 Azure budget is a delayed alert, not a hard cap.
+
+The Container Apps Job remains deployed but idle. Never rerun it without fresh explicit paid authorization. Its `2026-09-15T14:58:49Z` review-by value is an operator-reminder tag, not automatic teardown. Two earlier infrastructure attempts failed before job start, produced zero executions, and were fully cleaned before the successful run. Container Apps is a managed container service, so this proves a bounded cloud job path; it is not evidence of directly operating a production Kubernetes cluster or a customer-facing production service.
 
 Read HashiCorp's [Terraform introduction](https://developer.hashicorp.com/terraform/intro) and learn provider, resource/data source, variable/output, plan, state, drift, and destroy.
 
@@ -157,7 +163,7 @@ Never put high-cardinality IDs, source text, prompts, credentials, or exception 
 
 ## Security and cost reasoning
 
-The main boundary is that API, worker, CI, Compose, Kubernetes, and Azure chart are mock-only. Only the explicit local benchmark wrapper can read the ignored key and start a paid child after all flags and a budget are supplied.
+The API, worker, CI, Compose, kind/Helm workloads, and historical AKS proof remain mock-only. Paid inference is isolated to the explicit local benchmark wrapper and the fixed Container Apps Job; either path requires fresh explicit authorization before each execution. The local wrapper scopes the ignored key to one child. The cloud job obtains it through a user-assigned-identity-backed Key Vault secret reference, has no ingress, and permits no provider or replica retry.
 
 Controls to explain:
 
@@ -166,10 +172,12 @@ Controls to explain:
 - no implicit dotenv discovery;
 - fixed external hosts and input manifests;
 - immutable dependency/image/action references;
-- plan/hash/digest binding for cloud apply; and
+- plan/hash/digest binding for cloud apply;
+- identity-backed cloud secret references without literal values;
+- explicit authorization and one-attempt execution bounds; and
 - alerts plus prompt teardown rather than pretending a pay-as-you-go budget is a hard cap.
 
-GitHub-to-Azure OIDC, Key Vault, remote state, and end-to-end workload identity remain future production work.
+The Container Apps proof implements Key Vault integration and a user-assigned managed identity narrowly for that job. GitHub-to-Azure OIDC, remote Terraform state, a full production data plane, and equivalent identity integration for the AKS stack remain future work.
 
 ## Suggested learning order
 
@@ -182,7 +190,7 @@ GitHub-to-Azure OIDC, Key Vault, remote state, and end-to-end workload identity 
 7. Install/uninstall the Helm demo in kind.
 8. Read CI/publish workflows and follow one artifact/digest through them.
 9. Run Terraform offline validation and read a generated plan only after Azure login is ready.
-10. Perform a short Azure proof or tiny live-model run only after separate cost approval.
+10. Study the completed Azure proofs and their cleanup/cost evidence. Do not repeat a paid model or cloud execution without separate explicit approval.
 
 ## Honest CV/interview phrasing
 
@@ -194,4 +202,8 @@ Also supported:
 
 > Executed and destroyed an explicitly approved ephemeral mock-only one-node AKS proof with modern networking, plan/hash/digest binding, budget alerts, health/readiness, sync/async workload evidence, API/worker metrics, and verified teardown.
 
-Not supported: “production service,” “clinically validated,” “currently deployed to Azure,” “production Azure deployment,” “exactly once,” “OpenTelemetry tracing,” “OIDC/Key Vault integration,” or “improved model accuracy.” Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.
+And, for the current bounded cloud job:
+
+> Provisioned a Terraform-managed, no-ingress Azure Container Apps Job using a user-assigned identity, Key Vault secret references, an immutable container digest, and bounded execution/cost guards; verified one successful synthetic LLM execution and left the job deployed but idle.
+
+Do not broaden this into “customer-facing production service,” “clinically validated,” “production Kubernetes operations,” “exactly once,” “OpenTelemetry tracing,” “GitHub-to-Azure OIDC,” “remote Terraform state,” or “improved model accuracy.” One synthetic case demonstrates the guarded engineering path, not model quality. The repair trail—two local `ProvenanceError` calls before one successful local run, and two cleaned Container Apps pre-start failures before exactly one successful execution—is useful in an interview but is not itself an accuracy claim.
