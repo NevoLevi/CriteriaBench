@@ -108,11 +108,13 @@ See the [Helm chart guide](https://helm.sh/docs/topics/charts/).
 
 Terraform describes cloud resources in versioned configuration and creates a reviewable **plan** before **apply**. It maintains **state**, which can be sensitive and must not be committed.
 
-CriteriaBench defines a deliberately small planned AKS proof: one resource group, AKS free control-plane SKU, one worker node, modern networking/Cilium, Entra/Azure RBAC settings, budget alerts, and TTL tags. The control plane may be free, but the node/disk/network are billable.
+CriteriaBench defines a deliberately small AKS proof: a parent and managed-node resource group, AKS free control-plane SKU, one worker node, modern networking/Cilium, Entra/Azure RBAC settings, budget alerts, and TTL tags. The control plane may be free, but the node/disk/network are billable.
 
 The safe path is preflight → saved plan/hash review → explicit billing approval → apply the exact plan with an immutable image digest → collect mock evidence → immediate destroy → verify both parent and AKS node resource groups are gone.
 
-No Azure deployment has been executed, so the honest claim is “designed and offline-validated Terraform for a guarded AKS proof,” not “deployed to Azure.” Budget alerts are not caps.
+An explicitly approved ephemeral mock-only proof followed that path on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment. Budget alerts are not caps.
 
 Read HashiCorp's [Terraform introduction](https://developer.hashicorp.com/terraform/intro) and learn provider, resource/data source, variable/output, plan, state, drift, and destroy.
 
@@ -167,6 +169,8 @@ Controls to explain:
 - plan/hash/digest binding for cloud apply; and
 - alerts plus prompt teardown rather than pretending a pay-as-you-go budget is a hard cap.
 
+GitHub-to-Azure OIDC, Key Vault, remote state, and end-to-end workload identity remain future production work.
+
 ## Suggested learning order
 
 1. Run source tests and read the API/schema/evaluator.
@@ -188,6 +192,6 @@ Supported now:
 
 Also supported:
 
-> Designed and offline-validated a guarded one-node AKS Terraform proof with modern networking, plan/hash/digest binding, budget alerts, and verified teardown checks.
+> Executed and destroyed an explicitly approved ephemeral mock-only one-node AKS proof with modern networking, plan/hash/digest binding, budget alerts, health/readiness, sync/async workload evidence, API/worker metrics, and verified teardown.
 
-Not yet supported: “production service,” “clinically validated,” “deployed to Azure,” “exactly once,” “OpenTelemetry tracing,” “OIDC/Key Vault integration,” or “improved model accuracy.” Add those only after implementation and reproducible evidence.
+Not supported: “production service,” “clinically validated,” “currently deployed to Azure,” “production Azure deployment,” “exactly once,” “OpenTelemetry tracing,” “OIDC/Key Vault integration,” or “improved model accuracy.” Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.

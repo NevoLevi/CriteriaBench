@@ -19,7 +19,7 @@ The HTTP API has no authentication, tenant isolation, public rate limiting, glob
 | Benchmark CLI | Offline mock; explicitly authorized live benchmark | Unattended paid service, arbitrary model/rates/host, unlimited spending |
 | Downloader | One or more validated NCT IDs, fetched one at a time from the fixed ClinicalTrials.gov HTTPS host | Arbitrary URLs, complete upstream provenance, worker fetches |
 | Local orchestration | Loopback Compose and kind demonstrations | Production database, backup, identity, or secret management |
-| Azure | Offline-validated, reviewable temporary AKS definition | Existing deployment, hard cost cap, production security posture |
+| Azure | Approved ephemeral mock-only AKS proof, since destroyed; no current deployment | Hard cost cap, production security posture |
 
 ## Secrets and dotenv files
 
@@ -62,7 +62,7 @@ The CLI reserves a retry-aware worst-case estimate for the entire batch before t
 
 These controls cannot guarantee a bill. Failed, timed-out, or retried requests can be charged; token estimates can differ from provider accounting; pricing can change; and other use of the same key is outside this repository. The USD 2 value is an application authorization ceiling, not an OpenAI account cap. Verify the current model and rates on the official [Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before a run and reconcile the artifact with the provider dashboard.
 
-No paid run is necessary to demonstrate the architecture, and none is currently claimed.
+No paid run is necessary to demonstrate the architecture. Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.
 
 ## Input and data privacy
 
@@ -118,7 +118,11 @@ The built-in PostgreSQL/Redis in kind/Helm are ephemeral demonstrations. They ar
 
 The Terraform definition is intentionally small: a parent resource group, AKS free-tier control plane, one bounded worker node, Azure CNI Overlay with Cilium, Microsoft Entra/Azure RBAC configuration, an explicit managed node resource group, TTL metadata, and combined budget alerts.
 
-Nothing has been deployed. Azure plan/apply requires separate explicit approval and a reviewed immutable GHCR digest. The supported workflow is:
+An explicitly approved ephemeral mock-only proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists. The proof was not a production deployment.
+
+The supported workflow is:
 
 1. `scripts/azure-preflight.ps1` validates identity, subscription, tools, safety inputs, SKU availability, and sufficient live VM-family and total regional vCPU quota; the result is a point-in-time snapshot, not a capacity reservation or spending cap.
 2. `scripts/azure-plan.ps1` creates an expiring plan plus summary/hash.
@@ -140,9 +144,9 @@ Current execution uses a local Azure CLI/Terraform operator identity and local T
 | Compose | Health/readiness, sync/async extraction, persistence, worker, and metrics pass in mock mode |
 | Kustomize/kind | Clean loopback cluster, non-root PostgreSQL, migration, API/worker, sync/async smoke, repeat-safe script, and teardown pass |
 | Helm | Lint/render plus separate runtime install, migration, sync/async smoke, and uninstall pass |
-| Terraform | Offline format/init/validate pass; no Azure resource was created |
-| Live model | Pending explicit approval; no paid evidence claimed |
-| Azure | Pending explicit billing approval; no cloud deployment claimed |
+| Terraform | Offline format/init/validate pass; the approved plan was applied and destroyed, leaving data-source-only state and no managed resources |
+| Live model | Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored quality evidence and no zero-provider-billing claim |
+| Azure | Approved ephemeral mock-only AKS health/readiness, sync 200, async 202-to-completion, schema 1.0 result, zero-token/USD 0 accounting, API/worker metrics, and independently confirmed teardown; no current deployment and no production claim |
 | OTel/OIDC/Key Vault/workload identity | Future work |
 
 Infrastructure files demonstrate engineering intent; successful execution of the same committed revision is evidence. CI should be treated as the release source of truth after publication.
@@ -155,4 +159,4 @@ Infrastructure files demonstrate engineering intent; successful execution of the
 4. Build and scan the locked image; smoke Compose.
 5. Lint/render Helm and Kustomize; run local cluster evidence when making deployment claims.
 6. Confirm API/worker remain mock-only and the official live endpoint/model/rates remain pinned.
-7. Keep Azure/live results pending unless separately approved, executed, reviewed for publication, and reconciled.
+7. Treat the two prior guarded Luna attempts only as fail-closed provenance evidence; do not claim a scored result or zero provider billing. Describe Azure only as the approved, destroyed proof unless a new deployment is independently verified.

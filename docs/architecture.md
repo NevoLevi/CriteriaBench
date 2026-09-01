@@ -137,7 +137,9 @@ The Helm chart templates the same application with digest-addressable images, a 
 
 Terraform defines a short-lived AKS proof: free control-plane SKU, one bounded node, Azure CNI Overlay/Cilium, Microsoft Entra/Azure RBAC configuration, explicit parent and managed-node resource groups, TTL metadata, and combined budget alerts. The supported scripts bind apply to an expiring reviewed plan hash and immutable GHCR digest, and verify both resource groups after destroy.
 
-This is a planned proof environment. No Azure apply has been run, and OIDC, Key Vault, remote Terraform state, and end-to-end workload identity are not implemented.
+An explicitly approved ephemeral mock-only proof was applied on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment. OIDC, Key Vault, remote Terraform state, and end-to-end workload identity remain future work.
 
 ## Failure behavior
 
@@ -163,5 +165,6 @@ There is no general delayed retry/backoff scheduler. The OpenAI SDK has bounded 
 - one synthetic gold reference;
 - no clinical validation or patient matching;
 - no production ingress/TLS/identity/secrets/retention system;
-- no OpenTelemetry evidence; and
-- no executed Azure or live-model evidence.
+- no OpenTelemetry evidence;
+- no current or production Azure deployment; and
+- no successful or scored live-model result: two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`, with no zero-provider-billing claim.

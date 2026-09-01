@@ -15,7 +15,7 @@ Last factual review: **2026-09-01**.
 | Worker and storage | PostgreSQL persistence plus a single Redis worker with atomic claim, acknowledgement, restart recovery, bounded dead-letter storage, frozen job contracts, and fail-closed payload checks. Delivery is **at least once**, not exactly once. |
 | Evaluation | Duplicate-safe exact precision/recall/F1, token F1, eight structured-field accuracies, and a macro field score. Alignment uses deterministic maximum-weight one-to-one assignment among same-kind criteria with a 0.25 token-F1 floor. |
 | Benchmark | A zero-cost synthetic gold smoke and JSON evidence artifact written through a temporary file and atomic replace. The built-in gold set has one case; it proves the pipeline, not model quality. |
-| Paid model path | Available only through the benchmark CLI. It is pinned to the reviewed `gpt-5.6-luna` model/rates, official OpenAI endpoint, explicit opt-ins, manifested input bytes, a required run budget, and a USD 2 application ceiling. No paid run is claimed. |
+| Paid model path | Available only through the benchmark CLI. It is pinned to the reviewed `gpt-5.6-luna` model/rates, official OpenAI endpoint, explicit opt-ins, manifested input bytes, a required run budget, and a USD 2 application ceiling. Two approved guarded attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live result is claimed. |
 | Data input | A bounded, fixed-host ClinicalTrials.gov downloader maps NCT ID, brief title, eligibility text, and source URL. The worker never downloads studies. |
 | Packaging | A non-root multi-stage image consumes `uv.lock` with digest-pinned Python and uv bases. Compose, Kustomize, Helm, and Terraform definitions are present. |
 | Automation | GitHub Actions runs frozen static/unit/integration checks, produces the offline benchmark artifact, validates infrastructure, scans the exact image bytes later published, and attests the pushed digest. |
@@ -150,7 +150,7 @@ See the official [ClinicalTrials.gov API documentation](https://clinicaltrials.g
 
 ## Verification evidence
 
-Verified locally on 2026-09-01, without a live model call or Azure resource creation:
+Verified locally and through an explicitly approved ephemeral Azure proof on 2026-09-01:
 
 - Ruff, formatting, strict mypy, bytecode compilation, and the complete non-live/non-integration suite pass above the 75% coverage gate.
 - Frozen dependency resolution and a digest-pinned production image build/import pass.
@@ -161,8 +161,10 @@ Verified locally on 2026-09-01, without a live model call or Azure resource crea
 - A separate Helm runtime install, migration, API/worker sync/async smoke, and uninstall pass.
 - Helm lint/render, Kustomize render, and Terraform offline format/init/validate pass.
 - The synthetic gold smoke reports exact F1 1.0, token F1 1.0, macro field accuracy 0.875, and USD 0 cost.
+- The approved AKS proof applied immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. Health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+- Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent.
 
-Azure plan/apply/destroy and a paid-model run remain pending explicit approval; no such result is claimed.
+No Azure deployment currently exists, and the ephemeral proof was not a production deployment. Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`; no successful or scored live-model result, and no zero-provider-billing claim, is made.
 
 ## Documentation
 
@@ -176,8 +178,8 @@ Azure plan/apply/destroy and a paid-model run remain pending explicit approval; 
 
 ## Honest portfolio claims
 
-This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; and designed a guarded AKS proof environment.
+This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; and executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest.
 
-It should not be described as clinically validated, production-ready, exactly-once, publicly secure, deployed to Azure, or proven to outperform another model.
+It should not be described as clinically validated, production-ready, exactly-once, publicly secure, currently deployed to Azure, a production Azure deployment, proven to outperform another model, or backed by a successful scored live-model result.
 
 Licensed under the [MIT License](LICENSE).

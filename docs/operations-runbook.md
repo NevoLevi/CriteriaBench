@@ -83,6 +83,8 @@ This still requires separate approval before execution. The wrapper pins uv 0.12
 
 After a live run, inspect the JSON and reconcile its usage with the provider dashboard before publishing anything. The canonical manifested-live path omits the application key and redacts absolute machine paths, but operator review is still required. Never publish `.env.local` or shell/environment dumps.
 
+Two approved guarded Luna attempts—the initial attempt and one retry—both failed closed with `ProvenanceError`. No successful or scored live-model result, and no zero-provider-billing claim, is made.
+
 ## Local Kubernetes with kind/Kustomize
 
 Create or refresh the exact disposable cluster:
@@ -181,6 +183,10 @@ The guarded default is one `Standard_D2as_v4` worker node. Preflight fails close
 7. Destroy immediately using the exact confirmation required by `scripts/azure-destroy.ps1`.
 8. Verify that no managed Terraform resource addresses remain (residual data-source-only state is permitted), and that both the parent `rg-criteriabench-*` and explicitly configured AKS node resource group `rg-criteriabench-aks-nodes-*` no longer exist in CLI and the Azure portal. Cost data can lag.
 
+An explicitly approved ephemeral mock-only proof followed this sequence on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
+
+Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No Azure deployment currently exists, and the proof was not a production deployment.
+
 Azure budget alerts cover both groups in subscription billing currency but are notifications, not caps. The current workflow uses local Azure CLI/Terraform identity and local state; OIDC, Key Vault, remote state, and workload identity are future work.
 
 ## Troubleshooting
@@ -207,4 +213,4 @@ Stop the affected run, revoke/rotate at the provider, inspect provider/audit log
 
 ## Evidence to retain
 
-For the committed revision, retain CI links/artifacts for static/tests, real services, offline benchmark, infrastructure render/validate, exact image scan/digest, and any approved deployment teardown. Azure/live/dashboard evidence remains pending until actually executed and reviewed for publication.
+For the committed revision, retain CI links/artifacts for static/tests, real services, offline benchmark, infrastructure render/validate, exact image scan/digest, and approved deployment teardown. Retain the approved Azure mock-proof evidence only as a historical apply/destroy result; there is no current or production deployment. Treat the two guarded Luna attempts only as fail-closed provenance evidence, with no successful/scored result or zero-provider-billing claim.
