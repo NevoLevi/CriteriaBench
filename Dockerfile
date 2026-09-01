@@ -33,7 +33,8 @@ ENV PATH="/opt/venv/bin:$PATH" \
     LLM_PROVIDER=mock \
     ALLOW_PAID_CALLS=false
 
-RUN groupadd --gid 10001 app \
+RUN python -m pip uninstall --yes pip \
+    && groupadd --gid 10001 app \
     && useradd --uid 10001 --gid app --create-home --shell /usr/sbin/nologin app
 
 COPY --from=builder /opt/venv /opt/venv

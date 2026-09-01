@@ -5,6 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 UV_VERSION = "0.12.8"
+UV_COMPATIBILITY = ">=0.12.7,<0.13"
 SETUP_UV_SHA = "20cfd1bf945f4377ade1205e4dbc17946fc9a30d"
 
 
@@ -32,7 +33,7 @@ def test_lock_matches_project_and_contains_runtime_and_dev_dependencies() -> Non
     } <= package_names
 
     pyproject = tomllib.loads(_read("pyproject.toml"))
-    assert pyproject["tool"]["uv"]["required-version"] == f"=={UV_VERSION}"
+    assert pyproject["tool"]["uv"]["required-version"] == UV_COMPATIBILITY
 
 
 def test_container_installs_runtime_from_the_frozen_lock() -> None:
@@ -44,6 +45,7 @@ def test_container_installs_runtime_from_the_frozen_lock() -> None:
     assert "uv sync --frozen --no-dev --no-editable" in dockerfile
     assert "UV_PYTHON_DOWNLOADS=never" in dockerfile
     assert "pip install" not in dockerfile
+    assert "python -m pip uninstall --yes pip" in dockerfile
 
 
 def test_automation_verifies_and_consumes_lock_without_dotenv_discovery() -> None:

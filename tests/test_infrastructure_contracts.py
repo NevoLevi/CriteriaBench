@@ -77,3 +77,11 @@ def test_cloud_apply_requires_reviewed_plan_and_immutable_image() -> None:
     assert '"imagetools"' in apply_script
     assert '"inspect"' in apply_script
     assert "image.digest" in apply_script
+
+
+def test_ci_sarif_scan_blocks_only_requested_severities() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    assert "format: sarif" in workflow
+    assert "severity: CRITICAL,HIGH" in workflow
+    assert "limit-severities-for-sarif: true" in workflow
+    assert 'exit-code: "1"' in workflow

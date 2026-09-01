@@ -22,7 +22,10 @@ OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 _INSTRUCTIONS = """You extract clinical-trial eligibility criteria for benchmarking.
 Return only data matching the supplied JSON schema. Split compound bullets into independently
 evaluable criteria and connect them through the same AND/OR logic group. Preserve exact evidence
-quotes and character offsets into eligibility_text. Represent negation and temporal constraints
+quotes and character offsets into eligibility_text. Offsets are zero-based Unicode code-point
+indexes into eligibility_text, and end_char is exclusive. Before returning, self-check every
+criterion so eligibility_text[evidence.start_char:evidence.end_char] exactly equals evidence.quote
+and evidence.quote exactly equals source_text. Represent negation and temporal constraints
 explicitly. Never infer facts that are not stated. Put genuine uncertainty in ambiguities.
 Criterion IDs are sequential I001... for inclusion and E001... for exclusion.
 """

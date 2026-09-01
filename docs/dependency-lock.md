@@ -1,7 +1,8 @@
 # Reproducible Python dependencies
 
-CriteriaBench commits `uv.lock` and pins the resolver to uv 0.12.8 through
-`[tool.uv]` in `pyproject.toml`. Routine installs must consume that lock:
+CriteriaBench commits `uv.lock`. CI, container builds, and supported local commands pin uv 0.12.8;
+the `[tool.uv]` compatibility range also permits uv 0.12.7 so GitHub's lock-aware Dependabot
+updater can maintain the lock. Routine installs must consume that lock:
 
 ```console
 uv lock --check
@@ -18,6 +19,6 @@ The container build uses the same lock but installs only runtime dependencies.
 Its Python and uv base images are pinned by digest, and uv is forbidden from
 downloading another Python interpreter.
 
-To update dependencies intentionally, install the pinned uv version, run
+To update dependencies intentionally, install a compatible uv version, run
 `uv lock --upgrade`, review the `uv.lock` diff, then rerun the static, unit,
 integration, and container checks. Never hand-edit the generated lock.
