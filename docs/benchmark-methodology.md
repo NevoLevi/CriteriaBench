@@ -1,11 +1,13 @@
 # Benchmark methodology
 
-CriteriaBench has two deliberately separate evaluation paths:
+CriteriaBench has two deliberately separate current evaluation paths and a third, offline artifact boundary for future model comparisons:
 
 1. a one-case engineering smoke that verifies guarded extraction, deterministic scoring, and provenance/cost artifact plumbing; and
-2. the 80-case Synthetic v0.1 offline suite, which verifies dataset, evaluator, baseline, slice-analysis, and report regressions without network or model calls.
+2. the unchanged 80-case Synthetic v0.1 dataset analyzed by offline-suite-v0.1.1, which verifies dataset, evaluator, baseline, slice/family analysis, and report regressions without network or model calls.
 
-Neither path establishes clinical accuracy. The offline suite compares two deterministic software baselines, not language models. The approved one-case Luna smokes remain separate engineering evidence and are not included in Synthetic v0.1.
+The separate `prediction-bundle-v1` importer can validate and score a future canonical prediction artifact, but cannot generate predictions or call a provider.
+
+None of these paths establishes clinical accuracy or a research-grade benchmark. The offline suite compares two deterministic software baselines, not language models. The approved one-case Luna smokes remain separate engineering evidence and are not included in Synthetic v0.1.
 
 ## Implemented extraction contract
 
@@ -24,7 +26,9 @@ The representation is a flat set of grouped predicates with parent links, not a 
 
 ## Normalization and alignment
 
-Exact comparison uses `(criterion kind, normalize(normalized_text))` as its key. Normalization applies Unicode-aware lowercasing, whitespace collapse, and punctuation/token handling implemented in the evaluator. A multiset counter preserves duplicate cardinality.
+Exact criterion-text comparison uses `(criterion kind, normalize(normalized_text))` as its multiset key. Normalization applies Unicode-aware lowercasing, whitespace collapse, and punctuation/token handling implemented in the evaluator. A multiset counter preserves duplicate cardinality.
+
+An exact criterion-text match says that criterion kind and normalized criterion text agree. It does not imply equality of category, concept, operator, value, unit, negation, temporal relation, logic connector, evidence, group topology, ambiguities, or the complete structured object.
 
 For token and field scoring:
 
@@ -40,9 +44,9 @@ Exact multiset intersection makes missing references lower recall and extra pred
 
 ### Criterion-level
 
-- exact precision;
-- exact recall;
-- exact F1; and
+- exact criterion-text precision;
+- exact criterion-text recall;
+- exact criterion-text F1; and
 - token-overlap score summed across aligned pairs and divided by `max(prediction_count, reference_count)`.
 
 Both valid empty extraction/reference sets score as perfect agreement.
@@ -83,11 +87,13 @@ The one-case smoke is sufficient to detect guarded-pipeline and artifact regress
 
 ### Synthetic v0.1 design
 
-Synthetic v0.1 is locally authored from deterministic templates. It contains no patient records, personal data, network-sourced text, or model-generated text. The manifest records 10 balanced families and 20 declared slices. Sixteen hard cases represent one source bullet as multiple labels with AND or OR grouping.
+Synthetic v0.1 was created through AI-assisted template design and label construction, then encoded in a deterministic, source-controlled generator. Generating and evaluating the committed fixtures is offline and makes no model or network calls. The content contains no patient records, personal data, network-sourced trial text, or proprietary corpus material.
+
+The manifest records 10 balanced families, eight controlled variants per family, and 20 declared slices. Sixteen cases represent one source bullet as multiple labels with AND or OR grouping.
 
 Each of the 80 fixture bytes is pinned by SHA-256. The loader requires the exact ordered case set, unique trial IDs and hashes, strict schema validity, matching fixture/manifest provenance, sequential criterion IDs, correct inclusion/exclusion kinds, and exact source-bound evidence quotes and offsets.
 
-The references are single-author template labels. Independent review and adjudication are still pending. The suite is small, English-only, template-shaped, and balanced by design rather than natural sampling. Its results are engineering regression evidence only: they do not measure clinical validity, real-registry generalization, inter-annotator agreement, fairness, safety, or production model quality.
+The frozen manifest uses `single_author` and `deterministic_templates` for one historical authoring workflow; those fields do not mean unaided human authorship. Independent second-human and clinical-domain review/adjudication are still pending. The suite is small, English-only, template-shaped, and balanced by design rather than natural sampling. Its results are engineering regression evidence only: they are not research-grade and do not measure clinical validity, real-registry generalization, inter-annotator agreement, fairness, safety, or production model quality.
 
 See the [dataset card](../data/synthetic_v0_1/README.md) for the complete authoring and future independent-review procedure.
 
@@ -105,33 +111,51 @@ Both baselines run sequentially and record `paid=false`, `network=false`, zero i
 For each baseline, the report includes:
 
 - completion and schema-valid rates;
-- micro exact precision/recall/F1;
-- mean exact F1, token F1, and macro field accuracy;
-- trial-perfect rate;
-- all-case and nonempty-gold cohorts;
-- all 20 declared slices; and
-- deterministic counts for missing/spurious criteria and text, category, concept, operator, value, unit, negation, temporal, logic, and evidence mismatches.
+- micro exact criterion-text precision/recall/F1 and TP/FP/FN counts;
+- mean exact criterion-text F1, token F1, and macro field accuracy;
+- separate case-weighted means for all eight structured fields;
+- criterion-text-perfect trial rate;
+- all-case and nonempty-reference cohorts;
+- all 20 declared slices;
+- all 10 families and 10 leave-one-family-out subsets;
+- case-resampled and family-cluster sensitivity intervals;
+- derived family/base-template/variant lineage; and
+- deterministic count/denominator/rate/basis entries for missing/spurious criteria and aligned text, field, temporal, logic, and evidence mismatch events.
 
-The error taxonomy reuses the evaluator's deterministic optimal alignment so its pair choices cannot diverge from scoring.
+The error taxonomy reuses the evaluator's deterministic optimal alignment so its pair choices cannot diverge from scoring. Missing-criterion rates use reference criteria, spurious-criterion rates use predicted criteria, and paired mismatch rates use aligned pairs as their denominator.
 
-### Deterministic paired bootstrap intervals
+Taxonomy events can overlap: one aligned pair can contribute text, concept, operator, value, evidence, and other mismatch events simultaneously. Counts therefore cannot be summed as unique cases, criteria, or failures. The same-kind 0.25 token-F1 alignment threshold can also affect which paired events are classified.
 
-Mean metrics and rules-minus-empty paired deltas use percentile bootstrap intervals with 10,000 resamples, seed `20260901`, and 95% coverage. Values are rounded to six decimal places for stable serialization.
+The AND/OR families deliberately encode two grouped reference criteria in one source bullet. `rules-v1` emits one unsplit criterion per bullet, producing a known segmentation/grouping mismatch and zero exact criterion-text F1 on those slices. This controlled failure is useful, but it is not general evidence that a system can or cannot reason over arbitrary Boolean logic. The current schema remains a flat grouped-predicate representation, not a general Boolean AST.
 
-These intervals quantify resampling variation only for this constructed 80-case mix. They do not establish population, clinical, or external-validity uncertainty. Because the dataset and baselines are deterministic and fixed, the bootstrap is a reproducible error-bar summary rather than evidence about repeated model sampling.
+### Deterministic resampling sensitivity
+
+Case-resampled mean metrics and rules-minus-empty paired deltas retain the historical percentile view with 10,000 resamples, seed `20260901`, and 95% coverage. This view treats all 80 controlled variants as exchangeable and can understate their shared-template dependence.
+
+The separate 10-family-cluster sensitivity resamples whole families, keeping each family's eight variants together. It is explicitly labeled a sensitivity analysis rather than an unqualified confidence interval.
+
+Leave-one-family-out results show how the aggregate changes when each family is omitted in turn.
+
+Only 10 upper-level clusters exist, and each family is confounded with one root template structure. Neither resampling view estimates clinical, registry, model-run, or broad template-population uncertainty; bootstrap resampling cannot create missing template diversity. All serialized values remain fixed-seed and rounded to six decimals.
 
 ### Policy and report regression gate
 
 `benchmarks/synthetic-v0.1-policy.json` freezes the expected dataset/config structure and requires:
 
-- exactly 80 cases, 10 families, all 20 declared slices, and 16 hard one-bullet/multi-label cases;
+- exactly 80 cases, 10 families, all 20 declared slices, and 16 one-bullet/multi-label cases;
 - both `empty-v1` and `rules-v1`;
+- suite version `offline-suite-v0.1.1`;
+- all eight named mean structured-field accuracies;
+- per-family and leave-one-family-out results for all 10 families;
+- 10-family-cluster sensitivity metadata;
+- taxonomy count/denominator/rate/basis fields and overlap disclosure;
+- 80 derived lineage entries across 10 base templates and variants 1–8;
 - 100% completion and schema validity;
 - manifest hash and source-evidence validity through the loader contract;
 - `paid=false`, `network=false`, zero tokens, and zero estimated cost for both baselines; and
 - rules-v1 mean token F1 and mean macro field accuracy each at least 0.20 above empty-v1.
 
-The primary regression gate is stronger than numeric thresholds: CI regenerates both report formats and requires byte-for-byte equality with the committed [JSON](results/synthetic-v0.1.json) and [Markdown report](results/synthetic-v0.1.md). This catches drift in the fixtures, analysis contract, ordering, rounding, wording, and output serialization. CI then uploads the generated pair as evidence while retaining the original one-case smoke.
+The primary regression gate is stronger than numeric thresholds: CI regenerates both report formats and requires byte-for-byte equality with the current v0.1.1 [JSON](results/synthetic-v0.1.1.json) and [Markdown report](results/synthetic-v0.1.1.md). This catches drift in the fixtures, analysis contract, ordering, rounding, wording, and output serialization. The historical v0.1 [JSON](results/synthetic-v0.1.json) and [Markdown](results/synthetic-v0.1.md) remain byte-immutable and SHA-256 pinned; corrections are published under a new analysis version rather than silently rewriting old evidence.
 
 Reproduce the suite from a frozen environment:
 
@@ -139,10 +163,10 @@ Reproduce the suite from a frozen environment:
 uv run --frozen --no-env-file criteriabench-suite `
   data/synthetic_v0_1/manifest.json `
   --configs empty-v1 rules-v1 `
-  --json-output artifacts/synthetic-v0.1.json `
-  --markdown-output artifacts/synthetic-v0.1.md `
-  --check-json docs/results/synthetic-v0.1.json `
-  --check-markdown docs/results/synthetic-v0.1.md
+  --json-output artifacts/synthetic-v0.1.1.json `
+  --markdown-output artifacts/synthetic-v0.1.1.md `
+  --check-json docs/results/synthetic-v0.1.1.json `
+  --check-markdown docs/results/synthetic-v0.1.1.md
 ```
 
 The CLI rejects environment-style paths and existing output files unless `--overwrite` is explicit.
@@ -171,7 +195,7 @@ The canonical mock case is gated in tests/CI with these expected values:
 - provider: deterministic mock;
 - paid: false;
 - evaluated cases: 1;
-- exact F1: 1.0;
+- exact criterion-text F1: 1.0;
 - token F1: 1.0;
 - macro field accuracy: 0.875;
 - usage-priced cost: USD 0; and
@@ -194,7 +218,25 @@ Before the first request, the live CLI:
 
 After a provider call starts, the authorization ledger consumes at least the conservative reservation even if the call times out. Usage-priced cost is separately computed from returned token usage and configured rates. Neither value is a provider-side spending cap.
 
-Synthetic v0.1 does not use this live path. A future model evaluation would require a separately reviewed protocol and explicit authorization for any network or paid calls.
+Synthetic v0.1 and offline-suite-v0.1.1 do not use this live path. A future model evaluation requires a separately reviewed protocol and explicit authorization for any network or paid calls.
+
+## Offline prediction-bundle import and scoring
+
+Future model results must cross a separate artifact boundary. A separately reviewed and explicitly authorized workflow may produce a canonical `prediction-bundle-v1` outside CI.
+
+```powershell
+python -m criteriabench.predictions `
+  --bundle <canonical.json> `
+  --manifest data/synthetic_v0_1/manifest.json `
+  --check <canonical.json.sha256> `
+  --output <new-score-report.json>
+```
+
+The importer validates the bundle against the hash-pinned manifest and cases, then emits `prediction-score-v1`. It imports no settings, provider, HTTP client, or network path and exposes no generation/live mode. It independently recomputes observed usage-priced token costs from hash-bound run rates; if any call's usage is unavailable, the score reports coverage and marks observed monetary totals as lower bounds, not proof of provider billing.
+
+CI may hash-check and replay a reviewed committed bundle. It must never generate model predictions, accept a key, or make a model/network call.
+
+No model-comparison claim exists until a reviewed canonical bundle, prompt/model protocol, and score artifact are actually committed.
 
 ## What a research or model-comparison benchmark would require
 
@@ -218,7 +260,7 @@ Possible future metrics include evidence-span overlap, temporal component accura
 Safe claims:
 
 - “The frozen one-case smoke completed reproducibly and caught guarded pipeline/artifact regressions.”
-- “Synthetic v0.1 reproducibly evaluates two zero-network deterministic baselines on 80 constructed reference cases with hash-pinned inputs, source-bound evidence checks, per-slice/error analysis, and fixed-seed paired-bootstrap summaries.”
+- “Offline-suite-v0.1.1 reproducibly evaluates two zero-network deterministic baselines on the unchanged 80-case Synthetic v0.1 dataset with hash-pinned inputs, exact criterion-text and structured-field metrics, per-slice/per-family analysis, leave-one-family-out and 10-family-cluster sensitivity checks, and denominator-aware overlapping error events.”
 
 Unsafe claims:
 

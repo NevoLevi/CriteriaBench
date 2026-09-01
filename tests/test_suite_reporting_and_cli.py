@@ -23,10 +23,20 @@ async def test_full_report_is_stable_complete_and_explicitly_offline() -> None:
     assert render_markdown(report) == markdown_bytes
     assert report.analysis_contract_sha256 == analysis_contract_sha256()
     assert len(report.analysis_contract_sha256) == 64
+    assert report.suite_version == "offline-suite-v0.1.1"
     assert report.dataset.case_count == 80
-    assert [item.family for item in report.examples] == list(EXAMPLE_FAMILIES)
+    assert report.dataset.base_template_count == 10
+    assert len(report.dataset.lineage) == 80
+    assert len({item.variant_id for item in report.dataset.lineage}) == 80
+    assert all(
+        item.variant_id.startswith(f"{item.base_template_id}-variant-")
+        for item in report.dataset.lineage
+    )
+    assert [item.family_id for item in report.examples] == list(EXAMPLE_FAMILIES)
     assert len(report.paired_comparisons) == 1
-    assert report.paired_comparisons[0].delta_intervals["mean_exact_f1"].resamples == 10_000
+    comparison = report.paired_comparisons[0]
+    assert comparison.delta_intervals["mean_criterion_text_f1"].resamples == 10_000
+    assert comparison.family_cluster_delta_intervals["mean_criterion_text_f1"].cluster_count == 10
 
     for baseline in report.baselines:
         assert baseline.paid is False
@@ -35,7 +45,7 @@ async def test_full_report_is_stable_complete_and_explicitly_offline() -> None:
         assert baseline.estimated_cost_usd == 0.0
         assert baseline.completion_rate == baseline.schema_valid_rate == 1.0
         assert baseline.all_cases.case_count == 80
-        assert baseline.nonempty_gold_cases.case_count == 80
+        assert baseline.nonempty_reference_cases.case_count == 80
 
     serialized = json_bytes.decode("utf-8")
     markdown = markdown_bytes.decode("utf-8")

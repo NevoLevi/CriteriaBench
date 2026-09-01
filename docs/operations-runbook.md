@@ -64,7 +64,7 @@ uv run --frozen --no-env-file criteriabench-benchmark `
   --output artifacts/smoke.json
 ```
 
-Expected canonical smoke: one evaluated mock case, exact F1 1.0, token F1 1.0, macro field accuracy 0.875, cost USD 0, and 64-character extraction/evaluation hashes.
+Expected canonical smoke: one evaluated mock case, exact criterion-text F1 1.0, token F1 1.0, macro field accuracy 0.875, cost USD 0, and 64-character extraction/evaluation hashes.
 
 ## Deliberate live benchmark
 
@@ -83,7 +83,7 @@ This still requires separate approval before execution. The wrapper pins uv 0.12
 
 After a live run, inspect the JSON and reconcile its usage with the provider dashboard before publishing anything. The canonical manifested-live path omits the application key and redacts absolute machine paths, but operator review is still required. Never publish `.env.local` or shell/environment dumps.
 
-Two early approved guarded Luna calls failed closed with `ProvenanceError`. After deterministic provenance repair, one separately approved local Luna run completed on 2026-09-01 against the single synthetic case: 1,083 input tokens, 295 output tokens, exact F1 0.5, token F1 0.75, macro field accuracy 1.0, and a USD 0.000571 usage-priced estimate. This is one-case engineering evidence, not clinical or comparative model-quality evidence. The estimate is not a provider invoice; provider billing can lag or differ.
+Two early approved guarded Luna calls failed closed with `ProvenanceError`. After deterministic provenance repair, one separately approved local Luna run completed on 2026-09-01 against the single synthetic case: 1,083 input tokens, 295 output tokens, exact criterion-text F1 0.5, token F1 0.75, macro field accuracy 1.0, and a USD 0.000571 usage-priced estimate. This is one-case engineering evidence, not clinical or comparative model-quality evidence. The estimate is not a provider invoice; provider billing can lag or differ.
 
 ## Local Kubernetes with kind/Kustomize
 
@@ -193,7 +193,7 @@ AKS budget alerts cover both groups in subscription billing currency but are not
 
 An explicitly approved bounded production-mode proof completed on 2026-09-01 in Germany West Central. Terraform deployed a manual, no-ingress Consumption Container Apps Job from immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, with a user-assigned identity, an identity-backed Key Vault secret reference and no literal secret value, 0.25 CPU, 0.5 GiB memory, a 300-second timeout, zero replica retries, parallelism one, and one required completion. Exactly one execution reached `Succeeded`.
 
-The successful job ran the reviewed Luna model once against the single synthetic case. Sanitized evidence reports 1,083 input tokens, 296 output tokens, 5,764.961 ms latency, one inclusion and one exclusion criterion, two predictions and two references, `schema_valid=true`, exact F1 0.0, token F1 0.5, and macro field accuracy 1.0. The USD 0.000572 usage-priced estimate and USD 0.0111 application authorization consumed under the USD 0.02 guard are repository accounting values, not a provider invoice. Provider and Azure billing data can lag or differ.
+The successful job ran the reviewed Luna model once against the single synthetic case. Sanitized evidence reports 1,083 input tokens, 296 output tokens, 5,764.961 ms latency, one inclusion and one exclusion criterion, two predictions and two references, `schema_valid=true`, exact criterion-text F1 0.0, token F1 0.5, and macro field accuracy 1.0. The USD 0.000572 usage-priced estimate and USD 0.0111 application authorization consumed under the USD 0.02 guard are repository accounting values, not a provider invoice. Provider and Azure billing data can lag or differ.
 
 The job remains deployed but idle. Never start or rerun it without fresh explicit paid authorization. Its review-by value, `2026-09-15T14:58:49Z`, is an operator-reminder tag, not automatic teardown. The exact EUR 15 Azure budget is a delayed alert, not a hard spending cap.
 

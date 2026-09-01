@@ -1,4 +1,4 @@
-"""Policy and CI contracts for the committed synthetic v0.1 suite evidence."""
+"""Policy and CI contracts for the current analysis of frozen Synthetic v0.1."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from criteriabench.suite.loader import load_suite
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / "benchmarks" / "synthetic-v0.1-policy.json"
-REPORT_PATH = ROOT / "docs" / "results" / "synthetic-v0.1.json"
+REPORT_PATH = ROOT / "docs" / "results" / "synthetic-v0.1.1.json"
 
 
 def _json(path: Path) -> dict[str, object]:
@@ -21,7 +21,7 @@ def _json(path: Path) -> dict[str, object]:
 def test_policy_declares_the_frozen_suite_and_primary_regression_gate() -> None:
     policy = _json(POLICY_PATH)
 
-    assert policy["policy_version"] == "synthetic-v0.1-policy-v1"
+    assert policy["policy_version"] == "synthetic-v0.1-policy-v1.1"
     assert policy["configs"] == ["empty-v1", "rules-v1"]
     assert policy["dataset"] == {
         "case_count": 80,
@@ -52,8 +52,10 @@ def test_policy_declares_the_frozen_suite_and_primary_regression_gate() -> None:
         "version": "synthetic-v0.1",
     }
     assert policy["regression_gate"] == {
-        "committed_json": "docs/results/synthetic-v0.1.json",
-        "committed_markdown": "docs/results/synthetic-v0.1.md",
+        "committed_json": "docs/results/synthetic-v0.1.1.json",
+        "committed_markdown": "docs/results/synthetic-v0.1.1.md",
+        "historical_json": "docs/results/synthetic-v0.1.json",
+        "historical_markdown": "docs/results/synthetic-v0.1.md",
         "primary": "byte-for-byte-report-reproduction",
     }
 
@@ -131,17 +133,17 @@ def test_ci_reproduces_and_uploads_the_committed_suite_evidence() -> None:
     steps = workflow["jobs"]["test"]["steps"]
     names = [step.get("name") for step in steps]
 
-    reproduce = steps[names.index("Reproduce synthetic v0.1 offline suite")]
+    reproduce = steps[names.index("Reproduce synthetic v0.1.1 offline analysis")]
     command = reproduce["run"]
     assert "uv run --frozen --no-env-file criteriabench-suite" in command
     assert "data/synthetic_v0_1/manifest.json" in command
     assert "--configs empty-v1 rules-v1" in command
-    assert "--check-json docs/results/synthetic-v0.1.json" in command
-    assert "--check-markdown docs/results/synthetic-v0.1.md" in command
+    assert "--check-json docs/results/synthetic-v0.1.1.json" in command
+    assert "--check-markdown docs/results/synthetic-v0.1.1.md" in command
 
-    upload = steps[names.index("Upload synthetic v0.1 suite evidence")]
+    upload = steps[names.index("Upload synthetic v0.1.1 suite evidence")]
     assert upload["with"]["if-no-files-found"] == "error"
-    assert upload["with"]["path"] == "artifacts/synthetic-v0.1.*"
+    assert upload["with"]["path"] == "artifacts/synthetic-v0.1.1.*"
     assert "github.run_id" in upload["with"]["name"]
     assert "github.run_attempt" in upload["with"]["name"]
 

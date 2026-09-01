@@ -51,17 +51,38 @@ def classify_errors(
             reference_item.normalized_text
         ):
             counts["text_mismatch"] += 1
-        for field in ("category", "concept", "operator", "value", "unit"):
-            if getattr(predicted_item, field) != getattr(reference_item, field):
-                counts[f"{field}_mismatch"] += 1
+        if predicted_item.category != reference_item.category:
+            counts["category_mismatch"] += 1
+        if not _normalized_text_equal(predicted_item.concept, reference_item.concept):
+            counts["concept_mismatch"] += 1
+        if predicted_item.operator != reference_item.operator:
+            counts["operator_mismatch"] += 1
+        if evaluator._stable_value(predicted_item.value) != evaluator._stable_value(
+            reference_item.value
+        ):
+            counts["value_mismatch"] += 1
+        if not _normalized_text_equal(predicted_item.unit, reference_item.unit):
+            counts["unit_mismatch"] += 1
         if predicted_item.negated != reference_item.negated:
             counts["negation_mismatch"] += 1
 
         predicted_temporal = predicted_item.temporal_constraint
         reference_temporal = reference_item.temporal_constraint
-        for field in ("relation", "quantity", "unit", "reference_event", "raw_text"):
-            if getattr(predicted_temporal, field) != getattr(reference_temporal, field):
-                counts[f"temporal_{field}_mismatch"] += 1
+        if predicted_temporal.relation != reference_temporal.relation:
+            counts["temporal_relation_mismatch"] += 1
+        if evaluator._stable_value(predicted_temporal.quantity) != evaluator._stable_value(
+            reference_temporal.quantity
+        ):
+            counts["temporal_quantity_mismatch"] += 1
+        if predicted_temporal.unit != reference_temporal.unit:
+            counts["temporal_unit_mismatch"] += 1
+        if not _normalized_text_equal(
+            predicted_temporal.reference_event,
+            reference_temporal.reference_event,
+        ):
+            counts["temporal_reference_event_mismatch"] += 1
+        if not _normalized_text_equal(predicted_temporal.raw_text, reference_temporal.raw_text):
+            counts["temporal_raw_text_mismatch"] += 1
 
         if predicted_item.logic_group.connector != reference_item.logic_group.connector:
             counts["logic_connector_mismatch"] += 1
@@ -74,6 +95,12 @@ def classify_errors(
         if predicted_offsets != reference_offsets:
             counts["evidence_offset_mismatch"] += 1
     return ErrorTaxonomy.model_validate(counts)
+
+
+def _normalized_text_equal(left: str | None, right: str | None) -> bool:
+    """Mirror the evaluator's case, whitespace, and punctuation normalization."""
+
+    return evaluator._normalize(left or "") == evaluator._normalize(right or "")
 
 
 def sum_taxonomies(taxonomies: Iterable[ErrorTaxonomy]) -> ErrorTaxonomy:

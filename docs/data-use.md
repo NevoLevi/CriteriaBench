@@ -1,6 +1,6 @@
 # Data use and provenance
 
-CriteriaBench is limited to public ClinicalTrials.gov text and synthetic developer-created examples. Do not use patient data, protected health information, credentials, proprietary corpora, or other sensitive input.
+CriteriaBench is limited to public ClinicalTrials.gov text and disclosed synthetic examples. Synthetic v0.1 used AI-assisted template design and label construction encoded in a deterministic, source-controlled generator. Do not use patient data, protected health information, credentials, proprietary corpora, or other sensitive input.
 
 ## ClinicalTrials.gov retrieval
 
@@ -27,7 +27,9 @@ The downloader does not normalize markup, infer demographics, split criteria int
 
 ## Fixture provenance
 
-The committed public fixture has a small manual manifest with source identifier, retrieval date, and content hash. The synthetic benchmark manifest records the gold fixture hash/version.
+The committed public fixture has a small manual manifest with source identifier, retrieval date, and content hash. The synthetic benchmark manifest records the reference fixture hash/version.
+
+Synthetic v0.1's frozen `single_author` and `deterministic_templates` metadata describes one historical AI-assisted authoring workflow, not unaided human authorship. Independent second-human and clinical-domain review/adjudication remain pending. Dataset generation and offline-suite execution make no model or network calls.
 
 This is sufficient for an engineering smoke, but it is not complete source provenance. The general downloader does not currently record:
 

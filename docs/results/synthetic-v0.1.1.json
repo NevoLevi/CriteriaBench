@@ -1,0 +1,3272 @@
+{
+  "analysis_contract_sha256": "4ae02b4d6d8a03b12127febb3f0ac7843ea090f3937d739cfdde50fc8e059a86",
+  "baselines": [
+    {
+      "all_cases": {
+        "case_count": 80,
+        "criterion_text_false_negatives": 144,
+        "criterion_text_false_positives": 0,
+        "criterion_text_perfect_trial_rate": 0.0,
+        "criterion_text_true_positives": 0,
+        "mean_criterion_text_f1": 0.0,
+        "mean_field_accuracies": {
+          "category": 0.0,
+          "concept": 0.0,
+          "logic_connector": 0.0,
+          "negated": 0.0,
+          "operator": 0.0,
+          "temporal_relation": 0.0,
+          "unit": 0.0,
+          "value": 0.0
+        },
+        "mean_macro_field_accuracy": 0.0,
+        "mean_token_f1": 0.0,
+        "micro_criterion_text_f1": 0.0,
+        "micro_criterion_text_precision": 0.0,
+        "micro_criterion_text_recall": 0.0,
+        "predicted_criteria": 0,
+        "reference_criteria": 144
+      },
+      "completion_rate": 1.0,
+      "config": "empty-v1",
+      "estimated_cost_usd": 0.0,
+      "family_cluster_mean_metric_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        }
+      },
+      "input_tokens": 0,
+      "leave_one_family_out": {
+        "and_multi_clause": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "demographics_consent": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "laboratory": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "negation": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "numeric_thresholds": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "or_multi_clause": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "punctuation_evidence_span": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 136,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 136
+        },
+        "range_between": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 136,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 136
+        },
+        "simple_inclusion_exclusion": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        },
+        "temporal_constraints": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 128,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 128
+        }
+      },
+      "mean_metric_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.0,
+          "high": 0.0,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.0,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        }
+      },
+      "network": false,
+      "nonempty_reference_cases": {
+        "case_count": 80,
+        "criterion_text_false_negatives": 144,
+        "criterion_text_false_positives": 0,
+        "criterion_text_perfect_trial_rate": 0.0,
+        "criterion_text_true_positives": 0,
+        "mean_criterion_text_f1": 0.0,
+        "mean_field_accuracies": {
+          "category": 0.0,
+          "concept": 0.0,
+          "logic_connector": 0.0,
+          "negated": 0.0,
+          "operator": 0.0,
+          "temporal_relation": 0.0,
+          "unit": 0.0,
+          "value": 0.0
+        },
+        "mean_macro_field_accuracy": 0.0,
+        "mean_token_f1": 0.0,
+        "micro_criterion_text_f1": 0.0,
+        "micro_criterion_text_precision": 0.0,
+        "micro_criterion_text_recall": 0.0,
+        "predicted_criteria": 0,
+        "reference_criteria": 144
+      },
+      "output_tokens": 0,
+      "paid": false,
+      "per_family": {
+        "and_multi_clause": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "demographics_consent": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "laboratory": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "negation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "numeric_thresholds": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "or_multi_clause": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "punctuation_evidence_span": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "range_between": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "simple_inclusion_exclusion": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "temporal_constraints": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        }
+      },
+      "per_slice": {
+        "between": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "comparison": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "consent": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "demographic": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "duration": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "evidence_span": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "exclusion": {
+          "case_count": 24,
+          "criterion_text_false_negatives": 48,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 48
+        },
+        "format_variation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "inclusion": {
+          "case_count": 80,
+          "criterion_text_false_negatives": 144,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 144
+        },
+        "laboratory": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "logic_and": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "logic_or": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "multi_clause": {
+          "case_count": 16,
+          "criterion_text_false_negatives": 32,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 32
+        },
+        "negation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "numeric_threshold": {
+          "case_count": 32,
+          "criterion_text_false_negatives": 56,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 56
+        },
+        "one_bullet_multiple_labels": {
+          "case_count": 16,
+          "criterion_text_false_negatives": 32,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 32
+        },
+        "punctuation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "range": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 8,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 8
+        },
+        "simple": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        },
+        "temporal": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.0,
+            "operator": 0.0,
+            "temporal_relation": 0.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.0,
+          "mean_token_f1": 0.0,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 0,
+          "reference_criteria": 16
+        }
+      },
+      "schema_valid_rate": 1.0,
+      "taxonomy": {
+        "aligned_pairs": 0,
+        "metrics": {
+          "category_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "concept_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "evidence_offset_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "evidence_quote_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "logic_connector_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "logic_parent_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "missing_criterion": {
+            "count": 144,
+            "denominator": 144,
+            "denominator_basis": "reference_criteria",
+            "rate": 1.0
+          },
+          "negation_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "operator_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "spurious_criterion": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "predicted_criteria",
+            "rate": 0.0
+          },
+          "temporal_quantity_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "temporal_raw_text_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "temporal_reference_event_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "temporal_relation_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "temporal_unit_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "text_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "unit_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "value_mismatch": {
+            "count": 0,
+            "denominator": 0,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          }
+        },
+        "overlap_note": "Mismatch categories can overlap on the same aligned criterion; raw counts must not be summed as a count of unique erroneous criteria or cases.",
+        "raw_counts": {
+          "category_mismatch": 0,
+          "concept_mismatch": 0,
+          "evidence_offset_mismatch": 0,
+          "evidence_quote_mismatch": 0,
+          "logic_connector_mismatch": 0,
+          "logic_parent_mismatch": 0,
+          "missing_criterion": 144,
+          "negation_mismatch": 0,
+          "operator_mismatch": 0,
+          "spurious_criterion": 0,
+          "temporal_quantity_mismatch": 0,
+          "temporal_raw_text_mismatch": 0,
+          "temporal_reference_event_mismatch": 0,
+          "temporal_relation_mismatch": 0,
+          "temporal_unit_mismatch": 0,
+          "text_mismatch": 0,
+          "unit_mismatch": 0,
+          "value_mismatch": 0
+        }
+      }
+    },
+    {
+      "all_cases": {
+        "case_count": 80,
+        "criterion_text_false_negatives": 34,
+        "criterion_text_false_positives": 18,
+        "criterion_text_perfect_trial_rate": 0.775,
+        "criterion_text_true_positives": 110,
+        "mean_criterion_text_f1": 0.775,
+        "mean_field_accuracies": {
+          "category": 0.70625,
+          "concept": 0.39375,
+          "logic_connector": 0.8,
+          "negated": 0.89375,
+          "operator": 0.4,
+          "temporal_relation": 0.85,
+          "unit": 0.8,
+          "value": 0.36875
+        },
+        "mean_macro_field_accuracy": 0.651563,
+        "mean_token_f1": 0.859843,
+        "micro_criterion_text_f1": 0.808824,
+        "micro_criterion_text_precision": 0.859375,
+        "micro_criterion_text_recall": 0.763889,
+        "predicted_criteria": 128,
+        "reference_criteria": 144
+      },
+      "completion_rate": 1.0,
+      "config": "rules-v1",
+      "estimated_cost_usd": 0.0,
+      "family_cluster_mean_metric_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.775,
+          "high": 1.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.5,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.651563,
+          "high": 0.800801,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.488281,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.859843,
+          "high": 1.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.659843,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        }
+      },
+      "input_tokens": 0,
+      "leave_one_family_out": {
+        "and_multi_clause": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 18,
+          "criterion_text_false_positives": 10,
+          "criterion_text_perfect_trial_rate": 0.861111,
+          "criterion_text_true_positives": 110,
+          "mean_criterion_text_f1": 0.861111,
+          "mean_field_accuracies": {
+            "category": 0.729167,
+            "concept": 0.4375,
+            "logic_connector": 0.888889,
+            "negated": 0.9375,
+            "operator": 0.444444,
+            "temporal_relation": 0.888889,
+            "unit": 0.833333,
+            "value": 0.409722
+          },
+          "mean_macro_field_accuracy": 0.696181,
+          "mean_token_f1": 0.918344,
+          "micro_criterion_text_f1": 0.887097,
+          "micro_criterion_text_precision": 0.916667,
+          "micro_criterion_text_recall": 0.859375,
+          "predicted_criteria": 120,
+          "reference_criteria": 128
+        },
+        "demographics_consent": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.673611,
+            "concept": 0.381944,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.388889,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.354167
+          },
+          "mean_macro_field_accuracy": 0.633681,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        },
+        "laboratory": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.673611,
+            "concept": 0.381944,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.333333,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.333333
+          },
+          "mean_macro_field_accuracy": 0.624132,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        },
+        "negation": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.729167,
+            "concept": 0.4375,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.444444,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.409722
+          },
+          "mean_macro_field_accuracy": 0.661458,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        },
+        "numeric_thresholds": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.673611,
+            "concept": 0.326389,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.333333,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.298611
+          },
+          "mean_macro_field_accuracy": 0.612847,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        },
+        "or_multi_clause": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 18,
+          "criterion_text_false_positives": 10,
+          "criterion_text_perfect_trial_rate": 0.861111,
+          "criterion_text_true_positives": 110,
+          "mean_criterion_text_f1": 0.861111,
+          "mean_field_accuracies": {
+            "category": 0.784722,
+            "concept": 0.4375,
+            "logic_connector": 0.888889,
+            "negated": 0.944444,
+            "operator": 0.444444,
+            "temporal_relation": 0.888889,
+            "unit": 0.833333,
+            "value": 0.409722
+          },
+          "mean_macro_field_accuracy": 0.703993,
+          "mean_token_f1": 0.921958,
+          "micro_criterion_text_f1": 0.887097,
+          "micro_criterion_text_precision": 0.916667,
+          "micro_criterion_text_recall": 0.859375,
+          "predicted_criteria": 120,
+          "reference_criteria": 128
+        },
+        "punctuation_evidence_span": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 32,
+          "criterion_text_false_positives": 16,
+          "criterion_text_perfect_trial_rate": 0.777778,
+          "criterion_text_true_positives": 104,
+          "mean_criterion_text_f1": 0.777778,
+          "mean_field_accuracies": {
+            "category": 0.743056,
+            "concept": 0.354167,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.444444,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.409722
+          },
+          "mean_macro_field_accuracy": 0.652778,
+          "mean_token_f1": 0.848238,
+          "micro_criterion_text_f1": 0.8125,
+          "micro_criterion_text_precision": 0.866667,
+          "micro_criterion_text_recall": 0.764706,
+          "predicted_criteria": 120,
+          "reference_criteria": 136
+        },
+        "range_between": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 102,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.673611,
+            "concept": 0.326389,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.444444,
+            "temporal_relation": 0.833333,
+            "unit": 0.888889,
+            "value": 0.409722
+          },
+          "mean_macro_field_accuracy": 0.654514,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.796875,
+          "micro_criterion_text_precision": 0.85,
+          "micro_criterion_text_recall": 0.75,
+          "predicted_criteria": 120,
+          "reference_criteria": 136
+        },
+        "simple_inclusion_exclusion": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.708333,
+            "concept": 0.416667,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.333333,
+            "temporal_relation": 0.833333,
+            "unit": 0.777778,
+            "value": 0.298611
+          },
+          "mean_macro_field_accuracy": 0.628472,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        },
+        "temporal_constraints": {
+          "case_count": 72,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 94,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.673611,
+            "concept": 0.4375,
+            "logic_connector": 0.777778,
+            "negated": 0.881944,
+            "operator": 0.388889,
+            "temporal_relation": 0.888889,
+            "unit": 0.777778,
+            "value": 0.354167
+          },
+          "mean_macro_field_accuracy": 0.647569,
+          "mean_token_f1": 0.84427,
+          "micro_criterion_text_f1": 0.783333,
+          "micro_criterion_text_precision": 0.839286,
+          "micro_criterion_text_recall": 0.734375,
+          "predicted_criteria": 112,
+          "reference_criteria": 128
+        }
+      },
+      "mean_metric_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.775,
+          "high": 0.8625,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.675,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.651563,
+          "high": 0.708594,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.592969,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.859843,
+          "high": 0.91824,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.797162,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        }
+      },
+      "network": false,
+      "nonempty_reference_cases": {
+        "case_count": 80,
+        "criterion_text_false_negatives": 34,
+        "criterion_text_false_positives": 18,
+        "criterion_text_perfect_trial_rate": 0.775,
+        "criterion_text_true_positives": 110,
+        "mean_criterion_text_f1": 0.775,
+        "mean_field_accuracies": {
+          "category": 0.70625,
+          "concept": 0.39375,
+          "logic_connector": 0.8,
+          "negated": 0.89375,
+          "operator": 0.4,
+          "temporal_relation": 0.85,
+          "unit": 0.8,
+          "value": 0.36875
+        },
+        "mean_macro_field_accuracy": 0.651563,
+        "mean_token_f1": 0.859843,
+        "micro_criterion_text_f1": 0.808824,
+        "micro_criterion_text_precision": 0.859375,
+        "micro_criterion_text_recall": 0.763889,
+        "predicted_criteria": 128,
+        "reference_criteria": 144
+      },
+      "output_tokens": 0,
+      "paid": false,
+      "per_family": {
+        "and_multi_clause": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 8,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.5,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.5,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.25,
+          "mean_token_f1": 0.333333,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 16
+        },
+        "demographics_consent": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.5,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.8125,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "laboratory": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.5,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.6875
+          },
+          "mean_macro_field_accuracy": 0.898438,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "negation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 0.5,
+            "concept": 0.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.5625,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "numeric_thresholds": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 1.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 1.0
+          },
+          "mean_macro_field_accuracy": 1.0,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "or_multi_clause": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 8,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.4375,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.179688,
+          "mean_token_f1": 0.300812,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 16
+        },
+        "punctuation_evidence_span": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 2,
+          "criterion_text_false_positives": 2,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 6,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.375,
+            "concept": 0.75,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.640625,
+          "mean_token_f1": 0.964286,
+          "micro_criterion_text_f1": 0.75,
+          "micro_criterion_text_precision": 0.75,
+          "micro_criterion_text_recall": 0.75,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "range_between": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 8,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 1.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.625,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "simple_inclusion_exclusion": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 0.6875,
+            "concept": 0.1875,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 1.0
+          },
+          "mean_macro_field_accuracy": 0.859375,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "temporal_constraints": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 0.5,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.6875,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        }
+      },
+      "per_slice": {
+        "between": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 8,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 1.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.625,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "comparison": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 1.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 1.0
+          },
+          "mean_macro_field_accuracy": 1.0,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "consent": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.5,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.8125,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "demographic": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.5,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.8125,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "duration": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 0.5,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.6875,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "evidence_span": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 2,
+          "criterion_text_false_positives": 2,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 6,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.375,
+            "concept": 0.75,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.640625,
+          "mean_token_f1": 0.964286,
+          "micro_criterion_text_f1": 0.75,
+          "micro_criterion_text_precision": 0.75,
+          "micro_criterion_text_recall": 0.75,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "exclusion": {
+          "case_count": 24,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 48,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 0.729167,
+            "concept": 0.0625,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 0.833333,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.703125,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 48,
+          "reference_criteria": 48
+        },
+        "format_variation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 2,
+          "criterion_text_false_positives": 2,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 6,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.375,
+            "concept": 0.75,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.640625,
+          "mean_token_f1": 0.964286,
+          "micro_criterion_text_f1": 0.75,
+          "micro_criterion_text_precision": 0.75,
+          "micro_criterion_text_recall": 0.75,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "inclusion": {
+          "case_count": 80,
+          "criterion_text_false_negatives": 34,
+          "criterion_text_false_positives": 18,
+          "criterion_text_perfect_trial_rate": 0.775,
+          "criterion_text_true_positives": 110,
+          "mean_criterion_text_f1": 0.775,
+          "mean_field_accuracies": {
+            "category": 0.70625,
+            "concept": 0.39375,
+            "logic_connector": 0.8,
+            "negated": 0.89375,
+            "operator": 0.4,
+            "temporal_relation": 0.85,
+            "unit": 0.8,
+            "value": 0.36875
+          },
+          "mean_macro_field_accuracy": 0.651563,
+          "mean_token_f1": 0.859843,
+          "micro_criterion_text_f1": 0.808824,
+          "micro_criterion_text_precision": 0.859375,
+          "micro_criterion_text_recall": 0.763889,
+          "predicted_criteria": 128,
+          "reference_criteria": 144
+        },
+        "laboratory": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.5,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.6875
+          },
+          "mean_macro_field_accuracy": 0.898438,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "logic_and": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 8,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.5,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.5,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.25,
+          "mean_token_f1": 0.333333,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 16
+        },
+        "logic_or": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 16,
+          "criterion_text_false_positives": 8,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.0,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.4375,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.179688,
+          "mean_token_f1": 0.300812,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 16
+        },
+        "multi_clause": {
+          "case_count": 16,
+          "criterion_text_false_negatives": 32,
+          "criterion_text_false_positives": 16,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.25,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.46875,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.214844,
+          "mean_token_f1": 0.317072,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 32
+        },
+        "negation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 0.5,
+            "concept": 0.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.5625,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "numeric_threshold": {
+          "case_count": 32,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 56,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.75,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.625,
+            "temporal_relation": 1.0,
+            "unit": 0.75,
+            "value": 0.546875
+          },
+          "mean_macro_field_accuracy": 0.833984,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 56,
+          "reference_criteria": 56
+        },
+        "one_bullet_multiple_labels": {
+          "case_count": 16,
+          "criterion_text_false_negatives": 32,
+          "criterion_text_false_positives": 16,
+          "criterion_text_perfect_trial_rate": 0.0,
+          "criterion_text_true_positives": 0,
+          "mean_criterion_text_f1": 0.0,
+          "mean_field_accuracies": {
+            "category": 0.25,
+            "concept": 0.0,
+            "logic_connector": 0.0,
+            "negated": 0.46875,
+            "operator": 0.0,
+            "temporal_relation": 0.5,
+            "unit": 0.5,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.214844,
+          "mean_token_f1": 0.317072,
+          "micro_criterion_text_f1": 0.0,
+          "micro_criterion_text_precision": 0.0,
+          "micro_criterion_text_recall": 0.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 32
+        },
+        "punctuation": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 2,
+          "criterion_text_false_positives": 2,
+          "criterion_text_perfect_trial_rate": 0.75,
+          "criterion_text_true_positives": 6,
+          "mean_criterion_text_f1": 0.75,
+          "mean_field_accuracies": {
+            "category": 0.375,
+            "concept": 0.75,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.640625,
+          "mean_token_f1": 0.964286,
+          "micro_criterion_text_f1": 0.75,
+          "micro_criterion_text_precision": 0.75,
+          "micro_criterion_text_recall": 0.75,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "range": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 8,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 1.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.0,
+            "temporal_relation": 1.0,
+            "unit": 0.0,
+            "value": 0.0
+          },
+          "mean_macro_field_accuracy": 0.625,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 8,
+          "reference_criteria": 8
+        },
+        "simple": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 0.6875,
+            "concept": 0.1875,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 1.0,
+            "temporal_relation": 1.0,
+            "unit": 1.0,
+            "value": 1.0
+          },
+          "mean_macro_field_accuracy": 0.859375,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        },
+        "temporal": {
+          "case_count": 8,
+          "criterion_text_false_negatives": 0,
+          "criterion_text_false_positives": 0,
+          "criterion_text_perfect_trial_rate": 1.0,
+          "criterion_text_true_positives": 16,
+          "mean_criterion_text_f1": 1.0,
+          "mean_field_accuracies": {
+            "category": 1.0,
+            "concept": 0.0,
+            "logic_connector": 1.0,
+            "negated": 1.0,
+            "operator": 0.5,
+            "temporal_relation": 0.5,
+            "unit": 1.0,
+            "value": 0.5
+          },
+          "mean_macro_field_accuracy": 0.6875,
+          "mean_token_f1": 1.0,
+          "micro_criterion_text_f1": 1.0,
+          "micro_criterion_text_precision": 1.0,
+          "micro_criterion_text_recall": 1.0,
+          "predicted_criteria": 16,
+          "reference_criteria": 16
+        }
+      },
+      "schema_valid_rate": 1.0,
+      "taxonomy": {
+        "aligned_pairs": 128,
+        "metrics": {
+          "category_mismatch": {
+            "count": 26,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.203125
+          },
+          "concept_mismatch": {
+            "count": 79,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.617188
+          },
+          "evidence_offset_mismatch": {
+            "count": 23,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.179688
+          },
+          "evidence_quote_mismatch": {
+            "count": 23,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.179688
+          },
+          "logic_connector_mismatch": {
+            "count": 16,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.125
+          },
+          "logic_parent_mismatch": {
+            "count": 0,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "missing_criterion": {
+            "count": 16,
+            "denominator": 144,
+            "denominator_basis": "reference_criteria",
+            "rate": 0.111111
+          },
+          "negation_mismatch": {
+            "count": 1,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.007812
+          },
+          "operator_mismatch": {
+            "count": 64,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.5
+          },
+          "spurious_criterion": {
+            "count": 0,
+            "denominator": 128,
+            "denominator_basis": "predicted_criteria",
+            "rate": 0.0
+          },
+          "temporal_quantity_mismatch": {
+            "count": 8,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0625
+          },
+          "temporal_raw_text_mismatch": {
+            "count": 8,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0625
+          },
+          "temporal_reference_event_mismatch": {
+            "count": 0,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0
+          },
+          "temporal_relation_mismatch": {
+            "count": 8,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0625
+          },
+          "temporal_unit_mismatch": {
+            "count": 8,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0625
+          },
+          "text_mismatch": {
+            "count": 18,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.140625
+          },
+          "unit_mismatch": {
+            "count": 8,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.0625
+          },
+          "value_mismatch": {
+            "count": 69,
+            "denominator": 128,
+            "denominator_basis": "aligned_pairs",
+            "rate": 0.539062
+          }
+        },
+        "overlap_note": "Mismatch categories can overlap on the same aligned criterion; raw counts must not be summed as a count of unique erroneous criteria or cases.",
+        "raw_counts": {
+          "category_mismatch": 26,
+          "concept_mismatch": 79,
+          "evidence_offset_mismatch": 23,
+          "evidence_quote_mismatch": 23,
+          "logic_connector_mismatch": 16,
+          "logic_parent_mismatch": 0,
+          "missing_criterion": 16,
+          "negation_mismatch": 1,
+          "operator_mismatch": 64,
+          "spurious_criterion": 0,
+          "temporal_quantity_mismatch": 8,
+          "temporal_raw_text_mismatch": 8,
+          "temporal_reference_event_mismatch": 0,
+          "temporal_relation_mismatch": 8,
+          "temporal_unit_mismatch": 8,
+          "text_mismatch": 18,
+          "unit_mismatch": 8,
+          "value_mismatch": 69
+        }
+      }
+    }
+  ],
+  "dataset": {
+    "annotation": {
+      "authoring_status": "single_author",
+      "method": "deterministic_templates",
+      "review_status": "independent_review_pending"
+    },
+    "authoring_disclosure": "AI-assisted deterministic templates; independent second-human and clinical-domain review/adjudication pending.",
+    "base_template_count": 10,
+    "case_count": 80,
+    "clinical_validation": false,
+    "family_count": 10,
+    "family_counts": {
+      "and_multi_clause": 8,
+      "demographics_consent": 8,
+      "laboratory": 8,
+      "negation": 8,
+      "numeric_thresholds": 8,
+      "or_multi_clause": 8,
+      "punctuation_evidence_span": 8,
+      "range_between": 8,
+      "simple_inclusion_exclusion": 8,
+      "temporal_constraints": 8
+    },
+    "license": "MIT",
+    "lineage": [
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-001",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-001"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-002",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-002"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-003",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-003"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-004",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-004"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-005",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-005"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-006",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-006"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-007",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-007"
+      },
+      {
+        "base_template_id": "simple_inclusion_exclusion-template-001",
+        "family_id": "simple_inclusion_exclusion",
+        "trial_id": "CB-SYN-V01-008",
+        "variant_id": "simple_inclusion_exclusion-template-001-variant-008"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-009",
+        "variant_id": "numeric_thresholds-template-001-variant-001"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-010",
+        "variant_id": "numeric_thresholds-template-001-variant-002"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-011",
+        "variant_id": "numeric_thresholds-template-001-variant-003"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-012",
+        "variant_id": "numeric_thresholds-template-001-variant-004"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-013",
+        "variant_id": "numeric_thresholds-template-001-variant-005"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-014",
+        "variant_id": "numeric_thresholds-template-001-variant-006"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-015",
+        "variant_id": "numeric_thresholds-template-001-variant-007"
+      },
+      {
+        "base_template_id": "numeric_thresholds-template-001",
+        "family_id": "numeric_thresholds",
+        "trial_id": "CB-SYN-V01-016",
+        "variant_id": "numeric_thresholds-template-001-variant-008"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-017",
+        "variant_id": "temporal_constraints-template-001-variant-001"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-018",
+        "variant_id": "temporal_constraints-template-001-variant-002"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-019",
+        "variant_id": "temporal_constraints-template-001-variant-003"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-020",
+        "variant_id": "temporal_constraints-template-001-variant-004"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-021",
+        "variant_id": "temporal_constraints-template-001-variant-005"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-022",
+        "variant_id": "temporal_constraints-template-001-variant-006"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-023",
+        "variant_id": "temporal_constraints-template-001-variant-007"
+      },
+      {
+        "base_template_id": "temporal_constraints-template-001",
+        "family_id": "temporal_constraints",
+        "trial_id": "CB-SYN-V01-024",
+        "variant_id": "temporal_constraints-template-001-variant-008"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-025",
+        "variant_id": "negation-template-001-variant-001"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-026",
+        "variant_id": "negation-template-001-variant-002"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-027",
+        "variant_id": "negation-template-001-variant-003"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-028",
+        "variant_id": "negation-template-001-variant-004"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-029",
+        "variant_id": "negation-template-001-variant-005"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-030",
+        "variant_id": "negation-template-001-variant-006"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-031",
+        "variant_id": "negation-template-001-variant-007"
+      },
+      {
+        "base_template_id": "negation-template-001",
+        "family_id": "negation",
+        "trial_id": "CB-SYN-V01-032",
+        "variant_id": "negation-template-001-variant-008"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-033",
+        "variant_id": "demographics_consent-template-001-variant-001"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-034",
+        "variant_id": "demographics_consent-template-001-variant-002"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-035",
+        "variant_id": "demographics_consent-template-001-variant-003"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-036",
+        "variant_id": "demographics_consent-template-001-variant-004"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-037",
+        "variant_id": "demographics_consent-template-001-variant-005"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-038",
+        "variant_id": "demographics_consent-template-001-variant-006"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-039",
+        "variant_id": "demographics_consent-template-001-variant-007"
+      },
+      {
+        "base_template_id": "demographics_consent-template-001",
+        "family_id": "demographics_consent",
+        "trial_id": "CB-SYN-V01-040",
+        "variant_id": "demographics_consent-template-001-variant-008"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-041",
+        "variant_id": "laboratory-template-001-variant-001"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-042",
+        "variant_id": "laboratory-template-001-variant-002"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-043",
+        "variant_id": "laboratory-template-001-variant-003"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-044",
+        "variant_id": "laboratory-template-001-variant-004"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-045",
+        "variant_id": "laboratory-template-001-variant-005"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-046",
+        "variant_id": "laboratory-template-001-variant-006"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-047",
+        "variant_id": "laboratory-template-001-variant-007"
+      },
+      {
+        "base_template_id": "laboratory-template-001",
+        "family_id": "laboratory",
+        "trial_id": "CB-SYN-V01-048",
+        "variant_id": "laboratory-template-001-variant-008"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-049",
+        "variant_id": "and_multi_clause-template-001-variant-001"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-050",
+        "variant_id": "and_multi_clause-template-001-variant-002"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-051",
+        "variant_id": "and_multi_clause-template-001-variant-003"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-052",
+        "variant_id": "and_multi_clause-template-001-variant-004"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-053",
+        "variant_id": "and_multi_clause-template-001-variant-005"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-054",
+        "variant_id": "and_multi_clause-template-001-variant-006"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-055",
+        "variant_id": "and_multi_clause-template-001-variant-007"
+      },
+      {
+        "base_template_id": "and_multi_clause-template-001",
+        "family_id": "and_multi_clause",
+        "trial_id": "CB-SYN-V01-056",
+        "variant_id": "and_multi_clause-template-001-variant-008"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-057",
+        "variant_id": "or_multi_clause-template-001-variant-001"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-058",
+        "variant_id": "or_multi_clause-template-001-variant-002"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-059",
+        "variant_id": "or_multi_clause-template-001-variant-003"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-060",
+        "variant_id": "or_multi_clause-template-001-variant-004"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-061",
+        "variant_id": "or_multi_clause-template-001-variant-005"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-062",
+        "variant_id": "or_multi_clause-template-001-variant-006"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-063",
+        "variant_id": "or_multi_clause-template-001-variant-007"
+      },
+      {
+        "base_template_id": "or_multi_clause-template-001",
+        "family_id": "or_multi_clause",
+        "trial_id": "CB-SYN-V01-064",
+        "variant_id": "or_multi_clause-template-001-variant-008"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-065",
+        "variant_id": "range_between-template-001-variant-001"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-066",
+        "variant_id": "range_between-template-001-variant-002"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-067",
+        "variant_id": "range_between-template-001-variant-003"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-068",
+        "variant_id": "range_between-template-001-variant-004"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-069",
+        "variant_id": "range_between-template-001-variant-005"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-070",
+        "variant_id": "range_between-template-001-variant-006"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-071",
+        "variant_id": "range_between-template-001-variant-007"
+      },
+      {
+        "base_template_id": "range_between-template-001",
+        "family_id": "range_between",
+        "trial_id": "CB-SYN-V01-072",
+        "variant_id": "range_between-template-001-variant-008"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-073",
+        "variant_id": "punctuation_evidence_span-template-001-variant-001"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-074",
+        "variant_id": "punctuation_evidence_span-template-001-variant-002"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-075",
+        "variant_id": "punctuation_evidence_span-template-001-variant-003"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-076",
+        "variant_id": "punctuation_evidence_span-template-001-variant-004"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-077",
+        "variant_id": "punctuation_evidence_span-template-001-variant-005"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-078",
+        "variant_id": "punctuation_evidence_span-template-001-variant-006"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-079",
+        "variant_id": "punctuation_evidence_span-template-001-variant-007"
+      },
+      {
+        "base_template_id": "punctuation_evidence_span-template-001",
+        "family_id": "punctuation_evidence_span",
+        "trial_id": "CB-SYN-V01-080",
+        "variant_id": "punctuation_evidence_span-template-001-variant-008"
+      }
+    ],
+    "lineage_derivation": "derived_from_manifest_family_and_record_order",
+    "manifest_sha256": "348ca04e94b00312d174c3011a2edfe7f65e731611536af636fc553bb4725508",
+    "name": "CriteriaBench Synthetic v0.1",
+    "slice_counts": {
+      "between": 8,
+      "comparison": 8,
+      "consent": 8,
+      "demographic": 8,
+      "duration": 8,
+      "evidence_span": 8,
+      "exclusion": 24,
+      "format_variation": 8,
+      "inclusion": 80,
+      "laboratory": 8,
+      "logic_and": 8,
+      "logic_or": 8,
+      "multi_clause": 16,
+      "negation": 8,
+      "numeric_threshold": 32,
+      "one_bullet_multiple_labels": 16,
+      "punctuation": 8,
+      "range": 8,
+      "simple": 8,
+      "temporal": 8
+    },
+    "variants_per_family": 8,
+    "version": "synthetic-v0.1"
+  },
+  "examples": [
+    {
+      "base_template_id": "simple_inclusion_exclusion-template-001",
+      "baseline_criterion_text_f1": {
+        "empty-v1": 0.0,
+        "rules-v1": 1.0
+      },
+      "baseline_mismatch_event_totals": {
+        "empty-v1": 2,
+        "rules-v1": 3
+      },
+      "family_id": "simple_inclusion_exclusion",
+      "reference_criteria": 2,
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ],
+      "trial_id": "CB-SYN-V01-001",
+      "variant_id": "simple_inclusion_exclusion-template-001-variant-001"
+    },
+    {
+      "base_template_id": "numeric_thresholds-template-001",
+      "baseline_criterion_text_f1": {
+        "empty-v1": 0.0,
+        "rules-v1": 1.0
+      },
+      "baseline_mismatch_event_totals": {
+        "empty-v1": 2,
+        "rules-v1": 0
+      },
+      "family_id": "numeric_thresholds",
+      "reference_criteria": 2,
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ],
+      "trial_id": "CB-SYN-V01-009",
+      "variant_id": "numeric_thresholds-template-001-variant-001"
+    },
+    {
+      "base_template_id": "temporal_constraints-template-001",
+      "baseline_criterion_text_f1": {
+        "empty-v1": 0.0,
+        "rules-v1": 1.0
+      },
+      "baseline_mismatch_event_totals": {
+        "empty-v1": 2,
+        "rules-v1": 8
+      },
+      "family_id": "temporal_constraints",
+      "reference_criteria": 2,
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ],
+      "trial_id": "CB-SYN-V01-017",
+      "variant_id": "temporal_constraints-template-001-variant-001"
+    },
+    {
+      "base_template_id": "and_multi_clause-template-001",
+      "baseline_criterion_text_f1": {
+        "empty-v1": 0.0,
+        "rules-v1": 0.0
+      },
+      "baseline_mismatch_event_totals": {
+        "empty-v1": 2,
+        "rules-v1": 8
+      },
+      "family_id": "and_multi_clause",
+      "reference_criteria": 2,
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ],
+      "trial_id": "CB-SYN-V01-049",
+      "variant_id": "and_multi_clause-template-001-variant-001"
+    },
+    {
+      "base_template_id": "or_multi_clause-template-001",
+      "baseline_criterion_text_f1": {
+        "empty-v1": 0.0,
+        "rules-v1": 0.0
+      },
+      "baseline_mismatch_event_totals": {
+        "empty-v1": 2,
+        "rules-v1": 9
+      },
+      "family_id": "or_multi_clause",
+      "reference_criteria": 2,
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ],
+      "trial_id": "CB-SYN-V01-057",
+      "variant_id": "or_multi_clause-template-001-variant-001"
+    }
+  ],
+  "limitations": [
+    "All 80 cases are generated from 10 parametric synthetic templates, not sampled records.",
+    "The AI-assisted deterministic references were produced in a single-author workflow.",
+    "Labels lack independent second-human and clinical-domain review and adjudication.",
+    "The suite is not clinical validation and must not support clinical decisions.",
+    "The offline baselines make no LLM calls, so their scores do not measure LLM quality.",
+    "Sensitivity intervals describe only this fixed case mix and are not population estimates.",
+    "Fixed-suite sensitivities do not measure model stochasticity; both baselines are deterministic."
+  ],
+  "paired_comparisons": [
+    {
+      "challenger": "rules-v1",
+      "delta_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.775,
+          "high": 0.8625,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.675,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.651563,
+          "high": 0.708594,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.592969,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": null,
+          "confidence": 0.95,
+          "estimate": 0.859843,
+          "high": 0.91824,
+          "interpretation": "Fixed-suite case-resampling sensitivity only; not a population confidence interval.",
+          "low": 0.797162,
+          "resamples": 10000,
+          "resampling_unit": "case",
+          "seed": 20260901
+        }
+      },
+      "family_cluster_delta_intervals": {
+        "mean_criterion_text_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.775,
+          "high": 1.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.5,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_macro_field_accuracy": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.651563,
+          "high": 0.800801,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.488281,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        },
+        "mean_token_f1": {
+          "cluster_count": 10,
+          "confidence": 0.95,
+          "estimate": 0.859843,
+          "high": 1.0,
+          "interpretation": "Fixed-suite family-cluster sensitivity only; 10 constructed families cannot establish population, clinical, or external-validity uncertainty.",
+          "low": 0.659843,
+          "resamples": 10000,
+          "resampling_unit": "family",
+          "seed": 20260901
+        }
+      },
+      "limitation": "Case-resampled and 10-family-cluster percentile intervals are descriptive sensitivity analyses for this fixed constructed suite, not population confidence intervals.",
+      "reference": "empty-v1"
+    }
+  ],
+  "reproducibility_command": "uv run --frozen --no-env-file criteriabench-suite data/synthetic_v0_1/manifest.json --configs empty-v1 rules-v1 --markdown-output artifacts/synthetic-v0.1.1.md --json-output artifacts/synthetic-v0.1.1.json --check-json docs/results/synthetic-v0.1.1.json --check-markdown docs/results/synthetic-v0.1.1.md",
+  "suite_version": "offline-suite-v0.1.1"
+}

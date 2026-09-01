@@ -8,7 +8,12 @@ from criteriabench.domain.schemas import EligibilityCriterion, TrialDocument
 from criteriabench.providers.mock import DeterministicMockProvider
 from criteriabench.suite.analysis import classify_errors, count_exact_true_positives
 from criteriabench.suite.baselines import EmptyBaseline, RulesBaseline, create_baseline
-from criteriabench.suite.statistics import percentile_interval
+from criteriabench.suite.models import ErrorTaxonomy
+from criteriabench.suite.statistics import (
+    family_cluster_interval,
+    percentile_interval,
+    summarize_taxonomy_totals,
+)
 from tests.helpers import criterion, extraction
 
 
@@ -92,6 +97,29 @@ def test_taxonomy_uses_evaluator_alignment_and_granular_fields() -> None:
     assert errors.evidence_offset_mismatch == 1
 
 
+def test_taxonomy_normalizes_scored_text_fields_but_keeps_evidence_exact() -> None:
+    reference = extraction(
+        criterion(
+            text="Age >= 18 years",
+            concept="Target, Condition",
+            unit="mg/dL",
+        )
+    )
+    predicted = extraction(
+        criterion(
+            text="AGE >= 18 YEARS",
+            concept="target condition",
+            unit="MG DL",
+        )
+    )
+
+    errors = classify_errors(predicted, reference)
+    assert errors.text_mismatch == 0
+    assert errors.concept_mismatch == 0
+    assert errors.unit_mismatch == 0
+    assert errors.evidence_quote_mismatch == 1
+
+
 def test_taxonomy_distinguishes_logic_connector_and_parent() -> None:
     reference = extraction(
         criterion(criterion_id="I001", text="alpha beta", group_id="IG001", logic_connector="and"),
@@ -120,3 +148,30 @@ def test_percentile_bootstrap_is_seeded_and_six_decimal() -> None:
     assert first.estimate == 0.4375
     assert first.resamples == 10_000
     assert first.seed == 20_260_901
+
+
+def test_family_cluster_interval_is_seeded_and_reports_cluster_count() -> None:
+    values = [
+        ("family-a", 0.0),
+        ("family-a", 1.0),
+        ("family-b", 0.25),
+        ("family-b", 0.75),
+    ]
+    first = family_cluster_interval(values)
+    second = family_cluster_interval(values)
+    assert first == second
+    assert first.estimate == 0.5
+    assert first.resampling_unit == "family"
+    assert first.cluster_count == 2
+
+
+def test_taxonomy_totals_assign_evaluator_aligned_denominators() -> None:
+    summary = summarize_taxonomy_totals(
+        ErrorTaxonomy(missing_criterion=1, spurious_criterion=2, concept_mismatch=3),
+        reference_criteria=4,
+        predicted_criteria=5,
+    )
+    assert summary.aligned_pairs == 3
+    assert summary.metrics["missing_criterion"].denominator == 4
+    assert summary.metrics["spurious_criterion"].denominator == 5
+    assert summary.metrics["concept_mismatch"].denominator == 3

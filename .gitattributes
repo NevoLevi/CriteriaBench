@@ -1,0 +1,7 @@
+docs/results/synthetic-v0.1.json text eol=lf
+docs/results/synthetic-v0.1.md text eol=lf
+docs/results/synthetic-v0.1.1.json text eol=lf
+docs/results/synthetic-v0.1.1.md text eol=lf
+data/public/*.json text eol=lf
+data/synthetic/*.json text eol=lf
+data/synthetic_v0_1/*.json text eol=lf

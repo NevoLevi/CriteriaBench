@@ -8,16 +8,25 @@ clinical dataset and not a source of patient-care guidance.
 
 - Version: `synthetic-v0.1`
 - Size: exactly 80 cases (10 families with 8 controlled variants each)
-- Origin: locally authored deterministic templates; no patient records, personal
-  data, network sources, model generations, or external clinical-trial text
+- Origin: AI-assisted template design and label construction encoded in a
+  deterministic, source-controlled generator; no patient records, personal data,
+  network-sourced clinical-trial text, or proprietary corpus material
 - License: MIT, matching the repository license
-- Annotation status: single-author template labels, with independent review still
-  pending
+- Annotation status: one AI-assisted authoring workflow, with independent
+  second-human and clinical-domain review/adjudication still pending
 - Clinical validation: false
 
-Every fixture repeats this status in its `provenance` object. The manifest pins
-the exact UTF-8 JSON bytes of every case with SHA-256 so regeneration and review
-can detect any drift.
+Every fixture records its synthetic kind, deterministic-template annotation
+method, family/slices, and `independent_review_pending` status in its
+`provenance` object. The manifest separately records the MIT license and
+`clinical_validation=false`, and pins the exact UTF-8 JSON bytes of every case
+with SHA-256 so regeneration and review can detect any drift.
+
+The frozen manifest uses `single_author` and `deterministic_templates` for its
+historical authoring workflow. Those immutable values do not mean unaided human
+authorship. They are supplemented here rather than rewritten so the published
+v0.1 fixture and manifest bytes remain reproducible. Generating and evaluating
+the committed suite is nevertheless offline and makes no model or network calls.
 
 ## Inclusion design
 
@@ -37,8 +46,20 @@ The suite is balanced by construction across these families:
 Each family has eight deterministic variants. The `slices` provenance field is a
 comma-separated list of evaluation attributes, and `manifest.json` reports their
 aggregate counts. AND and OR cases intentionally split one source bullet into two
-gold criteria sharing a logic group. This tests a structural failure mode that a
-one-criterion-per-bullet rules baseline cannot solve perfectly.
+reference criteria sharing a logic group. This exposes a controlled
+segmentation/grouping failure in a one-criterion-per-bullet baseline; it is not
+general evidence that a system can or cannot reason over arbitrary Boolean logic.
+
+### Derived lineage
+
+The corrected v0.1.1 analysis derives a lineage record for each immutable case:
+
+- `family_id`: the manifest's family;
+- `base_template_id`: one source template identifier per family; and
+- `variant_id`: the controlled within-family variant, numbered 1 through 8.
+
+This yields 10 base templates and 80 lineage records. The lineage is derived from
+the ordered manifest and trial IDs; it is not written back into v0.1 fixture bytes.
 
 ## Label contract
 
@@ -60,8 +81,9 @@ Unicode symbols, rather than copied by hand.
 
 ## Independent review procedure
 
-Before claiming reviewed or clinically meaningful labels, a reviewer who did not
-write the templates should:
+Before claiming independently reviewed labels, at least one second human who did
+not participate in the authoring workflow and an appropriate clinical-domain
+reviewer should:
 
 1. regenerate the dataset and confirm byte-for-byte equality with the committed
    cases and manifest;
@@ -76,7 +98,9 @@ write the templates should:
    committed.
 
 Review should not silently rewrite v0.1. Corrections create a new version so
-published results remain reproducible.
+published results remain reproducible. An analysis/report correction that leaves
+all dataset bytes unchanged receives a new analysis version, as v0.1.1 does; it
+does not relabel the underlying dataset.
 
 ## Regeneration
 
@@ -92,10 +116,16 @@ stable across runs.
 
 ## Limitations
 
-The set is synthetic, template-shaped, small, English-only, and intentionally
-narrow. It does not measure clinical validity, generalization to real trial
-registries, inter-annotator agreement, fairness, safety, or production model
-quality. Its slice balance is designed rather than naturally sampled. Some labels
-make one defensible normalization choice where real annotation could require a
-formal guideline and adjudication. Results on this set must therefore be reported
-as engineering benchmark evidence only, never as clinical validation.
+The set is synthetic, AI-assisted, template-shaped, small, English-only, and
+intentionally narrow. It does not measure clinical validity, generalization to
+real trial registries, inter-annotator agreement, fairness, safety, or production
+model quality. Its slice balance is designed rather than naturally sampled. Some
+labels make one defensible normalization choice where real annotation could
+require a formal guideline and adjudication.
+
+There are only 10 upper-level families/base templates, each with eight related
+variants. Case-resampling can understate that dependence; the 10-family-cluster
+view and leave-one-family-out results are sensitivity checks only. Resampling
+cannot create missing template diversity or establish population uncertainty.
+Results are engineering regression evidence, not research-grade or clinical
+validation.

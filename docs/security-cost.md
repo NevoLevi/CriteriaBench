@@ -85,7 +85,7 @@ Canonical synthetic and manifested-live artifacts use public/synthetic input, re
 
 Evaluation is an engineering smoke metric, not clinical validation.
 
-- Exact precision/recall/F1 uses normalized criterion text plus criterion kind and counts duplicates correctly.
+- Exact criterion-text precision/recall/F1 uses normalized criterion text plus criterion kind and counts duplicates correctly; it is not full structured-object equality.
 - Token F1 uses deterministic maximum-weight one-to-one Hungarian assignment among same-kind criteria, after a 0.25 similarity floor.
 - Field accuracy covers category, concept, operator, value, unit, negation, temporal relation, and logic connector.
 - It does not yet score temporal quantity/unit/reference, evidence similarity, logic-parent topology, or ambiguities.
@@ -150,8 +150,8 @@ Current execution uses a local Azure CLI/Terraform operator identity and local T
 | Kustomize/kind | Clean loopback cluster, non-root PostgreSQL, migration, API/worker, sync/async smoke, repeat-safe script, and teardown pass |
 | Helm | Lint/render plus separate runtime install, migration, sync/async smoke, and uninstall pass |
 | Terraform | Offline format/init/validate pass; the AKS plan was applied and destroyed; the Container Apps plan was applied and the manual job remains idle |
-| Local live model | Two provenance failures followed by one successful guarded one-case Luna smoke: 1,083 input/295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 authorization consumed under USD 0.02, exact F1 0.5, token F1 0.75, macro field accuracy 1.0; no zero-billing claim for failures |
-| Container Apps live model | Two pre-start attempts produced zero executions and fully cleaned; the next produced exactly one `Succeeded` execution and one Luna attempt: 1,083 input/296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 authorization consumed under USD 0.02, latency 5,764.961 ms, valid schema, prediction/reference 2/2 with one inclusion and one exclusion each, exact F1 0.0, token F1 0.5, macro field accuracy 1.0 |
+| Local live model | Two provenance failures followed by one successful guarded one-case Luna smoke: 1,083 input/295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 authorization consumed under USD 0.02, exact criterion-text F1 0.5, token F1 0.75, macro field accuracy 1.0; no zero-billing claim for failures |
+| Container Apps live model | Two pre-start attempts produced zero executions and fully cleaned; the next produced exactly one `Succeeded` execution and one Luna attempt: 1,083 input/296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 authorization consumed under USD 0.02, latency 5,764.961 ms, valid schema, prediction/reference 2/2 with one inclusion and one exclusion each, exact criterion-text F1 0.0, token F1 0.5, macro field accuracy 1.0 |
 | Azure | Destroyed mock-only AKS proof plus one currently deployed but idle no-ingress manual Container Apps Job, review-by 2026-09-15; not a public service or production-readiness claim |
 | Identity and secrets | Key Vault secret reference and user-assigned managed identity implemented for the Container Apps job; OTel, OIDC, remote state, end-to-end AKS workload identity, and full production API identity remain future work |
 

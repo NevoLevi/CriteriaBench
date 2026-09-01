@@ -37,10 +37,36 @@
     "minimum_mean_token_f1_delta": 0.2,
     "reference": "empty-v1"
   },
-  "policy_version": "synthetic-v0.1-policy-v1",
+  "policy_version": "synthetic-v0.1-policy-v1.1",
+  "required_analysis": {
+    "base_template_count": 10,
+    "case_lineage_count": 80,
+    "family_cluster_sensitivity": {
+      "cluster_count": 10,
+      "resampling_unit": "family"
+    },
+    "mean_field_accuracies": [
+      "category",
+      "concept",
+      "logic_connector",
+      "negated",
+      "operator",
+      "temporal_relation",
+      "unit",
+      "value"
+    ],
+    "lineage_derivation": "derived_from_manifest_family_and_record_order",
+    "suite_version": "offline-suite-v0.1.1",
+    "taxonomy": {
+      "denominator_bases": ["reference_criteria", "predicted_criteria", "aligned_pairs"],
+      "events_can_overlap": true
+    }
+  },
   "regression_gate": {
-    "committed_json": "docs/results/synthetic-v0.1.json",
-    "committed_markdown": "docs/results/synthetic-v0.1.md",
+    "committed_json": "docs/results/synthetic-v0.1.1.json",
+    "committed_markdown": "docs/results/synthetic-v0.1.1.md",
+    "historical_json": "docs/results/synthetic-v0.1.json",
+    "historical_markdown": "docs/results/synthetic-v0.1.md",
     "primary": "byte-for-byte-report-reproduction"
   },
   "required_execution": {

@@ -11,7 +11,7 @@ from criteriabench.evaluation.metrics import EvaluationReport
 
 DATASET_VERSION = "synthetic-v0.1"
 EXPECTED_CASE_COUNT = 80
-SUITE_VERSION = "offline-suite-v0.1"
+SUITE_VERSION = "offline-suite-v0.1.1"
 BaselineName = Literal["empty-v1", "rules-v1"]
 
 
@@ -138,6 +138,21 @@ class LoadedSuite(StrictModel):
     cases: Annotated[list[LoadedCase], Field(min_length=80, max_length=80)]
 
 
+class CaseLineage(StrictModel):
+    """Derived family/template/variant identity without changing frozen fixture bytes."""
+
+    trial_id: str
+    family_id: Annotated[str, Field(pattern=r"^[a-z0-9]+(?:_[a-z0-9]+)*$")]
+    base_template_id: Annotated[
+        str,
+        Field(pattern=r"^[a-z0-9]+(?:[-_][a-z0-9]+)*$"),
+    ]
+    variant_id: Annotated[
+        str,
+        Field(pattern=r"^[a-z0-9]+(?:[-_][a-z0-9]+)*$"),
+    ]
+
+
 class ErrorTaxonomy(StrictModel):
     missing_criterion: Annotated[StrictInt, Field(ge=0)] = 0
     spurious_criterion: Annotated[StrictInt, Field(ge=0)] = 0
@@ -167,6 +182,8 @@ class CaseEvaluation(StrictModel):
     config: BaselineName
     trial_id: str
     family: str
+    base_template_id: str
+    variant_id: str
     slices: list[str]
     reference_nonempty: StrictBool
     completed: Literal[True]
@@ -177,18 +194,34 @@ class CaseEvaluation(StrictModel):
     errors: ErrorTaxonomy
 
 
+class MeanFieldAccuracies(StrictModel):
+    """Case-weighted means for all eight evaluator field accuracies."""
+
+    category: Annotated[float, Field(ge=0.0, le=1.0)]
+    concept: Annotated[float, Field(ge=0.0, le=1.0)]
+    operator: Annotated[float, Field(ge=0.0, le=1.0)]
+    value: Annotated[float, Field(ge=0.0, le=1.0)]
+    unit: Annotated[float, Field(ge=0.0, le=1.0)]
+    negated: Annotated[float, Field(ge=0.0, le=1.0)]
+    temporal_relation: Annotated[float, Field(ge=0.0, le=1.0)]
+    logic_connector: Annotated[float, Field(ge=0.0, le=1.0)]
+
+
 class MetricAggregate(StrictModel):
     case_count: Annotated[StrictInt, Field(ge=0)]
     predicted_criteria: Annotated[StrictInt, Field(ge=0)]
     reference_criteria: Annotated[StrictInt, Field(ge=0)]
-    exact_true_positives: Annotated[StrictInt, Field(ge=0)]
-    micro_exact_precision: Annotated[float, Field(ge=0.0, le=1.0)]
-    micro_exact_recall: Annotated[float, Field(ge=0.0, le=1.0)]
-    micro_exact_f1: Annotated[float, Field(ge=0.0, le=1.0)]
-    mean_exact_f1: Annotated[float, Field(ge=0.0, le=1.0)]
+    criterion_text_true_positives: Annotated[StrictInt, Field(ge=0)]
+    criterion_text_false_positives: Annotated[StrictInt, Field(ge=0)]
+    criterion_text_false_negatives: Annotated[StrictInt, Field(ge=0)]
+    micro_criterion_text_precision: Annotated[float, Field(ge=0.0, le=1.0)]
+    micro_criterion_text_recall: Annotated[float, Field(ge=0.0, le=1.0)]
+    micro_criterion_text_f1: Annotated[float, Field(ge=0.0, le=1.0)]
+    mean_criterion_text_f1: Annotated[float, Field(ge=0.0, le=1.0)]
     mean_token_f1: Annotated[float, Field(ge=0.0, le=1.0)]
     mean_macro_field_accuracy: Annotated[float, Field(ge=0.0, le=1.0)]
-    trial_perfect_rate: Annotated[float, Field(ge=0.0, le=1.0)]
+    mean_field_accuracies: MeanFieldAccuracies
+    criterion_text_perfect_trial_rate: Annotated[float, Field(ge=0.0, le=1.0)]
 
 
 class ConfidenceInterval(StrictModel):
@@ -198,6 +231,41 @@ class ConfidenceInterval(StrictModel):
     confidence: Annotated[float, Field(ge=0.95, le=0.95)] = 0.95
     resamples: Literal[10000] = 10000
     seed: Literal[20260901] = 20260901
+    resampling_unit: Literal["case", "family"] = "case"
+    cluster_count: Annotated[StrictInt, Field(gt=0)] | None = None
+    interpretation: str
+
+
+class TaxonomyRate(StrictModel):
+    count: Annotated[StrictInt, Field(ge=0)]
+    denominator: Annotated[StrictInt, Field(ge=0)]
+    rate: Annotated[float, Field(ge=0.0, le=1.0)]
+    denominator_basis: Literal["reference_criteria", "predicted_criteria", "aligned_pairs"]
+
+    @model_validator(mode="after")
+    def count_and_rate_match_denominator(self) -> TaxonomyRate:
+        if self.count > self.denominator:
+            raise ValueError("taxonomy count cannot exceed its denominator")
+        expected = round(self.count / self.denominator, 6) if self.denominator else 0.0
+        if self.rate != expected:
+            raise ValueError("taxonomy rate must equal count / denominator")
+        return self
+
+
+class ErrorTaxonomySummary(StrictModel):
+    raw_counts: ErrorTaxonomy
+    aligned_pairs: Annotated[StrictInt, Field(ge=0)]
+    metrics: dict[str, TaxonomyRate]
+    overlap_note: str
+
+    @model_validator(mode="after")
+    def metrics_match_raw_counts(self) -> ErrorTaxonomySummary:
+        if set(self.metrics) != set(ErrorTaxonomy.model_fields):
+            raise ValueError("taxonomy metrics must cover every raw count")
+        for name, count in self.raw_counts.model_dump().items():
+            if self.metrics[name].count != count:
+                raise ValueError("taxonomy metric counts must match raw counts")
+        return self
 
 
 class BaselineStatistics(StrictModel):
@@ -210,26 +278,32 @@ class BaselineStatistics(StrictModel):
     completion_rate: Annotated[float, Field(ge=0.0, le=1.0)]
     schema_valid_rate: Annotated[float, Field(ge=0.0, le=1.0)]
     all_cases: MetricAggregate
-    nonempty_gold_cases: MetricAggregate
+    nonempty_reference_cases: MetricAggregate
     mean_metric_intervals: dict[str, ConfidenceInterval]
+    family_cluster_mean_metric_intervals: dict[str, ConfidenceInterval]
     per_slice: dict[str, MetricAggregate]
-    taxonomy: ErrorTaxonomy
+    per_family: dict[str, MetricAggregate]
+    leave_one_family_out: dict[str, MetricAggregate]
+    taxonomy: ErrorTaxonomySummary
 
 
 class PairedComparison(StrictModel):
     challenger: BaselineName
     reference: BaselineName
     delta_intervals: dict[str, ConfidenceInterval]
+    family_cluster_delta_intervals: dict[str, ConfidenceInterval]
     limitation: str
 
 
 class ExampleResult(StrictModel):
     trial_id: str
-    family: str
+    family_id: str
+    base_template_id: str
+    variant_id: str
     slices: list[str]
     reference_criteria: StrictInt
-    baseline_exact_f1: dict[str, float]
-    baseline_error_totals: dict[str, StrictInt]
+    baseline_criterion_text_f1: dict[str, float]
+    baseline_mismatch_event_totals: dict[str, StrictInt]
 
 
 class DatasetCard(StrictModel):
@@ -241,13 +315,17 @@ class DatasetCard(StrictModel):
     variants_per_family: StrictInt
     family_counts: dict[str, StrictInt]
     slice_counts: dict[str, StrictInt]
+    base_template_count: StrictInt
+    lineage_derivation: Literal["derived_from_manifest_family_and_record_order"]
+    lineage: Annotated[list[CaseLineage], Field(min_length=80, max_length=80)]
     license: Literal["MIT"]
     annotation: AnnotationMetadata
+    authoring_disclosure: str
     clinical_validation: Literal[False]
 
 
 class SuiteReport(StrictModel):
-    suite_version: Literal["offline-suite-v0.1"]
+    suite_version: Literal["offline-suite-v0.1.1"]
     analysis_contract_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
     dataset: DatasetCard
     baselines: list[BaselineStatistics]
