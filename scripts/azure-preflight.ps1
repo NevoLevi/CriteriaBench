@@ -2,13 +2,14 @@
 param(
     [Parameter(Mandatory)][string]$Subscription,
     [string]$Location = "germanywestcentral",
-    [string]$VmSize = "Standard_D2as_v5"
+    [ValidateSet("Standard_D2as_v4")][string]$VmSize = "Standard_D2as_v4"
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "tooling.ps1")
 . (Join-Path $PSScriptRoot "azure-safety.ps1")
+. (Join-Path $PSScriptRoot "azure-json.ps1")
 
 $az = Resolve-CriteriaBenchTool -ProjectRoot $projectRoot -Name az
 $null = Resolve-CriteriaBenchTool -ProjectRoot $projectRoot -Name terraform
@@ -25,20 +26,49 @@ if ($account.state -ne "Enabled") {
 Write-Host "Azure subscription: $($account.name) (enabled)"
 
 $skuJson = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
-    "vm", "list-skus", "--location", $Location, "--size", $VmSize, "--all",
-    "--query", "[?name=='$VmSize'] | [0].{name:name,restrictions:restrictions}",
+    "vm", "list-skus", "--location", $Location,
+    "--resource-type", "virtualMachines", "--size", $VmSize, "--all",
+    "--query", "[].{name:name,family:family,vcpus:capabilities[?name=='vCPUs'].value,restrictions:restrictions}",
     "--output", "json", "--only-show-errors"
 ) -FailureMessage "Azure could not query VM SKU availability"
 $skuText = $skuJson -join [Environment]::NewLine
-if ([string]::IsNullOrWhiteSpace($skuText) -or $skuText.Trim() -eq "null") {
-    throw "Azure did not return SKU '$VmSize' in '$Location'."
-}
-$sku = $skuText | ConvertFrom-Json
-if (@($sku.restrictions).Count -gt 0) {
-    $messages = @($sku.restrictions | ForEach-Object { $_.reasonCode }) -join ", "
-    throw "SKU '$VmSize' is restricted for this subscription in '$Location' ($messages). No resources were created."
-}
-Write-Host "AKS node SKU: $VmSize is currently available in $Location."
+$skuCandidates = @(
+    ConvertFrom-CriteriaBenchJsonObjectArray `
+        -Json $skuText `
+        -Description "VM SKU"
+)
+
+$usageJson = Get-CriteriaBenchNativeOutput -FilePath $az -ArgumentList @(
+    "vm", "list-usage", "--location", $Location,
+    "--query", "[].{name:name.value,currentValue:currentValue,limit:limit}",
+    "--output", "json", "--only-show-errors"
+) -FailureMessage "Azure could not query regional VM quota"
+$usageText = $usageJson -join [Environment]::NewLine
+$usageRecords = @(
+    ConvertFrom-CriteriaBenchJsonObjectArray `
+        -Json $usageText `
+        -Description "regional VM quota"
+)
+
+$quota = Assert-CriteriaBenchAzureVmQuota `
+    -VmSize $VmSize `
+    -SkuCandidates $skuCandidates `
+    -UsageRecords $usageRecords `
+    -NodeCount 1
+Write-Host "AKS node SKU: $VmSize is unrestricted in $Location."
+$quotaMessage = (
+    "Quota snapshot: family {0} uses {1}/{2} vCPUs ({3} remaining); " +
+    "region uses {4}/{5} ({6} remaining); this one-node plan requires {7}."
+) -f
+    $quota.Family,
+    $quota.FamilyCurrent,
+    $quota.FamilyLimit,
+    $quota.FamilyRemaining,
+    $quota.RegionalCurrent,
+    $quota.RegionalLimit,
+    $quota.RegionalRemaining,
+    $quota.RequiredVcpus
+Write-Host $quotaMessage
 
 $providerNamespaces = @(
     "Microsoft.ContainerService",
@@ -55,5 +85,5 @@ foreach ($namespace in $providerNamespaces) {
     Write-Host "Provider $namespace`: $(([string]$state).Trim())"
 }
 
-Write-Host "Preflight is read-only. It did not create resources or register providers."
-Write-Warning "Azure budgets send delayed alerts; they are not spending caps. Deploy only after the reviewed plan is approved and destroy within eight hours."
+Write-Host "Preflight is read-only. It did not create resources, register providers, or run Terraform."
+Write-Warning "Quota is a point-in-time check, not a reservation. Azure budgets are delayed alerts, not spending caps. Deploy only after reviewing a fresh plan and destroy within eight hours."

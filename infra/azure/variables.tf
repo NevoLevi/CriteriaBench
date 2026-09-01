@@ -33,17 +33,13 @@ variable "cluster_name" {
 }
 
 variable "node_vm_size" {
-  description = "AKS system-pool VM. B-series VMs are excluded because AKS does not support them for system pools."
+  description = "AKS system-pool VM. The single reviewed size has two vCPUs and eight GB; preflight checks its live family and regional quota."
   type        = string
-  default     = "Standard_D2as_v5"
+  default     = "Standard_D2as_v4"
 
   validation {
-    condition = contains([
-      "Standard_D2as_v5",
-      "Standard_D2s_v5",
-      "Standard_D2ads_v5",
-    ], var.node_vm_size)
-    error_message = "Use one of the reviewed two-vCPU, eight-GB D2 v5 SKUs."
+    condition     = var.node_vm_size == "Standard_D2as_v4"
+    error_message = "This cost-bounded demo currently permits only the reviewed Standard_D2as_v4 SKU."
   }
 }
 

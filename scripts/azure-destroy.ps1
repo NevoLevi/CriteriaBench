@@ -58,12 +58,15 @@ Invoke-CriteriaBenchWithAzureCliOnPath -AzPath $az -Action {
         throw "Terraform returned successfully, but at least one exact CriteriaBench resource group remains. Inspect Azure before any manual deletion."
     }
 
-    $remainingState = & $terraform "-chdir=$terraformDirectory" state list
+    $remainingState = @(& $terraform "-chdir=$terraformDirectory" state list)
     if ($LASTEXITCODE -ne 0) {
         throw "Terraform state could not be checked after teardown."
     }
-    if (@($remainingState).Count -gt 0) {
-        throw "Terraform still tracks resources after teardown. Inspect the exact state before taking any manual action."
+    $remainingManagedState = @(
+        Get-CriteriaBenchTerraformManagedStateEntry -Address $remainingState
+    )
+    if ($remainingManagedState.Count -gt 0) {
+        throw "Terraform still tracks managed resources after teardown. Inspect the exact state before taking any manual action."
     }
 }
 
@@ -73,5 +76,5 @@ foreach ($artifact in @($kubeconfigPath, $planPath, $summaryPath)) {
     }
 }
 
-Write-Host "Both CriteriaBench Azure resource groups were verified absent and local plan/kubeconfig artifacts were removed."
-Write-Host "Terraform-managed cloud data is not recoverable. Check Cost Management again tomorrow because usage reporting can be delayed."
+Write-Host "Both CriteriaBench Azure resource groups were verified absent, no managed Terraform resources remain, and local plan/kubeconfig artifacts were removed."
+Write-Host "Residual data-source-only state is expected and safe; Terraform-managed cloud data is not recoverable. Check Cost Management again tomorrow because usage reporting can be delayed."

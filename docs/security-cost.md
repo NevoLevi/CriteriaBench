@@ -120,7 +120,7 @@ The Terraform definition is intentionally small: a parent resource group, AKS fr
 
 Nothing has been deployed. Azure plan/apply requires separate explicit approval and a reviewed immutable GHCR digest. The supported workflow is:
 
-1. `scripts/azure-preflight.ps1` validates identity, subscription, tools, and safety inputs.
+1. `scripts/azure-preflight.ps1` validates identity, subscription, tools, safety inputs, SKU availability, and sufficient live VM-family and total regional vCPU quota; the result is a point-in-time snapshot, not a capacity reservation or spending cap.
 2. `scripts/azure-plan.ps1` creates an expiring plan plus summary/hash.
 3. A human reviews exact resources and current Azure Retail Prices.
 4. `scripts/azure-apply-reviewed.ps1` accepts only the matching plan hash and image digest, waits for migrations/workloads, and attempts automatic cleanup after failure.

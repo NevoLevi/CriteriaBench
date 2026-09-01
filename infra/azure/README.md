@@ -4,7 +4,7 @@ This Terraform stack is a deliberately small, short-lived AKS portfolio demo
 in **Germany West Central**:
 
 - one AKS Free-tier control plane;
-- one allowlisted `Standard_D2as_v5` system node (two vCPU, 8 GB);
+- one allowlisted `Standard_D2as_v4` system node (two vCPU, 8 GB);
 - Azure CNI Overlay with the Cilium data plane and enforced NetworkPolicy;
 - Microsoft Entra/Azure RBAC authentication with local Kubernetes accounts disabled;
 - explicit parent and AKS node resource-group names;
@@ -34,6 +34,15 @@ The Free tier removes the AKS control-plane charge, not node/disk/network usage.
 A short four-to-eight-hour run should normally cost only a few currency units,
 but regional retail price and quota must be checked again immediately before
 creating a plan.
+
+The reviewed default is `Standard_D2as_v4`. Preflight derives its current Azure
+quota family and vCPU count from SKU metadata, then requires enough remaining
+family quota **and** total regional vCPU quota for the fixed one-node pool. A
+missing, ambiguous, malformed, restricted, or insufficient result stops before
+Terraform planning. This is a point-in-time capacity check, not a quota
+reservation; it does not select another SKU automatically and apply can still
+lose a capacity race. Any future size change requires a new reviewed allowlist,
+fresh price/quota review, and fresh saved plan.
 
 ## Guarded lifecycle
 
@@ -87,6 +96,8 @@ Destroy immediately after evidence capture:
   -Confirmation "DESTROY-CRITERIABENCH"
 ```
 
-The destroy script checks Terraform state and independently verifies that both
-`rg-criteriabench-demo` and `rg-criteriabench-aks-nodes-demo` are absent. Recheck
-Cost Management the next day because Azure usage reporting can lag.
+The destroy script independently verifies that both `rg-criteriabench-demo` and
+`rg-criteriabench-aks-nodes-demo` are absent, and fails if Terraform still
+tracks any managed-resource address. Residual `data.*` and module-scoped data
+source addresses are permitted because they do not represent cloud resources.
+Recheck Cost Management the next day because Azure usage reporting can lag.

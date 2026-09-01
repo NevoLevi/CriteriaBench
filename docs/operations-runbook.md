@@ -155,6 +155,8 @@ This safely validates canonical Compose, Helm, Kustomize, Terraform formatting/i
 
 Do not use direct `terraform apply`/`destroy`. The supported sequence binds identity, subscription, reviewed plan bytes, immutable image digest, expiry, and cleanup.
 
+The guarded default is one `Standard_D2as_v4` worker node. Preflight fails closed before planning when SKU availability or either VM-family or total regional vCPU quota is missing, restricted, malformed, or insufficient. There is no automatic SKU or region fallback; retry only after capacity becomes available or a deliberate, reviewed configuration change.
+
 1. Run preflight with the exact subscription and budget contacts:
 
    ```powershell
@@ -177,7 +179,7 @@ Do not use direct `terraform apply`/`destroy`. The supported sequence binds iden
 
 6. Collect only mock deployment evidence.
 7. Destroy immediately using the exact confirmation required by `scripts/azure-destroy.ps1`.
-8. Verify both the parent `rg-criteriabench-*` and explicitly configured AKS node resource group `rg-criteriabench-aks-nodes-*` no longer exist in CLI and the Azure portal. Cost data can lag.
+8. Verify that no managed Terraform resource addresses remain (residual data-source-only state is permitted), and that both the parent `rg-criteriabench-*` and explicitly configured AKS node resource group `rg-criteriabench-aks-nodes-*` no longer exist in CLI and the Azure portal. Cost data can lag.
 
 Azure budget alerts cover both groups in subscription billing currency but are notifications, not caps. The current workflow uses local Azure CLI/Terraform identity and local state; OIDC, Key Vault, remote state, and workload identity are future work.
 
