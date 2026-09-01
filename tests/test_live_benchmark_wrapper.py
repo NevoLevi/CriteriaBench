@@ -28,6 +28,8 @@ def test_live_wrapper_is_explicit_frozen_and_uses_only_the_fixed_local_file() ->
     assert '"--live", "--acknowledge-paid-api", "--budget-usd"' in script
     assert "ValidateRange(0.01, 2.0)" in script
     assert "OPENAI_API_KEY                     = $apiKey" in script
+    assert 'CRITERIABENCH_OPENAI_MAX_RETRIES   = "0"' in script
+    assert script.count("CRITERIABENCH_OPENAI_MAX_RETRIES") == 1
     assert "$liveEnvironment.Clear()" in script
     assert "$apiKey = $null" in script
 

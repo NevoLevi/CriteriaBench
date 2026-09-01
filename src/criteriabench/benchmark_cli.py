@@ -28,7 +28,12 @@ from criteriabench.db.session import Database
 from criteriabench.domain.schemas import ClinicalTrialEligibility, StrictModel, TrialDocument
 from criteriabench.evaluation.metrics import EvaluationReport, evaluate_extraction
 from criteriabench.providers.factory import create_provider
-from criteriabench.services.extraction import BudgetExceeded, ExtractionService, LiveBudget
+from criteriabench.services.extraction import (
+    BudgetExceeded,
+    ExtractionService,
+    LiveBudget,
+    ProvenanceError,
+)
 
 ABSOLUTE_LIVE_BUDGET_CEILING_USD = 2.0
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -244,17 +249,19 @@ async def run(
                 )
             except Exception as exc:
                 status = "partial_failure"
-                results.append(
-                    {
-                        "status": "failed",
-                        "trial_id": case.trial.trial_id,
-                        "source_path": case.source_path,
-                        "fixture_version": case.fixture_version,
-                        "fixture_sha256": case.fixture_sha256,
-                        "provenance": case.provenance,
-                        "error_type": type(exc).__name__,
-                    }
-                )
+                failure: dict[str, Any] = {
+                    "status": "failed",
+                    "trial_id": case.trial.trial_id,
+                    "source_path": case.source_path,
+                    "fixture_version": case.fixture_version,
+                    "fixture_sha256": case.fixture_sha256,
+                    "provenance": case.provenance,
+                    "error_type": type(exc).__name__,
+                }
+                if isinstance(exc, ProvenanceError):
+                    failure["error_code"] = exc.code
+                    failure["error_details"] = dict(exc.safe_details)
+                results.append(failure)
                 break
     finally:
         await database.close()

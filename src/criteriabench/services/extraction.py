@@ -5,10 +5,17 @@ from __future__ import annotations
 import asyncio
 import json
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from typing import Literal
 
 from criteriabench.db.repositories import RunRepository
-from criteriabench.domain.schemas import ClinicalTrialEligibility, TrialDocument
+from criteriabench.domain.schemas import (
+    ClinicalTrialEligibility,
+    CriterionKind,
+    EligibilityCriterion,
+    EvidenceSpan,
+    TrialDocument,
+)
 from criteriabench.evaluation.cost import calculate_token_cost
 from criteriabench.observability import EXTRACTIONS, record_provider_result
 from criteriabench.providers.base import ExtractionProvider, ProviderError, ProviderResult
@@ -34,8 +41,33 @@ class BudgetExceeded(ProviderError):
     """A paid call was prevented by the configured authorization guard."""
 
 
+ProvenanceErrorCode = Literal[
+    "trial_id_mismatch",
+    "out_of_bounds",
+    "quote_not_found",
+    "quote_ambiguous",
+    "span_mismatch",
+]
+
+
 class ProvenanceError(ProviderError):
-    """Provider output did not point to exact input evidence."""
+    """Provider output failed exact grounding without retaining source text."""
+
+    def __init__(
+        self,
+        code: ProvenanceErrorCode,
+        *,
+        source_length: int,
+        criterion_id: str | None = None,
+        quote_length: int | None = None,
+    ) -> None:
+        self.code = code
+        self.safe_details: dict[str, str | int] = {"source_length": source_length}
+        if criterion_id is not None:
+            self.safe_details["criterion_id"] = criterion_id
+        if quote_length is not None:
+            self.safe_details["quote_length"] = quote_length
+        super().__init__(f"provider provenance validation failed: {code}")
 
 
 class LiveBudget:
@@ -155,6 +187,7 @@ class ExtractionService:
 
             provider_call_started = True
             result = await self.provider.extract(trial)
+            result = _canonicalize_provider_output(trial, result)
             _validate_provenance(trial, result)
             await self.live_budget.reconcile(estimate, result.estimated_cost_usd)
             authorization_settled = True
@@ -179,16 +212,127 @@ def _validate_cost(value: float, *, label: str) -> None:
         raise ValueError(f"{label} must be finite and non-negative")
 
 
+def _canonicalize_provider_output(
+    trial: TrialDocument,
+    result: ProviderResult,
+) -> ProviderResult:
+    """Own deterministic fields and repair only uniquely resolvable exact quotes."""
+
+    inclusion = [
+        _canonicalize_criterion(
+            trial.eligibility_text,
+            criterion,
+            kind=CriterionKind.INCLUSION,
+            criterion_id=f"I{index:03d}",
+        )
+        for index, criterion in enumerate(result.extraction.inclusion_criteria, start=1)
+    ]
+    exclusion = [
+        _canonicalize_criterion(
+            trial.eligibility_text,
+            criterion,
+            kind=CriterionKind.EXCLUSION,
+            criterion_id=f"E{index:03d}",
+        )
+        for index, criterion in enumerate(result.extraction.exclusion_criteria, start=1)
+    ]
+
+    extraction_payload = result.extraction.model_dump(mode="json")
+    extraction_payload["trial_id"] = trial.trial_id
+    extraction_payload["inclusion_criteria"] = [
+        criterion.model_dump(mode="json") for criterion in inclusion
+    ]
+    extraction_payload["exclusion_criteria"] = [
+        criterion.model_dump(mode="json") for criterion in exclusion
+    ]
+    extraction = ClinicalTrialEligibility.model_validate(extraction_payload)
+    if extraction == result.extraction:
+        return result
+    return replace(result, extraction=extraction)
+
+
+def _canonicalize_criterion(
+    source: str,
+    criterion: EligibilityCriterion,
+    *,
+    kind: CriterionKind,
+    criterion_id: str,
+) -> EligibilityCriterion:
+    evidence = criterion.evidence
+    source_length = len(source)
+    if (
+        0 <= evidence.start_char < evidence.end_char <= source_length
+        and source[evidence.start_char : evidence.end_char] == evidence.quote
+    ):
+        canonical_evidence = evidence
+    else:
+        starts = _exact_occurrence_starts(source, evidence.quote)
+        if not starts:
+            raise ProvenanceError(
+                "quote_not_found",
+                criterion_id=criterion_id,
+                source_length=source_length,
+                quote_length=len(evidence.quote),
+            )
+        if len(starts) > 1:
+            raise ProvenanceError(
+                "quote_ambiguous",
+                criterion_id=criterion_id,
+                source_length=source_length,
+                quote_length=len(evidence.quote),
+            )
+        start = starts[0]
+        canonical_evidence = EvidenceSpan(
+            start_char=start,
+            end_char=start + len(evidence.quote),
+            quote=evidence.quote,
+        )
+
+    criterion_payload = criterion.model_dump(mode="json")
+    criterion_payload["criterion_id"] = criterion_id
+    criterion_payload["kind"] = kind.value
+    criterion_payload["evidence"] = canonical_evidence.model_dump(mode="json")
+    return EligibilityCriterion.model_validate(criterion_payload)
+
+
+def _exact_occurrence_starts(source: str, quote: str) -> list[int]:
+    starts: list[int] = []
+    cursor = 0
+    while True:
+        start = source.find(quote, cursor)
+        if start < 0:
+            return starts
+        starts.append(start)
+        cursor = start + 1
+
+
 def _validate_provenance(trial: TrialDocument, result: ProviderResult) -> None:
     extraction = result.extraction
+    source = trial.eligibility_text
+    source_length = len(source)
     if extraction.trial_id != trial.trial_id:
-        raise ProvenanceError("provider output trial_id does not match the request")
+        raise ProvenanceError("trial_id_mismatch", source_length=source_length)
     for criterion in extraction.inclusion_criteria + extraction.exclusion_criteria:
         evidence = criterion.evidence
-        if evidence.end_char > len(trial.eligibility_text):
-            raise ProvenanceError("provider evidence offsets exceed the source document")
-        observed = trial.eligibility_text[evidence.start_char : evidence.end_char]
+        if not 0 <= evidence.start_char < evidence.end_char <= source_length:
+            raise ProvenanceError(
+                "out_of_bounds",
+                criterion_id=criterion.criterion_id,
+                source_length=source_length,
+                quote_length=len(evidence.quote),
+            )
+        observed = source[evidence.start_char : evidence.end_char]
         if observed != evidence.quote:
-            raise ProvenanceError("provider evidence quote does not match its character offsets")
+            raise ProvenanceError(
+                "span_mismatch",
+                criterion_id=criterion.criterion_id,
+                source_length=source_length,
+                quote_length=len(evidence.quote),
+            )
         if evidence.quote != criterion.source_text:
-            raise ProvenanceError("criterion source_text must exactly match its evidence quote")
+            raise ProvenanceError(
+                "span_mismatch",
+                criterion_id=criterion.criterion_id,
+                source_length=source_length,
+                quote_length=len(evidence.quote),
+            )

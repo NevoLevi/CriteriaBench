@@ -115,6 +115,7 @@ $liveEnvironment = @{
     PRICING_MODEL                      = "gpt-5.6-luna"
     INPUT_COST_PER_MILLION_USD         = "0.20"
     OUTPUT_COST_PER_MILLION_USD        = "1.20"
+    CRITERIABENCH_OPENAI_MAX_RETRIES   = "0"
     UV_NO_ENV_FILE                     = "1"
     UV_PYTHON_DOWNLOADS                = "never"
 }
