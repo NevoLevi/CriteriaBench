@@ -45,7 +45,15 @@ resource "azurerm_container_app_environment" "this" {
   resource_group_name        = azurerm_resource_group.this[0].name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.this[0].id
   public_network_access      = "Enabled"
-  tags                       = local.common_tags
+
+  workload_profile {
+    name                  = "Consumption"
+    workload_profile_type = "Consumption"
+    minimum_count         = 0
+    maximum_count         = 0
+  }
+
+  tags = local.common_tags
 }
 
 resource "azurerm_user_assigned_identity" "job" {
@@ -97,7 +105,7 @@ resource "azurerm_consumption_budget_subscription" "this" {
   time_grain      = "Monthly"
 
   time_period {
-    start_date = formatdate("YYYY-MM-01'T'00:00:00Z", timestamp())
+    start_date = var.budget_start_date
   }
 
   filter {

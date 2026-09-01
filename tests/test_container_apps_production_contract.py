@@ -78,6 +78,7 @@ def test_job_summary_excludes_extraction_text_and_provider_payload() -> None:
 
 def test_terraform_job_is_no_ingress_manual_single_retryless_execution() -> None:
     main = (INFRA / "main.tf").read_text(encoding="utf-8")
+    variables = (INFRA / "variables.tf").read_text(encoding="utf-8")
 
     assert 'resource "azurerm_container_app_job" "live"' in main
     assert 'resource "azurerm_container_app"' not in main
@@ -93,6 +94,14 @@ def test_terraform_job_is_no_ingress_manual_single_retryless_execution() -> None
     assert "local.job_bootstrap" in main
     assert "filesha256" in main
     assert "base64gzip" in main
+    assert 'variable "budget_start_date"' in variables
+    assert "start_date = var.budget_start_date" in main
+    assert "formatdate(\"YYYY-MM-01'T'00:00:00Z\", timestamp())" not in main
+    assert "workload_profile {" in main
+    assert 'name                  = "Consumption"' in main
+    assert 'workload_profile_type = "Consumption"' in main
+    assert "minimum_count         = 0" in main
+    assert "maximum_count         = 0" in main
 
     providers = (INFRA / "providers.tf").read_text(encoding="utf-8")
     assert "purge_soft_delete_on_destroy    = false" in providers
@@ -117,6 +126,10 @@ def test_deployment_imports_secret_in_memory_and_starts_only_once() -> None:
     assert "$deploymentState.TerraformStarted = $true" in deploy
     assert "if ($deploymentState.TerraformStarted)" in deploy
     assert "$terraformStarted" not in deploy
+    assert deploy.count("-var=budget_start_date=$budgetStartDate") == 2
+    assert destroy.count("-var=budget_start_date=$budgetStartDate") == 1
+    assert deploy.count("$budgetStartDate = [DateTimeOffset]::UtcNow.ToString") == 1
+    assert destroy.count("$budgetStartDate = [DateTimeOffset]::UtcNow.ToString") == 1
     assert 'keyvault", "purge' not in destroy
     assert "list-deleted" in destroy
 

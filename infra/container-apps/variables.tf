@@ -67,6 +67,16 @@ variable "budget_contact_email" {
   }
 }
 
+variable "budget_start_date" {
+  description = "Frozen UTC budget period start in exact YYYY-MM-01T00:00:00Z form."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]{4}-(0[1-9]|1[0-2])-01T00:00:00Z$", var.budget_start_date))
+    error_message = "budget_start_date must use exact YYYY-MM-01T00:00:00Z form."
+  }
+}
+
 variable "review_at_utc" {
   description = "Operator review-by timestamp in RFC3339 form; advisory only and does not automatically tear down resources."
   type        = string

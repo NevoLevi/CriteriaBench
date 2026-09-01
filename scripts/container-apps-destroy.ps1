@@ -32,6 +32,7 @@ if ($budgetEmail -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') {
     throw "The signed-in Azure identity is not an email-shaped budget contact."
 }
 $reviewAt = [DateTimeOffset]::UtcNow.AddHours(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
+$budgetStartDate = [DateTimeOffset]::UtcNow.ToString("yyyy-MM-01T00:00:00Z")
 $terraformEnvironment = @{
     TF_VAR_budget_contact_email = $budgetEmail
 }
@@ -52,7 +53,8 @@ Invoke-CriteriaBenchWithAzureCliOnPath -AzPath $az -Action {
             "-var=confirm_billable_deployment=false",
             "-var=secret_ready=false",
             "-var=image_digest=$ImageDigest",
-            "-var=review_at_utc=$reviewAt"
+            "-var=review_at_utc=$reviewAt",
+            "-var=budget_start_date=$budgetStartDate"
         ) -FailureMessage "Container Apps production-proof teardown failed"
     }
 

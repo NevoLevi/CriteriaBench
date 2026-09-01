@@ -93,6 +93,7 @@ $null = Invoke-CriteriaBenchNative -FilePath $docker -ArgumentList @(
 ) -FailureMessage "The reviewed immutable GHCR image is not publicly retrievable"
 
 $reviewAt = [DateTimeOffset]::UtcNow.AddDays($ReviewDays).ToString("yyyy-MM-ddTHH:mm:ssZ")
+$budgetStartDate = [DateTimeOffset]::UtcNow.ToString("yyyy-MM-01T00:00:00Z")
 $terraformEnvironment = @{ TF_VAR_budget_contact_email = $BudgetEmail }
 $deploymentState = [pscustomobject]@{ TerraformStarted = $false }
 $vaultName = $null
@@ -110,7 +111,8 @@ try {
                 "-chdir=$terraformDirectory", "plan", "-input=false", "-out=$planPath",
                 "-var=confirm_billable_deployment=true", "-var=secret_ready=false",
                 "-var=image_digest=$ImageDigest", "-var=budget_amount=$BudgetAmount",
-                "-var=review_at_utc=$reviewAt"
+                "-var=review_at_utc=$reviewAt",
+                "-var=budget_start_date=$budgetStartDate"
             ) -FailureMessage "The frozen Container Apps base plan failed"
             $basePlanJson = Get-CriteriaBenchNativeOutput -FilePath $terraform -ArgumentList @(
                 "-chdir=$terraformDirectory", "show", "-json", $planPath
@@ -147,7 +149,8 @@ try {
                 "-chdir=$terraformDirectory", "plan", "-input=false", "-out=$planPath",
                 "-var=confirm_billable_deployment=true", "-var=secret_ready=true",
                 "-var=image_digest=$ImageDigest", "-var=budget_amount=$BudgetAmount",
-                "-var=review_at_utc=$reviewAt"
+                "-var=review_at_utc=$reviewAt",
+                "-var=budget_start_date=$budgetStartDate"
             ) -FailureMessage "The frozen Container Apps job plan failed"
             $jobPlanJson = Get-CriteriaBenchNativeOutput -FilePath $terraform -ArgumentList @(
                 "-chdir=$terraformDirectory", "show", "-json", $planPath
@@ -295,7 +298,3 @@ Write-Host "CriteriaBench production job is deployed with no ingress and one suc
 Write-Host "Sanitized evidence: $evidenceFullPath"
 Write-Host "Operator review-by: $reviewAt (tag only; not automatic teardown)."
 Write-Warning "The job remains deployed but idle. Never start it again without a new explicit paid authorization; the Azure budget is a delayed alert, not a hard cap."
-
-
-
-
