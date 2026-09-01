@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "numeric_thresholds",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "numeric_threshold,comparison,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "age",
+        "concept": "age",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 37,
+          "quote": "Age >= 50 years",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "age >= 50 years",
+        "operator": "greater_than_or_equal",
+        "source_text": "Age >= 50 years",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": "years",
+        "value": 50
+      },
+      {
+        "category": "performance_status",
+        "concept": "ECOG performance status",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 68,
+          "quote": "ECOG performance status <= 1",
+          "start_char": 40
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG002",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "ecog performance status <= 1",
+        "operator": "less_than_or_equal",
+        "source_text": "ECOG performance status <= 1",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": 1
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-014"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Age >= 50 years\n- ECOG performance status <= 1",
+    "source_url": null,
+    "title": "Synthetic numeric thresholds case 6",
+    "trial_id": "CB-SYN-V01-014"
+  }
+}

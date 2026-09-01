@@ -1,0 +1,977 @@
+{
+  "annotation": {
+    "authoring_status": "single_author",
+    "method": "deterministic_templates",
+    "review_status": "independent_review_pending"
+  },
+  "case_count": 80,
+  "clinical_validation": false,
+  "dataset_version": "synthetic-v0.1",
+  "family_count": 10,
+  "family_counts": {
+    "and_multi_clause": 8,
+    "demographics_consent": 8,
+    "laboratory": 8,
+    "negation": 8,
+    "numeric_thresholds": 8,
+    "or_multi_clause": 8,
+    "punctuation_evidence_span": 8,
+    "range_between": 8,
+    "simple_inclusion_exclusion": 8,
+    "temporal_constraints": 8
+  },
+  "license": "MIT",
+  "records": [
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_001.json",
+      "sha256": "9675737b3f3d1cedf077224a1a2e4fb86c683e0f33b02697a8be28c1df5e02e7",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_002.json",
+      "sha256": "c4ac210ebe9c70ad3702902c7bbfe3764c0ae8edf32b2c151a0219c8439f07b2",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_003.json",
+      "sha256": "ba836dad41998c3b27e0079ccec8c92e19999fab6cf2caceec5fadfcb378ff6d",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_004.json",
+      "sha256": "625214bc33667295759a852938ef06258769fb6341707235a1a3700cca3c3c09",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_005.json",
+      "sha256": "697a6267a5688b4fd7e2d6a7cc159e3c08e6a510dd9105d3a38b5f9565420c51",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_006.json",
+      "sha256": "0c2c1fac2a808a1c5d523f7f2ce646a600ff92f5f1bc66b6b457e70b1114e1eb",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_007.json",
+      "sha256": "96a953867410adc709fa0958becb47e9df03c6a2dfa0cc63ac602f09ecd46557",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "simple_inclusion_exclusion",
+      "has_reference": true,
+      "path": "case_008.json",
+      "sha256": "68d9dde52a0ac9e86713883f3bb1ffa131a0fe99beb412e238b4cb3f0eddbb84",
+      "slices": [
+        "simple",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_009.json",
+      "sha256": "7356d5870e9644fde02b6467cbcc58f81b0884ce2dda31420333dff63b8d45d0",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_010.json",
+      "sha256": "e90a06a3c21533df2fb38861e3a11cfee0edb9201333736a15d90e5acb0f23b1",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_011.json",
+      "sha256": "2447e20eca7630ad3e866c7c4586780cc3c35226ee09cb5b02af368b41a96c34",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_012.json",
+      "sha256": "cd348cccc3a330dcabda9659c8398929cb93f6129630b4cd1da054b2651752d1",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_013.json",
+      "sha256": "6b8c2634f7f6e3eb9ac6c3284e855f38c6ff419600afb1eaf7d246fe9e01a5c0",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_014.json",
+      "sha256": "17fdb7bd3847581481be59a1540995e516a620ed6ea7e390d7a620674a88dd40",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_015.json",
+      "sha256": "2b8385f669d8055013919c5484e85ddcd5d3573fb35e5c5e613007b6093a261f",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "numeric_thresholds",
+      "has_reference": true,
+      "path": "case_016.json",
+      "sha256": "60d45089b7a1fd5fe178f29afc8e2073a00e1db799c29ff06f009f17668d81cc",
+      "slices": [
+        "numeric_threshold",
+        "comparison",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_017.json",
+      "sha256": "a8b883e237fed1ca6d936bdf56ba876e29e27bf0342c35ff810c1f00c76aa417",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_018.json",
+      "sha256": "52ebc1cc9bc9246210a6c3940938e626c81a9a99ba0cc658cc7f9ba1b2cce9ed",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_019.json",
+      "sha256": "d1ea353e6b773b31d559cb7e1de7a18eb2fda193aa8889896c187e40ff533e20",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_020.json",
+      "sha256": "040f289d4754a649846efaad7a63d96a1f051298d31abbbf0cc13da8d098ebe3",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_021.json",
+      "sha256": "389834331880f2833647c8b013dc9b17a4aa67ea22cb4280ed23ef2cbce531c7",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_022.json",
+      "sha256": "7efa8b57fabc4747ffaf684538d803c6d1877080c41572afcc0690d14148f8e6",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_023.json",
+      "sha256": "8ef711b7e86cedae5e7f9473ceda51df722ede13b46db34372d09b88a04d42eb",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "temporal_constraints",
+      "has_reference": true,
+      "path": "case_024.json",
+      "sha256": "f7bf7918bd4c3d237acb37ca611c98ed545fa86d3dd360334af4bdf5dd4a900b",
+      "slices": [
+        "temporal",
+        "duration",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_025.json",
+      "sha256": "ad42a7a1e4286d8314d15d4ff31eedf6d71622b67f521d50ca5f95253d213644",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_026.json",
+      "sha256": "96e2a1d7a84bcebb6496728c36731479de7f478fda23354f9e32ed0085b25059",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_027.json",
+      "sha256": "d42714d98a3e45fb2a730aeee8a3e23269db35cfe26949ecd0b0282b8936a2e8",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_028.json",
+      "sha256": "d1b5b6ed1840dc0cd10afd0f7b1c1104cddd7b680f2dcc06477adb5ccbe28806",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_029.json",
+      "sha256": "1d9fa2d8de10a696f99023d66bad491c7cc6232e43e40cb21731156c678e8e31",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_030.json",
+      "sha256": "75df220c1077f9f8884e6c529d4440aa6f907f0572a931a6cfce088ef0718f37",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_031.json",
+      "sha256": "2f62b534c7df5bc62ec26965ad6d6520ad60108854260eedfb676773cb86b7f8",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "negation",
+      "has_reference": true,
+      "path": "case_032.json",
+      "sha256": "95e81225e7c96ecbc5f8363fbb19bbbaeca0127c52d44efa498a99e122851609",
+      "slices": [
+        "negation",
+        "inclusion",
+        "exclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_033.json",
+      "sha256": "7a1042a8df9c14c0c9f4eddb01203d86ea7c8931a7e78de53ccef064b9e520e8",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_034.json",
+      "sha256": "b786bff25012e8e77b05e90f7503a213640784a0c13ed8635331c9f006a42a25",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_035.json",
+      "sha256": "daa9162c7e677abcee0154356c6ae1c271b3fed0bc08e63b987b2791645ad936",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_036.json",
+      "sha256": "ed240c73e60d92e9bbb21a7dd2c73d6dee79c5494aa8b4665a11194302a40686",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_037.json",
+      "sha256": "083adf99b0e3d06251b95dada567616319c33e64c1f592b7abacb5314ffcf714",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_038.json",
+      "sha256": "b10e0afa296cb48aeea4b62b3775a71edc547745075fa9cd9392bbcb083a81ad",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_039.json",
+      "sha256": "93be292905d28098573f572c4dbce92440d4dbf8f3da7bd95c09e4179a5dc069",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "demographics_consent",
+      "has_reference": true,
+      "path": "case_040.json",
+      "sha256": "a43692c58c90a16c0dbc9e533d5a861f8cf1441c59693fbceaa33cacc95e6f67",
+      "slices": [
+        "demographic",
+        "consent",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_041.json",
+      "sha256": "9e46354f841fdd57ef8250adc0ee5fa0b6d6473fc13e88728998497890401369",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_042.json",
+      "sha256": "1b4f4c62e584799fac47f7fb39ca258d85fcf357c93d2eb0b1894d49eba9d64c",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_043.json",
+      "sha256": "1e9a4e800f9a56d50c85eab5a05c340fc3d66f517c9aee6a01a49ed9fc6d9744",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_044.json",
+      "sha256": "3972a8e43cd3bc071530521f68882bba7ed4d85c83e262a734e775aac82f6369",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_045.json",
+      "sha256": "46913c6d6df07fa2d2d25363656d46450aee94caec4a6e6214c6eba0db0a9e1d",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_046.json",
+      "sha256": "b369c2c4828682214071cf2eedd558b5d09d3bd79de335e05162dddd84f4a79d",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_047.json",
+      "sha256": "da892d619b43733f950774e9c3c258916492153176f0f28c6d16df9cac28f7b1",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "laboratory",
+      "has_reference": true,
+      "path": "case_048.json",
+      "sha256": "1e5b59a57baa6144b73b08fb0b2ac32ed231f6080a8d6e63f834c8039b0afafb",
+      "slices": [
+        "laboratory",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_049.json",
+      "sha256": "42fd4731613afc17eb909deec6ec1a7f2d89b49c44937da9f9c7ded321afbf3f",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_050.json",
+      "sha256": "e49257e50ee56ef236b1f088c51eae5d61229674cfe3c39581700b032da016f9",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_051.json",
+      "sha256": "2e03465b999f78a0f84bb9c7500145c939d7c642f612ec1e84cd8724406297c0",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_052.json",
+      "sha256": "4368df92ccf687f67a912a41c07d79a71705a2e8bbbca52a24b2d1770c6e8b7f",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_053.json",
+      "sha256": "5bbce04d779daa3e99e6eceb6fceb51efcde647b2e924c23111c868cb280f992",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_054.json",
+      "sha256": "a0283c13bfaf18ef82116fa8b68d71695c6fc84fae3319f706883a8bd4c036ad",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_055.json",
+      "sha256": "d4afffaeb31d79392d34903ddcb257a0ef92eda53f3f76635b2e6dba9b21e4be",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "and_multi_clause",
+      "has_reference": true,
+      "path": "case_056.json",
+      "sha256": "186b0072ba681c6052907eecc4112f7b8fce4e62a99a1031fb2c7b161f057578",
+      "slices": [
+        "logic_and",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_057.json",
+      "sha256": "efa7ca5e9d4aba7b031a7c228add0eda445c539eca10033014b08498ce0473a5",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_058.json",
+      "sha256": "a2ac9eb1332dacc492d98e19c6873783588bec2ae17958bedf7041f0054eadf2",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_059.json",
+      "sha256": "533e4a81b1edad95766e331a21d6be1c3a80f5fd306678f161570c617681110d",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_060.json",
+      "sha256": "fe320693a3efccdd6d20c1d437d838fbb1c33ea65f586175cf5957c90e848c67",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_061.json",
+      "sha256": "774656853e7c236f0c74bddb336813ec9c002197615c81e6060df65a9b6d5ab4",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_062.json",
+      "sha256": "4e1214741ae0ae1a757f9768cb17a6dfa1addd83117f74d37a8ca0a751800b82",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_063.json",
+      "sha256": "2bab825843b288c7a9b1d23ec64c48dff6195b164f010bc46518943614dead26",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "or_multi_clause",
+      "has_reference": true,
+      "path": "case_064.json",
+      "sha256": "223f9d212b967831603be88a5db1935925564a060658bd1ceeb5f152c9369065",
+      "slices": [
+        "logic_or",
+        "multi_clause",
+        "one_bullet_multiple_labels",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_065.json",
+      "sha256": "0a03a45315f0660ecba5850eee5fd250236a7ae85bef02231ef5a50c127826a4",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_066.json",
+      "sha256": "e2ef6fd1f91e0756df29efd62b38b380865165e18c073a913af9be2e0bd2771a",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_067.json",
+      "sha256": "b761f9646f07684a7b123303aecd4627cc3c21180c9e20081af69af6c8712c54",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_068.json",
+      "sha256": "723fcd5bea0e2f63b1a36f6c3034ef26077a98240a8f597d90e7b553b52f2a8c",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_069.json",
+      "sha256": "1e51cd445e8c25db079a2edd74915f48fd64b2fba5b35281539f35aebe2539b5",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_070.json",
+      "sha256": "b026545bc70657112a0c9793c4d9ac94dd622bb83615fca00b0f5255ac372a5f",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_071.json",
+      "sha256": "1ec73765493c1a995111182ab070a9e20d2a119403f9d864c0dcb773f074399d",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "range_between",
+      "has_reference": true,
+      "path": "case_072.json",
+      "sha256": "e8e52911e9e3e37bca066d5481e27837879bafc251ce20472c4cbe4dbe30498e",
+      "slices": [
+        "range",
+        "between",
+        "numeric_threshold",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_073.json",
+      "sha256": "a2c6060b4e4cce08f4f8aaeb2e0af14100162eea7792071e9c8a954ee686dfbc",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_074.json",
+      "sha256": "1ae2c20a6312f60f557e87ca84614d4f4c71acd1d6876c6e3b96a69464addab1",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_075.json",
+      "sha256": "e2734807a012e03ace3ed89835f57a7deb875eafa0a4b9f59b00212d5da7f820",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_076.json",
+      "sha256": "ebc0448a2bc406d89279c3827dd89137a5bf3ee0641c0bdda9eef4f72494e572",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_077.json",
+      "sha256": "9575bbea1435ae0587897638d6d745cc079b13d4079a8e113f38bf85c041b986",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_078.json",
+      "sha256": "6367597cfa87ee67abea7263af3c075e3c6e81ae464986ff72a6668190d2b134",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_079.json",
+      "sha256": "7f18e5177877a1c6ff838c713a5fa052054c0afd057e82a58f5b6808a215c75b",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    },
+    {
+      "family": "punctuation_evidence_span",
+      "has_reference": true,
+      "path": "case_080.json",
+      "sha256": "0c07a836a3ee991b4216b7c17c5b2b513871f2cfbc52d6fb6fca0369871e59c3",
+      "slices": [
+        "punctuation",
+        "evidence_span",
+        "format_variation",
+        "inclusion"
+      ]
+    }
+  ],
+  "slice_counts": {
+    "between": 8,
+    "comparison": 8,
+    "consent": 8,
+    "demographic": 8,
+    "duration": 8,
+    "evidence_span": 8,
+    "exclusion": 24,
+    "format_variation": 8,
+    "inclusion": 80,
+    "laboratory": 8,
+    "logic_and": 8,
+    "logic_or": 8,
+    "multi_clause": 16,
+    "negation": 8,
+    "numeric_threshold": 32,
+    "one_bullet_multiple_labels": 16,
+    "punctuation": 8,
+    "range": 8,
+    "simple": 8,
+    "temporal": 8
+  },
+  "variants_per_family": 8
+}

@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "or_multi_clause",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "logic_or,multi_clause,one_bullet_multiple_labels,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "systolic heart failure",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 44,
+          "quote": "systolic heart failure",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "systolic heart failure",
+        "operator": "exists",
+        "source_text": "systolic heart failure",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      },
+      {
+        "category": "diagnosis",
+        "concept": "diastolic heart failure",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 71,
+          "quote": "diastolic heart failure",
+          "start_char": 48
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "diastolic heart failure",
+        "operator": "exists",
+        "source_text": "diastolic heart failure",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-062"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- systolic heart failure or diastolic heart failure",
+    "source_url": null,
+    "title": "Synthetic or multi clause case 6",
+    "trial_id": "CB-SYN-V01-062"
+  }
+}

@@ -14,11 +14,11 @@ Last factual review: **2026-09-01**.
 | API | FastAPI exposes mock-only sync/async extraction, evaluation, saved runs, service info, health, readiness, OpenAPI, and Prometheus metrics. Paid providers are rejected. |
 | Worker and storage | PostgreSQL persistence plus a single Redis worker with atomic claim, acknowledgement, restart recovery, bounded dead-letter storage, frozen job contracts, and fail-closed payload checks. Delivery is **at least once**, not exactly once. |
 | Evaluation | Duplicate-safe exact precision/recall/F1, token F1, eight structured-field accuracies, and a macro field score. Alignment uses deterministic maximum-weight one-to-one assignment among same-kind criteria with a 0.25 token-F1 floor. |
-| Benchmark | A zero-cost synthetic gold smoke and JSON evidence artifact written through a temporary file and atomic replace. The built-in gold set has one case; it proves the pipeline, not model quality. |
+| Offline benchmark evidence | The original zero-cost, one-case synthetic gold smoke remains as a pipeline/artifact regression. Synthetic v0.1 adds exactly 80 hash-pinned reference cases across 10 families, empty and rules baselines, per-slice/error analysis, deterministic paired-bootstrap intervals, and byte-stable JSON/Markdown reports. Neither path is clinical validation or model-quality evidence. |
 | Paid model path | Available through the guarded local benchmark CLI and a separately guarded, no-ingress manual Azure Container Apps Job. Both pin the reviewed `gpt-5.6-luna` model/rates and official OpenAI endpoint. Two local attempts failed closed on provenance, followed by one successful local smoke; two ACA attempts failed before job start, followed by exactly one successful ACA execution. These are one-case engineering smokes, not model-quality evidence. |
 | Data input | A bounded, fixed-host ClinicalTrials.gov downloader maps NCT ID, brief title, eligibility text, and source URL. The worker never downloads studies. |
 | Packaging | A non-root multi-stage image consumes `uv.lock` with digest-pinned Python and uv bases. Compose, Kustomize, Helm, and Terraform definitions are present. |
-| Automation | GitHub Actions runs frozen static/unit/integration checks, produces the offline benchmark artifact, validates infrastructure, scans the exact image bytes later published, and attests the pushed digest. |
+| Automation | GitHub Actions runs frozen static/unit/integration checks, retains the original one-case smoke, reproduces the 80-case offline suite byte for byte, validates infrastructure, scans the exact image bytes later published, and attests the pushed digest. |
 
 OpenTelemetry traces, API authentication, GitHub-to-Azure OIDC, remote locked Terraform state, end-to-end AKS workload identity, and a production API data plane are future work. The narrow Container Apps benchmark path implements a user-assigned managed identity and Key Vault-backed secret reference.
 
@@ -37,18 +37,21 @@ flowchart LR
     D["Explicit downloader"] --> C["ClinicalTrials.gov"]
     C --> F["Minimal public fixture"]
     F --> B["Guarded benchmark CLI"]
-    G["Synthetic gold reference"] --> B
+    G["One-case synthetic gold"] --> B
     B --> X["Deterministic mock"]
     B -. "explicit paid opt-in" .-> O["Official OpenAI API"]
     B --> J["Temporary write + atomic-replace JSON"]
     F --> ACA["Manual ACA benchmark Job<br/>no ingress"]
     KV["Azure Key Vault"] -->|"managed-identity secret reference"| ACA
     ACA -. "explicit paid authorization" .-> O
+
+    S["Synthetic v0.1<br/>80 hash-pinned cases"] --> OB["Empty and rules baselines<br/>offline only"]
+    OB --> SR["Stable JSON and Markdown<br/>CI regression evidence"]
 ```
 
-The important cost boundary is simple: the web API and worker are always mock-only. A live model can run only through the guarded local CLI or the separately authorized manual Container Apps Job.
+The important cost boundary is simple: the web API and worker are always mock-only. A live model can run only through the guarded local CLI or the separately authorized manual Container Apps Job. The 80-case suite accepts only allowlisted offline baselines and records `paid=false`, `network=false`, zero tokens, and zero estimated cost.
 
-## What the smoke benchmark measures
+## What the evaluators measure
 
 Implemented metrics are:
 
@@ -57,9 +60,11 @@ Implemented metrics are:
 - accuracy for category, concept, operator, value, unit, negation, temporal **relation**, and logic **connector**; and
 - the macro average of those eight field accuracies.
 
-The current score does not separately measure temporal quantity/unit/reference, evidence similarity, logic-parent topology, or ambiguities. Extractor/provider prediction evidence offsets and quotes are checked against the exact supplied source text. The manually authored gold/reference evidence is typed but is not currently cross-checked against the fixture source. `schema_valid=true` means both typed objects passed validation; it does not mean the extraction is clinically correct.
+The evaluator does not separately measure temporal quantity/unit/reference, evidence similarity, logic-parent topology, or ambiguities. Extractor/provider prediction evidence offsets and quotes are checked against the exact supplied source text. The synthetic v0.1 loader additionally checks every reference quote and offset against its source and verifies every fixture hash. The older one-case smoke reference remains typed but is not source-cross-checked by that CLI. `schema_valid=true` means typed objects passed validation; it does not mean an extraction is clinically correct.
 
-The bundled reference set contains one synthetic case. A credible model comparison would require a larger frozen corpus, independent annotation and adjudication, fixed sampling/model settings, repeated runs where relevant, confidence intervals, and error analysis.
+The one-case smoke proves guarded execution and artifact plumbing. Synthetic v0.1 is a stronger deterministic engineering regression: 80 constructed cases, 10 families, 20 declared slices, 16 hard one-bullet/multi-label cases, two zero-network baselines, per-slice metrics, an error taxonomy, and fixed-seed paired-bootstrap intervals. Its references are deterministic, single-author templates with independent review pending, so the suite is explicitly not a clinical dataset or a model comparison.
+
+See the committed [synthetic v0.1 results](docs/results/synthetic-v0.1.md) and [benchmark methodology](docs/benchmark-methodology.md).
 
 ## Run the local stack safely
 
@@ -87,7 +92,7 @@ Stop the stack while retaining its named PostgreSQL volume:
 
 Only use `down --volumes` after confirming that the local database is disposable.
 
-## Run checks and the zero-cost benchmark
+## Run checks and the zero-cost benchmarks
 
 Dependencies are frozen in `uv.lock`; see [dependency-lock.md](docs/dependency-lock.md).
 
@@ -100,7 +105,7 @@ uv run --frozen --no-env-file mypy src
 uv run --frozen --no-env-file pytest -m "not live and not integration"
 ```
 
-Run the offline gold smoke to a new artifact path:
+Run the original offline gold smoke to a new artifact path:
 
 ```powershell
 uv run --frozen --no-env-file python -m criteriabench.benchmark_cli `
@@ -108,7 +113,21 @@ uv run --frozen --no-env-file python -m criteriabench.benchmark_cli `
   --output artifacts/smoke.json
 ```
 
-Existing artifacts are not overwritten unless `--overwrite` is explicit. The artifact records fixture provenance, extraction and evaluator implementation hashes, provider/model, maximum permitted attempts per case, latency, usage-priced cost, extraction, and evaluation. Canonical synthetic and manifested-live outputs omit the application key and redact absolute machine paths; arbitrary offline input can appear in an artifact, so operators must review it before sharing. The default mock costs USD 0.
+Run the 80-case offline suite and require exact equality with the committed reports:
+
+```powershell
+uv run --frozen --no-env-file criteriabench-suite `
+  data/synthetic_v0_1/manifest.json `
+  --configs empty-v1 rules-v1 `
+  --json-output artifacts/synthetic-v0.1.json `
+  --markdown-output artifacts/synthetic-v0.1.md `
+  --check-json docs/results/synthetic-v0.1.json `
+  --check-markdown docs/results/synthetic-v0.1.md
+```
+
+The suite command rejects environment-style paths, accepts only the two allowlisted offline baselines, validates all 80 case hashes and source-bound reference spans, and refuses existing outputs unless `--overwrite` is explicit. The policy contract in `benchmarks/synthetic-v0.1-policy.json` requires 100% completion/schema validity, every declared slice, zero network/paid/token/cost accounting, and a minimum 0.20 rules-over-empty improvement in both mean token F1 and mean macro field accuracy. Exact report reproduction is the primary CI regression gate.
+
+For the one-case smoke, existing artifacts are not overwritten unless `--overwrite` is explicit. Its artifact records fixture provenance, extraction and evaluator implementation hashes, provider/model, maximum permitted attempts per case, latency, usage-priced cost, extraction, and evaluation. Canonical synthetic and manifested-live outputs omit the application key and redact absolute machine paths; arbitrary offline input can appear in an artifact, so operators must review it before sharing. The default mock costs USD 0.
 
 ## Local Kubernetes and Helm
 
@@ -165,7 +184,8 @@ Verified locally and through explicitly approved Azure proofs on 2026-09-01:
 - A clean loopback-only kind cluster, non-root PostgreSQL initialization, migration, API, worker, sync/async extraction, persistence, metrics, and teardown pass.
 - A separate Helm runtime install, migration, API/worker sync/async smoke, and uninstall pass.
 - Helm lint/render, Kustomize render, and Terraform offline format/init/validate pass.
-- The synthetic gold smoke reports exact F1 1.0, token F1 1.0, macro field accuracy 0.875, and USD 0 cost.
+- The one-case synthetic gold smoke reports exact F1 1.0, token F1 1.0, macro field accuracy 0.875, and USD 0 cost.
+- Synthetic v0.1 loads exactly 80 unique, hash-pinned, source-validated cases across 10 families; both offline baselines complete with valid schemas, no network or paid calls, zero tokens, and zero estimated cost. The generated JSON and Markdown reproduce the committed reports byte for byte, and the rules baseline clears both predeclared +0.20 improvement gates over the empty baseline.
 - After two local provenance failures, one approved guarded local Luna smoke completed one case: 1,083 input and 295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 of application authorization consumed under a USD 0.02 guard, exact F1 0.5, token F1 0.75, and macro field accuracy 1.0. No zero-provider-billing claim is made for the earlier failures.
 - The approved AKS proof applied immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. Health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
 - The AKS parent and managed-node resource groups and budget were independently confirmed absent after teardown; Terraform retained only data-source entries and temporary proof artifacts were absent.
@@ -178,6 +198,7 @@ The successful Container Apps Job remains deployed but idle, with review-by date
 
 - [Architecture](docs/architecture.md)
 - [Benchmark methodology](docs/benchmark-methodology.md)
+- [Synthetic v0.1 results](docs/results/synthetic-v0.1.md)
 - [Data use and provenance](docs/data-use.md)
 - [Operations runbook](docs/operations-runbook.md)
 - [Security, privacy, and cost boundaries](docs/security-cost.md)
@@ -186,7 +207,7 @@ The successful Container Apps Job remains deployed but idle, with review-by date
 
 ## Honest portfolio claims
 
-This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest; and deployed a bounded, no-ingress manual Container Apps benchmark Job with managed identity, a Key Vault secret reference, and one successful guarded synthetic Luna execution.
+This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built an 80-case, hash-pinned synthetic reference suite with per-slice/error analysis, deterministic paired-bootstrap intervals, predeclared policy gates, and byte-stable CI reports; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest; and deployed a bounded, no-ingress manual Container Apps benchmark Job with managed identity, a Key Vault secret reference, and one successful guarded synthetic Luna execution.
 
 It should not be described as clinically validated, production-ready, exactly-once, publicly secure, a public or continuously serving production API, proven to outperform another model, backed by statistically meaningful model-quality evidence, or protected by a hard Azure or OpenAI spending cap. Current Azure status should be stated precisely: the AKS proof was destroyed, while one manual Container Apps Job remains deployed but idle pending its 2026-09-15 review.
 

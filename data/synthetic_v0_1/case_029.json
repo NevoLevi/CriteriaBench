@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "reproductive",
+        "concept": "required contraception",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 101,
+          "quote": "Without required contraception",
+          "start_char": 71
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "without required contraception",
+        "operator": "not_exists",
+        "source_text": "Without required contraception",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "immunodeficiency",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 47,
+          "quote": "No known immunodeficiency",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "no known immunodeficiency",
+        "operator": "not_exists",
+        "source_text": "No known immunodeficiency",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-029"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- No known immunodeficiency\n\nExclusion Criteria:\n- Without required contraception",
+    "source_url": null,
+    "title": "Synthetic negation case 5",
+    "trial_id": "CB-SYN-V01-029"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "procedure",
+        "concept": "planned major surgery",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 99,
+          "quote": "Planned major surgery",
+          "start_char": 78
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "planned major surgery",
+        "operator": "unspecified",
+        "source_text": "Planned major surgery",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "procedure",
+        "concept": "archival tissue availability",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 54,
+          "quote": "Available archival tissue sample",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "available archival tissue sample",
+        "operator": "unspecified",
+        "source_text": "Available archival tissue sample",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-005"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Available archival tissue sample\n\nExclusion Criteria:\n- Planned major surgery",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 5",
+    "trial_id": "CB-SYN-V01-005"
+  }
+}

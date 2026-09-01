@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "or_multi_clause",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "logic_or,multi_clause,one_bullet_multiple_labels,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "rheumatoid arthritis",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 42,
+          "quote": "rheumatoid arthritis",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "rheumatoid arthritis",
+        "operator": "exists",
+        "source_text": "rheumatoid arthritis",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      },
+      {
+        "category": "diagnosis",
+        "concept": "psoriatic arthritis",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 65,
+          "quote": "psoriatic arthritis",
+          "start_char": 46
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "psoriatic arthritis",
+        "operator": "exists",
+        "source_text": "psoriatic arthritis",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-061"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- rheumatoid arthritis or psoriatic arthritis",
+    "source_url": null,
+    "title": "Synthetic or multi clause case 5",
+    "trial_id": "CB-SYN-V01-061"
+  }
+}

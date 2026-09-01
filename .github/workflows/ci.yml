@@ -82,6 +82,21 @@ jobs:
           name: synthetic-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/ci-benchmark-${{ github.run_id }}-${{ github.run_attempt }}.json
           if-no-files-found: error
+      - name: Reproduce synthetic v0.1 offline suite
+        run: >-
+          uv run --frozen --no-env-file criteriabench-suite
+          data/synthetic_v0_1/manifest.json
+          --configs empty-v1 rules-v1
+          --json-output artifacts/synthetic-v0.1.json
+          --markdown-output artifacts/synthetic-v0.1.md
+          --check-json docs/results/synthetic-v0.1.json
+          --check-markdown docs/results/synthetic-v0.1.md
+      - name: Upload synthetic v0.1 suite evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: synthetic-v0.1-suite-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/synthetic-v0.1.*
+          if-no-files-found: error
       - name: Upload coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

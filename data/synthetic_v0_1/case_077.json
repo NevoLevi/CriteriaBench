@@ -1,0 +1,53 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "punctuation_evidence_span",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "punctuation,evidence_span,format_variation,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "documented tumor diagnosis",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 54,
+          "quote": "Documented tumor diagnosis",
+          "start_char": 28
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "documented tumor diagnosis",
+        "operator": "exists",
+        "source_text": "Documented tumor diagnosis",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-077"
+  },
+  "trial": {
+    "eligibility_text": "Key Inclusion Criteria:\n2) (Documented tumor diagnosis)",
+    "source_url": null,
+    "title": "Synthetic punctuation evidence span case 5",
+    "trial_id": "CB-SYN-V01-077"
+  }
+}

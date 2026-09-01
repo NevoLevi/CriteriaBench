@@ -1,0 +1,60 @@
+{
+  "configs": [
+    "empty-v1",
+    "rules-v1"
+  ],
+  "dataset": {
+    "case_count": 80,
+    "declared_slices": [
+      "between",
+      "comparison",
+      "consent",
+      "demographic",
+      "duration",
+      "evidence_span",
+      "exclusion",
+      "format_variation",
+      "inclusion",
+      "laboratory",
+      "logic_and",
+      "logic_or",
+      "multi_clause",
+      "negation",
+      "numeric_threshold",
+      "one_bullet_multiple_labels",
+      "punctuation",
+      "range",
+      "simple",
+      "temporal"
+    ],
+    "family_count": 10,
+    "hard_multi_label_case_count": 16,
+    "version": "synthetic-v0.1"
+  },
+  "improvement_gates": {
+    "challenger": "rules-v1",
+    "minimum_mean_macro_field_accuracy_delta": 0.2,
+    "minimum_mean_token_f1_delta": 0.2,
+    "reference": "empty-v1"
+  },
+  "policy_version": "synthetic-v0.1-policy-v1",
+  "regression_gate": {
+    "committed_json": "docs/results/synthetic-v0.1.json",
+    "committed_markdown": "docs/results/synthetic-v0.1.md",
+    "primary": "byte-for-byte-report-reproduction"
+  },
+  "required_execution": {
+    "completion_rate": 1.0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 0,
+    "network": false,
+    "output_tokens": 0,
+    "paid": false,
+    "schema_valid_rate": 1.0
+  },
+  "required_reference_contract": {
+    "clinical_validation": false,
+    "fixture_hashes_valid": true,
+    "source_evidence_valid": true
+  }
+}

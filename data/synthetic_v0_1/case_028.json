@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "reproductive",
+        "concept": "pregnancy",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 93,
+          "quote": "Must not be pregnant",
+          "start_char": 73
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "must not be pregnant",
+        "operator": "not_exists",
+        "source_text": "Must not be pregnant",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "prior gene therapy",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 49,
+          "quote": "Never received gene therapy",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "never received gene therapy",
+        "operator": "not_exists",
+        "source_text": "Never received gene therapy",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-028"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Never received gene therapy\n\nExclusion Criteria:\n- Must not be pregnant",
+    "source_url": null,
+    "title": "Synthetic negation case 4",
+    "trial_id": "CB-SYN-V01-028"
+  }
+}

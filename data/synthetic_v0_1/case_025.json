@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "prohibited medication",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 103,
+          "quote": "Must not receive prohibited medication",
+          "start_char": 65
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "must not receive prohibited medication",
+        "operator": "not_exists",
+        "source_text": "Must not receive prohibited medication",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "disease_state",
+        "concept": "active infection",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 41,
+          "quote": "No active infection",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "no active infection",
+        "operator": "not_exists",
+        "source_text": "No active infection",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-025"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- No active infection\n\nExclusion Criteria:\n- Must not receive prohibited medication",
+    "source_url": null,
+    "title": "Synthetic negation case 1",
+    "trial_id": "CB-SYN-V01-025"
+  }
+}

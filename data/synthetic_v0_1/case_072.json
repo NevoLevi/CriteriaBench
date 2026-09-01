@@ -1,0 +1,56 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "range_between",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "range,between,numeric_threshold,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "age",
+        "concept": "age",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 49,
+          "quote": "Age between 50 and 80 years",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "age between 50 and 80 years",
+        "operator": "between",
+        "source_text": "Age between 50 and 80 years",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": "years",
+        "value": [
+          50,
+          80
+        ]
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-072"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Age between 50 and 80 years",
+    "source_url": null,
+    "title": "Synthetic range between case 8",
+    "trial_id": "CB-SYN-V01-072"
+  }
+}

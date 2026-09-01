@@ -1,0 +1,53 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "punctuation_evidence_span",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "punctuation,evidence_span,format_variation,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "procedure",
+        "concept": "suitable archival sample",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 63,
+          "quote": "Suitable archival sample",
+          "start_char": 39
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "suitable archival sample",
+        "operator": "exists",
+        "source_text": "Suitable archival sample",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-079"
+  },
+  "trial": {
+    "eligibility_text": "Key Inclusion Criteria:\n- Eligibility: Suitable archival sample.",
+    "source_url": null,
+    "title": "Synthetic punctuation evidence span case 7",
+    "trial_id": "CB-SYN-V01-079"
+  }
+}

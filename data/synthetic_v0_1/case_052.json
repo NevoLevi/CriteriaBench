@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "and_multi_clause",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "logic_and,multi_clause,one_bullet_multiple_labels,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "glioma diagnosis",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 53,
+          "quote": "Histologically confirmed glioma",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "and",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "histologically confirmed glioma",
+        "operator": "exists",
+        "source_text": "Histologically confirmed glioma",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      },
+      {
+        "category": "disease_state",
+        "concept": "measurable disease",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 76,
+          "quote": "measurable disease",
+          "start_char": 58
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "and",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "measurable disease",
+        "operator": "exists",
+        "source_text": "measurable disease",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-052"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Histologically confirmed glioma and measurable disease",
+    "source_url": null,
+    "title": "Synthetic and multi clause case 4",
+    "trial_id": "CB-SYN-V01-052"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "demographics_consent",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "demographic,consent,numeric_threshold,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "age",
+        "concept": "age",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 37,
+          "quote": "Age >= 65 years",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "age >= 65 years",
+        "operator": "greater_than_or_equal",
+        "source_text": "Age >= 65 years",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": "years",
+        "value": 65
+      },
+      {
+        "category": "consent",
+        "concept": "informed consent",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 83,
+          "quote": "Can provide consent before study procedures",
+          "start_char": 40
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG002",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "can provide consent before study procedures",
+        "operator": "exists",
+        "source_text": "Can provide consent before study procedures",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-040"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Age >= 65 years\n- Can provide consent before study procedures",
+    "source_url": null,
+    "title": "Synthetic demographics consent case 8",
+    "trial_id": "CB-SYN-V01-040"
+  }
+}

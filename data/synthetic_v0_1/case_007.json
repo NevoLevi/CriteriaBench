@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "other",
+        "concept": "visit noncompliance",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 114,
+          "quote": "Unable to comply with study visits",
+          "start_char": 80
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "unable to comply with study visits",
+        "operator": "unspecified",
+        "source_text": "Unable to comply with study visits",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "other",
+        "concept": "follow-up attendance",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 56,
+          "quote": "Willing to attend follow-up visits",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "willing to attend follow-up visits",
+        "operator": "unspecified",
+        "source_text": "Willing to attend follow-up visits",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-007"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Willing to attend follow-up visits\n\nExclusion Criteria:\n- Unable to comply with study visits",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 7",
+    "trial_id": "CB-SYN-V01-007"
+  }
+}

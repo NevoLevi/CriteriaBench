@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "investigational drug",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 114,
+          "quote": "Must not use another investigational drug",
+          "start_char": 73
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "must not use another investigational drug",
+        "operator": "not_exists",
+        "source_text": "Must not use another investigational drug",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "study-drug allergy",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 49,
+          "quote": "No known study-drug allergy",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "no known study-drug allergy",
+        "operator": "not_exists",
+        "source_text": "No known study-drug allergy",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-032"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- No known study-drug allergy\n\nExclusion Criteria:\n- Must not use another investigational drug",
+    "source_url": null,
+    "title": "Synthetic negation case 8",
+    "trial_id": "CB-SYN-V01-032"
+  }
+}

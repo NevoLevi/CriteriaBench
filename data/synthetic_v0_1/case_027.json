@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "immunosuppressive therapy",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 115,
+          "quote": "No concurrent immunosuppressive therapy",
+          "start_char": 76
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "no concurrent immunosuppressive therapy",
+        "operator": "not_exists",
+        "source_text": "No concurrent immunosuppressive therapy",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "procedure",
+        "concept": "organ transplant history",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 52,
+          "quote": "No history of organ transplant",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "no history of organ transplant",
+        "operator": "not_exists",
+        "source_text": "No history of organ transplant",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-027"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- No history of organ transplant\n\nExclusion Criteria:\n- No concurrent immunosuppressive therapy",
+    "source_url": null,
+    "title": "Synthetic negation case 3",
+    "trial_id": "CB-SYN-V01-027"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "study drug allergy",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 108,
+          "quote": "Known allergy to the study drug",
+          "start_char": 77
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "known allergy to the study drug",
+        "operator": "unspecified",
+        "source_text": "Known allergy to the study drug",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "solid tumor diagnosis",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 53,
+          "quote": "Confirmed solid tumor diagnosis",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "confirmed solid tumor diagnosis",
+        "operator": "unspecified",
+        "source_text": "Confirmed solid tumor diagnosis",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-002"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Confirmed solid tumor diagnosis\n\nExclusion Criteria:\n- Known allergy to the study drug",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 2",
+    "trial_id": "CB-SYN-V01-002"
+  }
+}

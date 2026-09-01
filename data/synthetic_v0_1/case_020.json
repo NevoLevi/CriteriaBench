@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "temporal_constraints",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "temporal,duration,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "recent chemotherapy",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 120,
+          "quote": "Chemotherapy within previous 21 days",
+          "start_char": 84
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "chemotherapy within previous 21 days",
+        "operator": "unspecified",
+        "source_text": "Chemotherapy within previous 21 days",
+        "temporal_constraint": {
+          "quantity": 21,
+          "raw_text": "within previous 21 days",
+          "reference_event": null,
+          "relation": "within_previous",
+          "unit": "days"
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "medication",
+        "concept": "stable medication",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 60,
+          "quote": "Stable medication for at least 6 weeks",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "stable medication for at least 6 weeks",
+        "operator": "unspecified",
+        "source_text": "Stable medication for at least 6 weeks",
+        "temporal_constraint": {
+          "quantity": 6,
+          "raw_text": "for at least 6 weeks",
+          "reference_event": null,
+          "relation": "for_at_least",
+          "unit": "weeks"
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-020"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Stable medication for at least 6 weeks\n\nExclusion Criteria:\n- Chemotherapy within previous 21 days",
+    "source_url": null,
+    "title": "Synthetic temporal constraints case 4",
+    "trial_id": "CB-SYN-V01-020"
+  }
+}

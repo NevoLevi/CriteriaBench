@@ -39,6 +39,7 @@ criteriabench-api = "criteriabench.cli:api"
 criteriabench-worker = "criteriabench.cli:worker"
 criteriabench-download = "criteriabench.cli:download"
 criteriabench-benchmark = "criteriabench.benchmark_cli:main"
+criteriabench-suite = "criteriabench.suite_cli:main"
 
 [tool.uv]
 required-version = ">=0.12.7,<0.13"

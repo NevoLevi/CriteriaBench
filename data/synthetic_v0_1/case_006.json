@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "other",
+        "concept": "active substance-use disorder",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 99,
+          "quote": "Active substance-use disorder",
+          "start_char": 70
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "active substance-use disorder",
+        "operator": "unspecified",
+        "source_text": "Active substance-use disorder",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "disease_state",
+        "concept": "stable outpatient status",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 46,
+          "quote": "Stable outpatient status",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "stable outpatient status",
+        "operator": "unspecified",
+        "source_text": "Stable outpatient status",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-006"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Stable outpatient status\n\nExclusion Criteria:\n- Active substance-use disorder",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 6",
+    "trial_id": "CB-SYN-V01-006"
+  }
+}

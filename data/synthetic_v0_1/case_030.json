@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "negation",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "negation,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "procedure",
+        "concept": "follow-up samples",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 111,
+          "quote": "Cannot provide follow-up samples",
+          "start_char": 79
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "cannot provide follow-up samples",
+        "operator": "not_exists",
+        "source_text": "Cannot provide follow-up samples",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "disease_state",
+        "concept": "symptomatic heart failure",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 55,
+          "quote": "Without symptomatic heart failure",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": true,
+        "normalized_text": "without symptomatic heart failure",
+        "operator": "not_exists",
+        "source_text": "Without symptomatic heart failure",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": false
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-030"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Without symptomatic heart failure\n\nExclusion Criteria:\n- Cannot provide follow-up samples",
+    "source_url": null,
+    "title": "Synthetic negation case 6",
+    "trial_id": "CB-SYN-V01-030"
+  }
+}

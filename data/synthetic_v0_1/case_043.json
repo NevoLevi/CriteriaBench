@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "laboratory",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "laboratory,numeric_threshold,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "laboratory",
+        "concept": "hemoglobin",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 44,
+          "quote": "Hemoglobin >= 9.0 g/dL",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "hemoglobin >= 9.0 g/dl",
+        "operator": "greater_than_or_equal",
+        "source_text": "Hemoglobin >= 9.0 g/dL",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": "g/dL",
+        "value": 9
+      },
+      {
+        "category": "laboratory",
+        "concept": "platelet count",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 75,
+          "quote": "Platelet count >= 75 x10^9/L",
+          "start_char": 47
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG002",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "platelet count >= 75 x10^9/l",
+        "operator": "greater_than_or_equal",
+        "source_text": "Platelet count >= 75 x10^9/L",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": "x10^9/L",
+        "value": 75
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-043"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Hemoglobin >= 9.0 g/dL\n- Platelet count >= 75 x10^9/L",
+    "source_url": null,
+    "title": "Synthetic laboratory case 3",
+    "trial_id": "CB-SYN-V01-043"
+  }
+}

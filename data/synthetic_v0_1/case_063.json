@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "or_multi_clause",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "logic_or,multi_clause,one_bullet_multiple_labels,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "acute leukemia",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 36,
+          "quote": "acute leukemia",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "acute leukemia",
+        "operator": "exists",
+        "source_text": "acute leukemia",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      },
+      {
+        "category": "diagnosis",
+        "concept": "chronic leukemia",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 56,
+          "quote": "chronic leukemia",
+          "start_char": 40
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "chronic leukemia",
+        "operator": "exists",
+        "source_text": "chronic leukemia",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-063"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- acute leukemia or chronic leukemia",
+    "source_url": null,
+    "title": "Synthetic or multi clause case 7",
+    "trial_id": "CB-SYN-V01-063"
+  }
+}

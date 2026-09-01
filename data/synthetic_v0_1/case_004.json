@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "other",
+        "concept": "prior protocol enrollment",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 117,
+          "quote": "Prior enrollment in this protocol",
+          "start_char": 84
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "prior enrollment in this protocol",
+        "operator": "unspecified",
+        "source_text": "Prior enrollment in this protocol",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "disease_state",
+        "concept": "measurable disease",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 60,
+          "quote": "Measurable disease on baseline imaging",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "measurable disease on baseline imaging",
+        "operator": "unspecified",
+        "source_text": "Measurable disease on baseline imaging",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-004"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Measurable disease on baseline imaging\n\nExclusion Criteria:\n- Prior enrollment in this protocol",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 4",
+    "trial_id": "CB-SYN-V01-004"
+  }
+}

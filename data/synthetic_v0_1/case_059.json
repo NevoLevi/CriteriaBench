@@ -1,0 +1,82 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "or_multi_clause",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "logic_or,multi_clause,one_bullet_multiple_labels,inclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [],
+    "inclusion_criteria": [
+      {
+        "category": "diagnosis",
+        "concept": "ulcerative colitis",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 40,
+          "quote": "ulcerative colitis",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "ulcerative colitis",
+        "operator": "exists",
+        "source_text": "ulcerative colitis",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      },
+      {
+        "category": "diagnosis",
+        "concept": "Crohn disease",
+        "criterion_id": "I002",
+        "evidence": {
+          "end_char": 57,
+          "quote": "Crohn disease",
+          "start_char": 44
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "or",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "crohn disease",
+        "operator": "exists",
+        "source_text": "Crohn disease",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": true
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-059"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- ulcerative colitis or Crohn disease",
+    "source_url": null,
+    "title": "Synthetic or multi clause case 3",
+    "trial_id": "CB-SYN-V01-059"
+  }
+}

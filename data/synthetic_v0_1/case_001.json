@@ -1,0 +1,83 @@
+{
+  "fixture_version": "synthetic-v0.1",
+  "provenance": {
+    "annotation_method": "deterministic_template_v0.1",
+    "family": "simple_inclusion_exclusion",
+    "kind": "synthetic",
+    "review_status": "independent_review_pending",
+    "slices": "simple,inclusion,exclusion"
+  },
+  "reference": {
+    "ambiguities": [],
+    "exclusion_criteria": [
+      {
+        "category": "other",
+        "concept": "concurrent study participation",
+        "criterion_id": "E001",
+        "evidence": {
+          "end_char": 118,
+          "quote": "Current participation in another study",
+          "start_char": 80
+        },
+        "kind": "exclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "EG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "current participation in another study",
+        "operator": "unspecified",
+        "source_text": "Current participation in another study",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "inclusion_criteria": [
+      {
+        "category": "demographic",
+        "concept": "adult participation",
+        "criterion_id": "I001",
+        "evidence": {
+          "end_char": 56,
+          "quote": "Adults able to attend study visits",
+          "start_char": 22
+        },
+        "kind": "inclusion",
+        "logic_group": {
+          "connector": "single",
+          "group_id": "IG001",
+          "parent_group_id": null
+        },
+        "negated": false,
+        "normalized_text": "adults able to attend study visits",
+        "operator": "unspecified",
+        "source_text": "Adults able to attend study visits",
+        "temporal_constraint": {
+          "quantity": null,
+          "raw_text": "",
+          "reference_event": null,
+          "relation": "unspecified",
+          "unit": null
+        },
+        "unit": null,
+        "value": null
+      }
+    ],
+    "schema_version": "1.0",
+    "trial_id": "CB-SYN-V01-001"
+  },
+  "trial": {
+    "eligibility_text": "Inclusion Criteria:\n- Adults able to attend study visits\n\nExclusion Criteria:\n- Current participation in another study",
+    "source_url": null,
+    "title": "Synthetic simple inclusion exclusion case 1",
+    "trial_id": "CB-SYN-V01-001"
+  }
+}
