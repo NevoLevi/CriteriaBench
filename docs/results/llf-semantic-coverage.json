@@ -1,5 +1,5 @@
 {
-  "canonical_payload_sha256": "a5f60f8d7b964ba4e524416acb8cbd2417b93b44f67da0c5aed5c124ad261398",
+  "canonical_payload_sha256": "a12fdb29fdc0e8c9a425b2c28e3a2295da508c4d0e1a92c18565ae009e7b0eb9",
   "coverage": {
     "agreement": {
       "all_rows_operational_rate": 0.95,
@@ -10,21 +10,21 @@
           "annotator_id": "annotator_3",
           "case_id": "NCT03861962_2",
           "error_code": "malformed_expression",
-          "reference_sha256": "5160f012fc082c60680b57868f90ea4ae9dc203161d60247ead1309b5655fcfc",
+          "reference_sha256": "cabd11123aeb9299c3821f6a953e3bfa6883fb3805e352117937f2ba18788fd7",
           "source_path": "leaf_logical_forms/annotator_3/double_annotation/NCT03861962_2.js"
         },
         {
           "annotator_id": "annotator_2",
           "case_id": "NCT03862937_2",
           "error_code": "malformed_expression",
-          "reference_sha256": "43c1af5e54bb8d13a5f6009407e9e7b0b7b36cb3742274f0306ac1aeb72b4220",
+          "reference_sha256": "961d00d3a03b110c31569f3c22662c55536cd532fe5df73d54754dd45ec54436",
           "source_path": "leaf_logical_forms/annotator_2/double_annotation/NCT03862937_2.js"
         },
         {
           "annotator_id": "annotator_3",
           "case_id": "NCT03927456_8",
           "error_code": "malformed_expression",
-          "reference_sha256": "f164ffc782c27a0989fac80a2f37373130349f21fa00ad46acb73239275fe480",
+          "reference_sha256": "577bb5eeb3a7076ec2364d131f783cb726c84e35251e163ee8fb5f5f24aea7bd",
           "source_path": "leaf_logical_forms/annotator_3/double_annotation/NCT03927456_8.js"
         }
       ],
@@ -32,7 +32,7 @@
       "missing": [],
       "missing_upstream_references": 0,
       "parsed_references": 57,
-      "parsed_semantics_sha256": "354e725d05d97289e09833f700fa80450371073b03639ec7b3fcb27d9ab29c79",
+      "parsed_semantics_sha256": "2766d656739ae8def2583ae3093de7443d76c448a648a180bbd47537d3c8c38d",
       "total_rows": 60
     },
     "primary": {
@@ -60,7 +60,7 @@
       ],
       "missing_upstream_references": 3,
       "parsed_references": 1997,
-      "parsed_semantics_sha256": "ba96d4346b1034d91870640514a36ae402df081a1b146cabbd1fa58ec2860482",
+      "parsed_semantics_sha256": "18877903faf4baa58c60a40d5efcc8ae30d7c97bb38cd190eff8995f3b966f58",
       "total_rows": 2000
     }
   },
@@ -68,14 +68,14 @@
   "dataset_version": "llf-461288a",
   "inputs": {
     "agreement_annotations": {
-      "bytes": 67804,
+      "bytes": 67020,
       "path": "agreement_annotations.jsonl",
-      "sha256": "3ffba65df1d2da0f46f43cbd8a2c96d8a7b333616f26c6c71d3d18e322677bad"
+      "sha256": "384b1c200be5e8a58360ccd274b8780a76304672756d248a4f975a5e92cbb5a4"
     },
     "records": {
-      "bytes": 2064579,
+      "bytes": 2040750,
       "path": "records.jsonl",
-      "sha256": "9cb335fad4d571cf82164b1953f6d68c60bc63d2b9726128799cb9968f78d064"
+      "sha256": "43be72b6aef84c963adee017601665ba38f3ea79abf3e7f527b23ecf6cd74f50"
     }
   },
   "parser": {

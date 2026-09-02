@@ -12,7 +12,7 @@ The benchmark redistributes a deterministic import of Leaf Logical Forms (LLF) a
 
 The repository's complete notice is [data/real/llf/ATTRIBUTION.md](../data/real/llf/ATTRIBUTION.md).
 
-CriteriaBench does not correct or adjudicate upstream criterion text or logical forms. It converts them to inert JSONL, adds lineage hashes, freezes a trial-disjoint split, and marks absent or malformed upstream rows explicitly.
+CriteriaBench does not correct or adjudicate upstream criterion text or logical forms. It converts them to inert JSONL, adds lineage hashes, freezes a trial-disjoint split, and marks absent or malformed upstream rows explicitly. Before source byte counts, SHA-256 lineage, parsing, and generated output, the importer canonicalizes upstream `.js` and license checkout text from CRLF or LF to LF and rejects unsupported bare carriage returns.
 
 ## Imported content
 

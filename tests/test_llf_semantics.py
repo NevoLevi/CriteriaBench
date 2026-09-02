@@ -22,6 +22,7 @@ from criteriabench.real.llf_semantics import (
     build_semantic_coverage_report,
     canonical_llf_json,
     canonical_llf_sha256,
+    main,
     parse_llf_semantic,
     render_llf_semantic,
     semantic_coverage_report_bytes,
@@ -31,6 +32,9 @@ from criteriabench.real.llf_semantics import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = PROJECT_ROOT / "data" / "real" / "llf"
 COVERAGE_ARTIFACT = PROJECT_ROOT / "docs" / "results" / "llf-semantic-coverage.json"
+DEVELOPMENT_COVERAGE_ARTIFACT = (
+    PROJECT_ROOT / "docs" / "results" / "llf-semantic-coverage-development.json"
+)
 
 
 def test_method_chain_is_preserved_as_an_ordered_flat_node_table() -> None:
@@ -246,3 +250,22 @@ def test_committed_coverage_is_complete_explicit_and_byte_reproducible() -> None
         json.dumps(artifact, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n"
     ).encode()
     assert hashlib.sha256(canonical_payload).hexdigest() == seal
+
+
+def test_coverage_cli_writes_canonical_lf_bytes(
+    capfdbinary: pytest.CaptureFixture[bytes],
+) -> None:
+    assert (
+        main(
+            [
+                "--split-reference",
+                str(DATA_ROOT / "development_references.jsonl"),
+                "--split",
+                "development",
+            ]
+        )
+        == 0
+    )
+    captured = capfdbinary.readouterr()
+    assert captured.out == DEVELOPMENT_COVERAGE_ARTIFACT.read_bytes()
+    assert b"\r" not in captured.out

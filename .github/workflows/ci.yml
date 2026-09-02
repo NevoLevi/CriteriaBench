@@ -47,7 +47,19 @@ jobs:
       TEST_POSTGRES_URL: postgresql+asyncpg://criteriabench:criteriabench@127.0.0.1:5432/criteriabench
       TEST_REDIS_URL: redis://127.0.0.1:6379/15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out CriteriaBench
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out pinned upstream LLF corpus
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: uw-bionlp/leaf-corpora
+          ref: 461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e
+          path: .tools/upstream/leaf-corpora
+          persist-credentials: false
+      - name: Verify pinned upstream checkout is testable
+        run: |
+          test -f .tools/upstream/leaf-corpora/.git/HEAD
+          test "$(git -C .tools/upstream/leaf-corpora rev-parse HEAD)" = "461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e"
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -137,6 +149,58 @@ jobs:
           name: coverage-xml
           path: coverage.xml
           if-no-files-found: error
+
+  canonical-import-windows:
+    name: Canonical LLF replay on Windows
+    runs-on: windows-latest
+    env:
+      LLM_PROVIDER: mock
+      ALLOW_PAID_CALLS: "false"
+      UV_NO_ENV_FILE: "1"
+      UV_PYTHON_DOWNLOADS: never
+    steps:
+      - name: Check out CriteriaBench
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out pinned upstream LLF corpus
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: uw-bionlp/leaf-corpora
+          ref: 461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e
+          path: .tools/upstream/leaf-corpora
+          persist-credentials: false
+      - name: Verify pinned upstream checkout is testable
+        shell: pwsh
+        run: |
+          if (-not (Test-Path -LiteralPath '.tools/upstream/leaf-corpora/.git/HEAD' -PathType Leaf)) {
+            throw 'Pinned upstream checkout metadata is missing'
+          }
+          $head = git -C .tools/upstream/leaf-corpora rev-parse HEAD
+          if ($head -ne '461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e') {
+            throw "Unexpected upstream revision: $head"
+          }
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Set up pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.8"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install project from lock
+        run: uv sync --frozen --extra dev
+      - name: Replay canonical import and prompt binding
+        run: >-
+          uv run --frozen --no-env-file pytest
+          tests/test_llf_import.py
+          tests/test_llf_semantics.py
+          tests/test_real_live.py::test_few_shot_examples_are_exact_development_records_and_trials_are_excluded
+      - name: Verify canonical preregistration
+        run: >-
+          uv run --frozen --no-env-file criteriabench-llf-canary-preregister check
+          --dataset-dir data/real/llf
+          --coverage-dir docs/results
+          --artifact docs/results/llf-canary-preregistration.json
 
   dependency-review:
     name: Dependency review

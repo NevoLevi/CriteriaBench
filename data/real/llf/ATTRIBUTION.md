@@ -18,4 +18,6 @@ https://pmc.ncbi.nlm.nih.gov/articles/PMC10654856/.
 CriteriaBench does not correct the upstream criterion text or logical forms. It reserializes
 them as inert JSONL, adds source hashes and a deterministic trial-level split, and marks three
 source files that contain no logical-form body as `missing_upstream`. NCT identifiers are
-retained so each criterion can be traced to its public trial record.
+retained so each criterion can be traced to its public trial record. Before byte counts,
+SHA-256 lineage, and parsing, upstream text checkout CRLF or LF is canonicalized to LF;
+unsupported bare carriage returns are rejected.

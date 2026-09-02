@@ -21,9 +21,9 @@ from criteriabench.real.llf import (
 from criteriabench.real_eval.integrity import case_set_sha256
 from criteriabench.real_eval.models import GenerationCase, GenerationDatasetBinding
 
-LLF_GENERATION_MANIFEST_SHA256 = "312ebf02fbbfe1bb157a2f71853939a9ef81f87e024091881d8f481696e2c655"
+LLF_GENERATION_MANIFEST_SHA256 = "c67911011a906afe5e81c4f39310a765d899244a3c831f180111b3260ac9ce58"
 LLF_GENERATION_CASES_SHA256 = "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
-LLF_SPLIT_ASSIGNMENTS_SHA256 = "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618"
+LLF_SPLIT_ASSIGNMENTS_SHA256 = "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc"
 LlfEvaluationSplit = Literal["development", "test"]
 
 

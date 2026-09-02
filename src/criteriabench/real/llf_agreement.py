@@ -36,10 +36,10 @@ from criteriabench.real.llf_semantics import (
 REPORT_SCHEMA_VERSION: Final = "llf-human-agreement-v1"
 SCORER_ID: Final = "compare_llf_semantics:v1"
 PINNED_AGREEMENT_FILENAME: Final = "agreement_annotations.jsonl"
-PINNED_AGREEMENT_BYTES: Final = 67_804
-PINNED_AGREEMENT_SHA256: Final = "3ffba65df1d2da0f46f43cbd8a2c96d8a7b333616f26c6c71d3d18e322677bad"
+PINNED_AGREEMENT_BYTES: Final = 67_020
+PINNED_AGREEMENT_SHA256: Final = "384b1c200be5e8a58360ccd274b8780a76304672756d248a4f975a5e92cbb5a4"
 PINNED_PARSER_SOURCE_SHA256: Final = (
-    "e133ef319d4736534f9631720a97b551ac8a8978e661a8b560436a4783e19f56"
+    "94105961346467e9471fefe4227ff5f26e05e430679759f2ff2134e1a654ff0b"
 )
 EXPECTED_CASE_COUNT: Final = 20
 EXPECTED_ANNOTATION_COUNT: Final = 60
@@ -54,19 +54,19 @@ _KNOWN_MALFORMED: Final = (
         "NCT03861962_2",
         "annotator_3",
         "malformed_expression",
-        "5160f012fc082c60680b57868f90ea4ae9dc203161d60247ead1309b5655fcfc",
+        "cabd11123aeb9299c3821f6a953e3bfa6883fb3805e352117937f2ba18788fd7",
     ),
     (
         "NCT03862937_2",
         "annotator_2",
         "malformed_expression",
-        "43c1af5e54bb8d13a5f6009407e9e7b0b7b36cb3742274f0306ac1aeb72b4220",
+        "961d00d3a03b110c31569f3c22662c55536cd532fe5df73d54754dd45ec54436",
     ),
     (
         "NCT03927456_8",
         "annotator_3",
         "malformed_expression",
-        "f164ffc782c27a0989fac80a2f37373130349f21fa00ad46acb73239275fe480",
+        "577bb5eeb3a7076ec2364d131f783cb726c84e35251e163ee8fb5f5f24aea7bd",
     ),
 )
 

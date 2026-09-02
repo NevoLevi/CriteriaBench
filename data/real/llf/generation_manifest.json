@@ -10,10 +10,10 @@
       "bytes": 60945,
       "path": "split_assignments.json",
       "record_count": 885,
-      "sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618"
+      "sha256": "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc"
     }
   ],
-  "canonical_payload_sha256": "90ad4dcf6b6e2279d36ec7213233c811b72584bde93a268e45d30ddb9624c91a",
+  "canonical_payload_sha256": "28d6cf3e74d711008a8cfe9fc645812bf9790682f8623d0cef979e70be92d6b9",
   "dataset_id": "leaf-logical-forms",
   "dataset_version": "llf-461288a",
   "safety": {
@@ -42,7 +42,8 @@
   "upstream": {
     "commit": "461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e",
     "corpus_git_tree_sha1": "f846019a2743b8ac20f5d0e7323347e8bcaedf15",
-    "inventory_sha256": "c8ee39eaff21251075d36d8d0e3b506fbbc196d3a6eaa95084dda25a5fe88297",
+    "inventory_hash_algorithm": "sha256(path_utf8 + NUL + canonical_lf_size_ascii + NUL + canonical_lf_utf8_bytes + NUL)",
+    "inventory_sha256": "c2e0ac8758b4f8a7bc9ccc2b8385ce1a374fab48222ee3a5dff5fc2daa4fe5b1",
     "repository": "https://github.com/uw-bionlp/leaf-corpora"
   }
 }

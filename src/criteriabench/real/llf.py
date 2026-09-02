@@ -27,12 +27,12 @@ UPSTREAM_COMMIT = "461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e"
 UPSTREAM_COMMIT_URL = f"{UPSTREAM_REPOSITORY}/commit/{UPSTREAM_COMMIT}"
 UPSTREAM_CORPUS_TREE = "f846019a2743b8ac20f5d0e7323347e8bcaedf15"
 UPSTREAM_LICENSE = "MIT"
-UPSTREAM_LICENSE_SHA256 = "5748126bdf992602f455023784c420638dcd18ed5710e17200491a254d110f60"
-UPSTREAM_INVENTORY_SHA256 = "c8ee39eaff21251075d36d8d0e3b506fbbc196d3a6eaa95084dda25a5fe88297"
+UPSTREAM_LICENSE_SHA256 = "18b58607518531a46cbb564feb9b8575b3aff24b4cf2c0750eda664a9fe169d5"
+UPSTREAM_INVENTORY_SHA256 = "c2e0ac8758b4f8a7bc9ccc2b8385ce1a374fab48222ee3a5dff5fc2daa4fe5b1"
 
 DATASET_ID: Literal["leaf-logical-forms"] = "leaf-logical-forms"
 DATASET_VERSION: Literal["llf-461288a"] = "llf-461288a"
-IMPORT_SCHEMA_VERSION = "llf-import-v1"
+IMPORT_SCHEMA_VERSION = "llf-import-v2"
 GENERATION_MANIFEST_SCHEMA_VERSION = "llf-generation-manifest-v1"
 SPLIT_ALGORITHM = "sha256-trial-rank-v1"
 SPLIT_SEED = "criteriabench-llf-real-v1"
@@ -69,7 +69,9 @@ https://pmc.ncbi.nlm.nih.gov/articles/PMC10654856/.
 CriteriaBench does not correct the upstream criterion text or logical forms. It reserializes
 them as inert JSONL, adds source hashes and a deterministic trial-level split, and marks three
 source files that contain no logical-form body as `missing_upstream`. NCT identifiers are
-retained so each criterion can be traced to its public trial record.
+retained so each criterion can be traced to its public trial record. Before byte counts,
+SHA-256 lineage, and parsing, upstream text checkout CRLF or LF is canonicalized to LF;
+unsupported bare carriage returns are rejected.
 """
 
 DATASET_README_TEXT = """# Leaf Logical Forms: CriteriaBench Real v1 import
@@ -98,7 +100,9 @@ The importer decodes only three bounded JavaScript string literals. It never exe
 JavaScript; each logical-form body remains inert source text for a separate reviewed parser.
 The three absent bodies are retained in the evaluation denominator rather than dropped or
 fabricated. These annotations are benchmark references, not clinical advice or patient-level
-eligibility decisions.
+eligibility decisions. Upstream `.js` and license checkout text is canonicalized from CRLF or
+LF to LF before source byte counts, SHA-256 lineage, parsing, and generated output; unsupported
+bare carriage returns are rejected.
 """
 
 # These trials are development-only.  The 20 agreement trials were used for
@@ -258,6 +262,19 @@ def _sha256_bytes(payload: bytes) -> str:
 
 def _sha256_text(value: str) -> str:
     return _sha256_bytes(value.encode("utf-8"))
+
+
+def _canonicalize_upstream_text(payload: bytes, *, source_name: str) -> bytes:
+    """Normalize one pinned upstream text file to platform-independent LF bytes."""
+
+    canonical = payload.replace(b"\r\n", b"\n")
+    if b"\r" in canonical:
+        raise LlfImportError(f"{source_name}: unsupported bare carriage return")
+    try:
+        canonical.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise LlfImportError(f"{source_name}: upstream text is not valid UTF-8") from exc
+    return canonical
 
 
 def _skip_whitespace(text: str, cursor: int) -> int:
@@ -445,7 +462,10 @@ def _source_snapshot(path: Path, upstream_root: Path) -> tuple[re.Match[str], st
     match = _SOURCE_PATH.fullmatch(relative_path)
     if match is None:
         raise LlfImportError(f"unexpected LLF source path: {relative_path}")
-    payload = path.read_bytes()
+    payload = _canonicalize_upstream_text(
+        path.read_bytes(),
+        source_name=relative_path,
+    )
     return match, relative_path, payload
 
 
@@ -467,7 +487,10 @@ def _parse_inventory(
         raise LlfImportError("LLF source inventory does not match the audited pinned commit")
 
     license_path = root / "LICENSE"
-    license_payload = license_path.read_bytes()
+    license_payload = _canonicalize_upstream_text(
+        license_path.read_bytes(),
+        source_name="LICENSE",
+    )
     license_sha256 = _sha256_bytes(license_payload)
     if license_sha256 != UPSTREAM_LICENSE_SHA256:
         raise LlfImportError("upstream LICENSE does not match the audited pinned commit")
@@ -867,6 +890,10 @@ def import_llf(upstream_root: Path, output_dir: Path) -> dict[str, object]:
             "commit": UPSTREAM_COMMIT,
             "corpus_git_tree_sha1": UPSTREAM_CORPUS_TREE,
             "inventory_sha256": inventory_sha256,
+            "inventory_hash_algorithm": (
+                "sha256(path_utf8 + NUL + canonical_lf_size_ascii + NUL + "
+                "canonical_lf_utf8_bytes + NUL)"
+            ),
         },
         "safety": {
             "source_only": True,
@@ -914,7 +941,10 @@ def import_llf(upstream_root: Path, output_dir: Path) -> dict[str, object]:
             "corpus_path": "leaf_logical_forms",
             "corpus_git_tree_sha1": UPSTREAM_CORPUS_TREE,
             "inventory_sha256": inventory_sha256,
-            "inventory_hash_algorithm": "sha256(path_utf8 + NUL + size_ascii + NUL + bytes + NUL)",
+            "inventory_hash_algorithm": (
+                "sha256(path_utf8 + NUL + canonical_lf_size_ascii + NUL + "
+                "canonical_lf_utf8_bytes + NUL)"
+            ),
             "license": UPSTREAM_LICENSE,
             "license_path": "LICENSE.upstream.txt",
             "license_sha256": license_sha256,
@@ -925,6 +955,7 @@ def import_llf(upstream_root: Path, output_dir: Path) -> dict[str, object]:
             "parser": "bounded-js-string-header-v1",
             "logical_form_interpretation": "inert_source_text",
             "maximum_source_file_bytes": MAX_SOURCE_FILE_BYTES,
+            "upstream_text_line_endings": "canonical_lf_before_hash_and_parse",
         },
         "counts": {
             "source_files": len(annotations),

@@ -59,7 +59,7 @@ def test_real_canary_selection_and_bm25_numbers_are_frozen(
         "675c19d64172aa4d9545dbff2232664025bf8cd3aca45622f76f03cc0add432e"
     )
     assert preregistration.baseline.training_set_sha256 == (
-        "fa0f169ba34f0fa1f752082ae3f7debeab110b8e821580589ed103f4d7e2d6a4"
+        "e56d8f425b1ee140cb4ca10850f164697d16dc29fa6f85ce053b4b292aaf5e57"
     )
     assert preregistration.baseline.prediction_set_sha256 == (
         "839567dcc1d271dbe88cd3b61a9f2d41f6db9cd2ea865123d9bad21e40431920"

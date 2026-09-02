@@ -401,13 +401,13 @@ LLF_PROMPT_EXAMPLES = (
         ),
         source_sha256="c446de4dab40a2b7f9f27b9ba5cb2f5a4158627d0c964f182e927982f6d5a1f1",
         logical_form=(
-            'clin_score("ECOG")\r\n'
-            "    .equiv(\r\n"
-            '        clin_score("Eastern Cooperative Oncology Group")\r\n'
-            "    )\r\n"
-            '    .mod("performance status score")\r\n'
-            "    .num_filter(\r\n"
-            '        eq(op(BETWEEN), val("0"), val("2"))\r\n'
+            'clin_score("ECOG")\n'
+            "    .equiv(\n"
+            '        clin_score("Eastern Cooperative Oncology Group")\n'
+            "    )\n"
+            '    .mod("performance status score")\n'
+            "    .num_filter(\n"
+            '        eq(op(BETWEEN), val("0"), val("2"))\n'
             "    )"
         ),
     ),
@@ -418,13 +418,13 @@ LLF_PROMPT_EXAMPLES = (
         source_text="-  Chronic kidney disease with a Glomerular Filtration Rate < 50 ml / min",
         source_sha256="0267c3d8e1ae0fc88d20d7a7b246e26831361b408ecb13890088186f361f8b6f",
         logical_form=(
-            "intersect(\r\n"
-            '    cond("kidney disease")\r\n'
-            "        .chronic(), \r\n"
-            '    lab("Glomerular Filtration Rate")\r\n'
-            "        .num_filter(\r\n"
-            '            eq(op(LT), val("50"), unit("ml"), per(MINUTE))\r\n'
-            "        )\r\n"
+            "intersect(\n"
+            '    cond("kidney disease")\n'
+            "        .chronic(), \n"
+            '    lab("Glomerular Filtration Rate")\n'
+            "        .num_filter(\n"
+            '            eq(op(LT), val("50"), unit("ml"), per(MINUTE))\n'
+            "        )\n"
             ")"
         ),
     ),
@@ -439,22 +439,22 @@ LLF_PROMPT_EXAMPLES = (
         ),
         source_sha256="0a3b375637d3ee71bc699db4437c888c014e7a7cffbf25c4a14fc21fa25470b4",
         logical_form=(
-            "seq(\r\n"
-            "    union(\r\n"
-            '        proc("stem cell transplant")\r\n'
-            "            .temporality(\r\n"
-            "                eq(temporal_per(PAST))\r\n"
-            "            )\r\n"
-            '            .mod("allogenic"),\r\n'
-            '        proc("stem cell transplant")\r\n'
-            '            .mod("autologous")\r\n'
-            "    ),\r\n"
-            "    before(\r\n"
-            "        drug()\r\n"
-            "            .temporality(\r\n"
-            '                eq(op(LTEQ), val("3"), temporal_unit(MONTH))\r\n'
-            "            )\r\n"
-            "    )\r\n"
+            "seq(\n"
+            "    union(\n"
+            '        proc("stem cell transplant")\n'
+            "            .temporality(\n"
+            "                eq(temporal_per(PAST))\n"
+            "            )\n"
+            '            .mod("allogenic"),\n'
+            '        proc("stem cell transplant")\n'
+            '            .mod("autologous")\n'
+            "    ),\n"
+            "    before(\n"
+            "        drug()\n"
+            "            .temporality(\n"
+            '                eq(op(LTEQ), val("3"), temporal_unit(MONTH))\n'
+            "            )\n"
+            "    )\n"
             ")"
         ),
     ),
@@ -468,21 +468,21 @@ LLF_PROMPT_EXAMPLES = (
         ),
         source_sha256="207db65201c683709005f122d84dccb4691e1a1fa3fbba7f18aa8410a875c2b9",
         logical_form=(
-            "intersect(\r\n"
-            "    age()\r\n"
-            '        .eq(val("60"), op(GTEQ)),\r\n'
-            "    if_then(\r\n"
-            "        female(),\r\n"
-            '        cond("postmenopausal")\r\n'
-            "            .equiv(\r\n"
-            "                neg(\r\n"
-            '                    cond("menstruation")\r\n'
-            "                )\r\n"
-            "                    .duration(\r\n"
-            '                        eq(op(GT), val("one"), temporal_unit(YEAR))\r\n'
-            "                    )\r\n"
-            "            )\r\n"
-            "    )\r\n"
+            "intersect(\n"
+            "    age()\n"
+            '        .eq(val("60"), op(GTEQ)),\n'
+            "    if_then(\n"
+            "        female(),\n"
+            '        cond("postmenopausal")\n'
+            "            .equiv(\n"
+            "                neg(\n"
+            '                    cond("menstruation")\n'
+            "                )\n"
+            "                    .duration(\n"
+            '                        eq(op(GT), val("one"), temporal_unit(YEAR))\n'
+            "                    )\n"
+            "            )\n"
+            "    )\n"
             ")"
         ),
     ),

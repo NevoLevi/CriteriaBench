@@ -3542,7 +3542,7 @@
       "trial_id": "NCT03934593"
     }
   ],
-  "schema_version": "llf-import-v1",
+  "schema_version": "llf-import-v2",
   "seed": "criteriabench-llf-real-v1",
   "unit": "trial_id"
 }

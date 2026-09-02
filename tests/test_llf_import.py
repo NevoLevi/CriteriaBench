@@ -15,6 +15,7 @@ from criteriabench.real.llf import (
     LlfAnnotation,
     LlfGenerationRecord,
     LlfImportError,
+    _canonicalize_upstream_text,
     audit_llf,
     import_llf,
     load_llf_generation_records,
@@ -36,6 +37,21 @@ EXPECTED_DISCLOSED_EXAMPLE_TRIAL_IDS = frozenset(
     }
 )
 
+EXPECTED_GENERATION_CASES_SHA256 = (
+    "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
+)
+EXPECTED_SEMANTIC_SPLIT_SHA256 = "76dc8700ecc22e76fbaa14f0f2a5d749a49845397d4494b0cbc70a8e72724364"
+EXPECTED_SEMANTIC_RECORD_SHA256 = {
+    "records.jsonl": "b70749661de4b90eac0db5b61cb5b46dbe7e2f9230ce703da710950146860b62",
+    "development_references.jsonl": (
+        "569615cb7dd337419c2b3fcfae12765e6e475c85d7e1ba025df20c33025a8c04"
+    ),
+    "test_references.jsonl": ("cb1ea36903c85537ce5c889b62b78982e76180af757a01612e42993675b94615"),
+    "agreement_annotations.jsonl": (
+        "6a0c594c55c68852d66dd69dcd163ff02267c6eeb603c135ad146fcbf45b4aa0"
+    ),
+}
+
 
 def _sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
@@ -47,6 +63,96 @@ def _artifact_bytes(root: Path) -> dict[str, bytes]:
         for path in sorted(root.rglob("*"))
         if path.is_file()
     }
+
+
+def _semantic_record_sha256(path: Path) -> str:
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    semantic_rows = [
+        {
+            key: value.replace("\r\n", "\n") if isinstance(value, str) else value
+            for key, value in row.items()
+            if key
+            not in {
+                "reference_sha256",
+                "source_file_bytes",
+                "source_file_sha256",
+            }
+        }
+        for row in rows
+    ]
+    payload = (
+        json.dumps(
+            semantic_rows,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+    return _sha256(payload)
+
+
+def _semantic_split_sha256(path: Path) -> str:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload.pop("schema_version")
+    serialized = (
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+    return _sha256(serialized)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"MIT License\n\nCopyright example\n",
+        b"MIT License\r\n\r\nCopyright example\r\n",
+        b"MIT License\r\n\nCopyright example\n",
+    ],
+)
+def test_license_payload_is_canonical_lf_on_every_platform(payload: bytes) -> None:
+    assert _canonicalize_upstream_text(payload, source_name="LICENSE") == (
+        b"MIT License\n\nCopyright example\n"
+    )
+
+
+def test_license_payload_rejects_unsupported_bare_carriage_return() -> None:
+    with pytest.raises(LlfImportError, match="unsupported bare carriage return"):
+        _canonicalize_upstream_text(
+            b"MIT License\rCopyright example\n",
+            source_name="LICENSE",
+        )
+
+
+def test_repository_enforces_lf_for_generated_llf_artifacts() -> None:
+    rules = {
+        line.strip()
+        for line in (PROJECT_ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
+    }
+    assert "* text=auto eol=lf" in rules
+    assert "data/real/llf/** text eol=lf" in rules
+
+
+def test_upstream_text_normalization_rejects_invalid_utf8() -> None:
+    with pytest.raises(LlfImportError, match="not valid UTF-8"):
+        _canonicalize_upstream_text(b"criterion\n\xff", source_name="case.js")
+
+
+def test_semantic_cases_references_and_split_remain_frozen() -> None:
+    assert _sha256((DATA_ROOT / "generation_cases.jsonl").read_bytes()) == (
+        EXPECTED_GENERATION_CASES_SHA256
+    )
+    assert _semantic_split_sha256(DATA_ROOT / "split_assignments.json") == (
+        EXPECTED_SEMANTIC_SPLIT_SHA256
+    )
+    assert {
+        name: _semantic_record_sha256(DATA_ROOT / name) for name in EXPECTED_SEMANTIC_RECORD_SHA256
+    } == EXPECTED_SEMANTIC_RECORD_SHA256
 
 
 def test_header_parser_decodes_strings_but_keeps_body_inert() -> None:
@@ -250,6 +356,9 @@ def test_committed_manifest_seals_every_artifact_and_source_file() -> None:
         payload = (DATA_ROOT / artifact["path"]).read_bytes()
         assert len(payload) == artifact["bytes"]
         assert _sha256(payload) == artifact["sha256"]
+
+    license_payload = (DATA_ROOT / "LICENSE.upstream.txt").read_bytes()
+    assert b"\r" not in license_payload
 
     source_rows = [
         json.loads(line)

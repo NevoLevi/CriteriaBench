@@ -1,5 +1,5 @@
 {
-  "canonical_payload_sha256": "fd0cee6a50851f2ff7148f4b4234793e343b2f4aa1e39c464725481c9171dfb5",
+  "canonical_payload_sha256": "3f0d5af08e4badd668662937cf5961e12ecd22450dd9a057f33a410e25c1694b",
   "coverage": {
     "all_rows_operational_rate": 0.9983333333333333,
     "available_parse_rate": 1.0,
@@ -25,15 +25,15 @@
     ],
     "missing_upstream_references": 3,
     "parsed_references": 1797,
-    "parsed_semantics_sha256": "87a02fc49abc7b9805e68b99e9bca2e960e41ab5aed3a7b870069e66d89624f4",
+    "parsed_semantics_sha256": "eba1cc1906f5c363da813fc89fdcb53fa14404aa62e162e6d8798f9538164cf1",
     "total_rows": 1800
   },
   "dataset_id": "leaf-logical-forms",
   "dataset_version": "llf-461288a",
   "input": {
-    "bytes": 1856083,
+    "bytes": 1834656,
     "path": "test_references.jsonl",
-    "sha256": "1e140baa1ddda022997c0d68a705e6767e624fdb7ae7c2e1aa07d0a7ad2b854a"
+    "sha256": "0f440dc69c5117f74b3470f9f94d06d424dc456611ada536ec9f03f663242c5e"
   },
   "parser": {
     "execution": "never_compile_eval_exec_or_import",

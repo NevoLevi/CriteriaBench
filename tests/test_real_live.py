@@ -595,6 +595,7 @@ def test_few_shot_examples_are_exact_development_records_and_trials_are_excluded
         assert record.raw_text == example.source_text
         assert record.raw_text_sha256 == example.source_sha256
         assert record.logical_form == example.logical_form
+        assert "\r" not in example.logical_form
         assert example.case_id not in contract.instructions
         assert example.source_sha256 not in contract.instructions
     assert len(LLF_PROMPT_EXAMPLES_SHA256) == 64

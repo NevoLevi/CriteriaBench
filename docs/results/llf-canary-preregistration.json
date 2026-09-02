@@ -48,7 +48,7 @@
     "prediction_set_sha256": "839567dcc1d271dbe88cd3b61a9f2d41f6db9cd2ea865123d9bad21e40431920",
     "schema_version": "llf-retrieval-baseline-identity-v1",
     "training_case_count": 200,
-    "training_set_sha256": "fa0f169ba34f0fa1f752082ae3f7debeab110b8e821580589ed103f4d7e2d6a4",
+    "training_set_sha256": "e56d8f425b1ee140cb4ca10850f164697d16dc29fa6f85ce053b4b292aaf5e57",
     "training_trial_count": 86
   },
   "baseline_metrics": {
@@ -161,13 +161,13 @@
   "development_reference": {
     "coverage_artifact_bytes": 4886,
     "coverage_path": "llf-semantic-coverage-development.json",
-    "coverage_sha256": "b6ce5a031dfd1d53b1a6854174725ef3afeea51cac99f2843b7d4cef6836a9c3",
+    "coverage_sha256": "bda3d2a2144931213032cc3ffb368e59640dee63176573e96af35017756cd8ee",
     "missing_upstream_case_count": 0,
     "operational_case_count": 200,
-    "reference_artifact_bytes": 208496,
-    "reference_artifact_sha256": "fd1d7e57559cd0b8ddfde5b5fc5d1fd68be364287cd1b520d2665d0687518e57",
+    "reference_artifact_bytes": 206094,
+    "reference_artifact_sha256": "3fda6daba1368826b02317e0f7eec82baeb9bb1526c87877fe1364a674dfea12",
     "reference_path": "development_references.jsonl",
-    "selected_reference_set_sha256": "979750d75cdbc224e0973a5f896390946e3bdc38a8237514927ee3d02e336a90",
+    "selected_reference_set_sha256": "221a25545e16cf391d4cf6afd7438fc9eb2cd4b36e9f209a4db4830b9e24701f",
     "semantic_case_count": 200
   },
   "evidence_scope": {
@@ -186,9 +186,9 @@
     "dataset_id": "leaf-logical-forms",
     "dataset_version": "llf-461288a",
     "generation_cases_sha256": "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84",
-    "generation_manifest_sha256": "312ebf02fbbfe1bb157a2f71853939a9ef81f87e024091881d8f481696e2c655",
+    "generation_manifest_sha256": "c67911011a906afe5e81c4f39310a765d899244a3c831f180111b3260ac9ce58",
     "split": "development",
-    "split_assignments_sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618",
+    "split_assignments_sha256": "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc",
     "split_unit": "trial_id"
   },
   "implementation": {
@@ -209,10 +209,10 @@
     },
     "execution": {
       "cli_sha256": "b323f6a63828d052ed9c3b279e22fe27dd065e9d55d8afbc041c40a870acb311",
-      "contracts_sha256": "2c67b978452e630ca7097d0936dee8f9d6b9e848644acb703af2309d46836270",
-      "implementation_sha256": "c945daa8d3c6497fc47456c67cfc1331b9deecb8243feb1bf6d48edfed9ea555",
+      "contracts_sha256": "93ee3bf6e8e87b8c56b0efb07da9cfda1a921193ac7da789a8b268026bddfb63",
+      "implementation_sha256": "a8172973a2fd856830acabbbc378ec6e7d6f72526f72fdc9d2db2fc1d244aa60",
       "openai_sdk_version": "2.54.0",
-      "package_python_inventory_sha256": "951d5e265b153119833dc76fa0b8ead8a9428f91eb5b7a7910025eba5faac3e3",
+      "package_python_inventory_sha256": "e2724de5f5b542be000f41d43212d159310e498642c5834f1689d1a6f4715b7d",
       "planning_sha256": "9fc72abb4a1762356d6d37f0b299b2c060dbdb5922555674d07412677ec06783",
       "runner_sha256": "8d0dca8dab73ee93a4822c9f2fce0ab4f944f60aca582eb77bc151e6e153c73a",
       "schema_version": "real-live-execution-implementation-v1",
@@ -221,7 +221,7 @@
     },
     "live_evaluator_code_sha256": "2cc92c40850a002b22223a49bbc8224911a9ff1d334098febd4e895082f3a165",
     "live_evaluator_id": "criteriabench.real_eval.llf_live_score:v1",
-    "llf_semantics_module_sha256": "e133ef319d4736534f9631720a97b551ac8a8978e661a8b560436a4783e19f56",
+    "llf_semantics_module_sha256": "94105961346467e9471fefe4227ff5f26e05e430679759f2ff2134e1a654ff0b",
     "parser_version": "bounded-python-ast-allowlist-v1",
     "preregistration_module_sha256": "0c58a132f64d3e8439145b5d5672c4586031603ed2f6637e9910250a506c70c4",
     "selection_module_sha256": "9fc72abb4a1762356d6d37f0b299b2c060dbdb5922555674d07412677ec06783"
@@ -234,7 +234,7 @@
     "No clinical-validity or deployment-safety claim follows from this structural LLF benchmark."
   ],
   "planned_paid_call": {
-    "caller_execution_identity_sha256": "fb6fc05f9715fa8bc728720ee30e9f37b95da9b1a6e58510928fd4b638e345b3",
+    "caller_execution_identity_sha256": "c4e2562394e0024dfb8b818237fd21d9ef96ac8735a7c87195f861379a92f092",
     "case_count": 25,
     "exact_plan_and_fresh_authorization_required_before_paid_execution": true,
     "hard_budget_cap_usd": "0.170000000",
@@ -256,10 +256,10 @@
     "maximum_attempts_per_case": 1,
     "output_contract": {
       "contract_id": "llf-semantic-ast-v1",
-      "parser_code_sha256": "2c67b978452e630ca7097d0936dee8f9d6b9e848644acb703af2309d46836270",
+      "parser_code_sha256": "93ee3bf6e8e87b8c56b0efb07da9cfda1a921193ac7da789a8b268026bddfb63",
       "parser_id": "criteriabench.real_live.contracts.parse_llf_wire_payload:v1",
       "parser_sha256": "2bf8081cd7dc1e57ecb2a561295b283b63a1330c1b4b70142e9aa2991accbb38",
-      "prompt_sha256": "285cd1f2c2b720bcc1ec908bc21e5bcba17a76b12f3db5eb77a65285ae066d41",
+      "prompt_sha256": "9264fa34f00064f86f4f452ec9c413e750ce8c9087cc1485c72d10e1caddc2a8",
       "schema_name": "criteriabench_llf_logical_form",
       "schema_sha256": "ab7cf39603900057b25d005b9722953987f3212ae6d10ab5cd9d6ef059fd8f15",
       "track": "llf_semantic_ast"
@@ -282,7 +282,7 @@
     "reservation_per_case_usd": "0.006553600",
     "reserved_total_usd": "0.163840000"
   },
-  "preregistration_sha256": "e01264722de9dfea006821498fa8907818429aac045c9771b8dc03d8ecf867f4",
+  "preregistration_sha256": "5dc461be09780c69dfdd3689e81e0a1c31530c853c57761745212e149ba7c9c4",
   "schema_version": "llf-canary-preregistration-v1",
   "selection": {
     "algorithm": "polarity-length-tertile-trial-stratified-sha256-v1",

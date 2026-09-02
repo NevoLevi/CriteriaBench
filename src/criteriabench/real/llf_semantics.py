@@ -18,6 +18,7 @@ import hashlib
 import io
 import json
 import keyword
+import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
@@ -50,22 +51,22 @@ COVERAGE_SCHEMA_VERSION = "llf-semantic-coverage-v1"
 SPLIT_COVERAGE_SCHEMA_VERSION = "llf-semantic-split-coverage-v1"
 PARSER_VERSION = "bounded-python-ast-allowlist-v1"
 PINNED_LLF_GENERATION_MANIFEST_SHA256 = (
-    "312ebf02fbbfe1bb157a2f71853939a9ef81f87e024091881d8f481696e2c655"
+    "c67911011a906afe5e81c4f39310a765d899244a3c831f180111b3260ac9ce58"
 )
 PINNED_LLF_GENERATION_CASES_SHA256 = (
     "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
 )
-PINNED_LLF_RECORDS_SHA256 = "9cb335fad4d571cf82164b1953f6d68c60bc63d2b9726128799cb9968f78d064"
+PINNED_LLF_RECORDS_SHA256 = "43be72b6aef84c963adee017601665ba38f3ea79abf3e7f527b23ecf6cd74f50"
 PINNED_LLF_SEMANTIC_COVERAGE_SHA256 = (
-    "f5e82bd57f3ccededf4c032a16344fa49ee3ac5a12cbc33dad0772766b0f72fd"
+    "df4fef8669aa1fd5fba23ae7dc858dff8f506d015b971ddfd9351d23538e5ae9"
 )
 PINNED_LLF_SPLIT_REFERENCE_SHA256 = {
-    "development": "fd1d7e57559cd0b8ddfde5b5fc5d1fd68be364287cd1b520d2665d0687518e57",
-    "test": "1e140baa1ddda022997c0d68a705e6767e624fdb7ae7c2e1aa07d0a7ad2b854a",
+    "development": "3fda6daba1368826b02317e0f7eec82baeb9bb1526c87877fe1364a674dfea12",
+    "test": "0f440dc69c5117f74b3470f9f94d06d424dc456611ada536ec9f03f663242c5e",
 }
 PINNED_LLF_SPLIT_COVERAGE_SHA256 = {
-    "development": "b6ce5a031dfd1d53b1a6854174725ef3afeea51cac99f2843b7d4cef6836a9c3",
-    "test": "ba3f3915002d02d9df680f8fbbcb1b0a73e7f1f6661142aaafcfa8fd8d7a6a27",
+    "development": "bda3d2a2144931213032cc3ffb368e59640dee63176573e96af35017756cd8ee",
+    "test": "023ac5b3bf0ff6e50735c3c60b1e2046626a273b7f2f0ffa6b2034a3da3eedd9",
 }
 
 MAX_LLF_SOURCE_BYTES = 16_384
@@ -1594,7 +1595,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.records is None or args.agreement is None or args.split is not None:
             parser.error("full coverage requires --records and --agreement")
         payload = semantic_coverage_report_bytes(args.records, args.agreement)
-    print(payload.decode("utf-8"), end="")
+    sys.stdout.buffer.write(payload)
     return 0
 
 

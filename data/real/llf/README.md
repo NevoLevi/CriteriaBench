@@ -24,4 +24,6 @@ The importer decodes only three bounded JavaScript string literals. It never exe
 JavaScript; each logical-form body remains inert source text for a separate reviewed parser.
 The three absent bodies are retained in the evaluation denominator rather than dropped or
 fabricated. These annotations are benchmark references, not clinical advice or patient-level
-eligibility decisions.
+eligibility decisions. Upstream `.js` and license checkout text is canonicalized from CRLF or
+LF to LF before source byte counts, SHA-256 lineage, parsing, and generated output; unsupported
+bare carriage returns are rejected.

@@ -6,10 +6,10 @@
   },
   "artifacts": [
     {
-      "bytes": 2064579,
+      "bytes": 2040750,
       "path": "records.jsonl",
       "record_count": 2000,
-      "sha256": "9cb335fad4d571cf82164b1953f6d68c60bc63d2b9726128799cb9968f78d064"
+      "sha256": "43be72b6aef84c963adee017601665ba38f3ea79abf3e7f527b23ecf6cd74f50"
     },
     {
       "bytes": 538698,
@@ -18,57 +18,57 @@
       "sha256": "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
     },
     {
-      "bytes": 1586,
+      "bytes": 1709,
       "path": "generation_manifest.json",
-      "sha256": "312ebf02fbbfe1bb157a2f71853939a9ef81f87e024091881d8f481696e2c655"
+      "sha256": "c67911011a906afe5e81c4f39310a765d899244a3c831f180111b3260ac9ce58"
     },
     {
-      "bytes": 208496,
+      "bytes": 206094,
       "path": "development_references.jsonl",
       "record_count": 200,
-      "sha256": "fd1d7e57559cd0b8ddfde5b5fc5d1fd68be364287cd1b520d2665d0687518e57"
+      "sha256": "3fda6daba1368826b02317e0f7eec82baeb9bb1526c87877fe1364a674dfea12"
     },
     {
-      "bytes": 1856083,
+      "bytes": 1834656,
       "path": "test_references.jsonl",
       "record_count": 1800,
-      "sha256": "1e140baa1ddda022997c0d68a705e6767e624fdb7ae7c2e1aa07d0a7ad2b854a"
+      "sha256": "0f440dc69c5117f74b3470f9f94d06d424dc456611ada536ec9f03f663242c5e"
     },
     {
-      "bytes": 67804,
+      "bytes": 67020,
       "path": "agreement_annotations.jsonl",
       "record_count": 60,
-      "sha256": "3ffba65df1d2da0f46f43cbd8a2c96d8a7b333616f26c6c71d3d18e322677bad"
+      "sha256": "384b1c200be5e8a58360ccd274b8780a76304672756d248a4f975a5e92cbb5a4"
     },
     {
-      "bytes": 1231500,
+      "bytes": 1231471,
       "path": "source_manifest.jsonl",
       "record_count": 2060,
-      "sha256": "a39e885381e4d76b75f6fc3c1c3635f21990c5268b1a2062c14af528ff7e6fb1"
+      "sha256": "ce3267bd7f4aa18dfd4dab60bec443e0713978ad246d325f822385e6b50f204b"
     },
     {
       "bytes": 60945,
       "path": "split_assignments.json",
       "record_count": 885,
-      "sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618"
+      "sha256": "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc"
     },
     {
-      "bytes": 1190,
+      "bytes": 1346,
       "path": "ATTRIBUTION.md",
-      "sha256": "ce20c44bf74fc3e97f1159b4d9a97a6d516539b8ddbf2ab55d1e0f622c17712f"
+      "sha256": "9245f629e6c153e220233994b661476bb49cca04ca6456ba691414bb0fbdacd7"
     },
     {
-      "bytes": 1088,
+      "bytes": 1067,
       "path": "LICENSE.upstream.txt",
-      "sha256": "5748126bdf992602f455023784c420638dcd18ed5710e17200491a254d110f60"
+      "sha256": "18b58607518531a46cbb564feb9b8575b3aff24b4cf2c0750eda664a9fe169d5"
     },
     {
-      "bytes": 1829,
+      "bytes": 2032,
       "path": "README.md",
-      "sha256": "6e575511baced1608a28aa116aeba20595a57306c601ea5bf234ab6d1296bf1a"
+      "sha256": "65e782286cc7da5a21986ff1933299a515604c4cae6d8e43c5b927f4444fdd78"
     }
   ],
-  "canonical_payload_sha256": "c82ae574f23c1f567aa333273915111afd487cb5a13d8f93e4d3eb49d107c953",
+  "canonical_payload_sha256": "d518a25f0b704ee5140b9d9f62706cb64f50ffe421f3113cfb78249d37c20361",
   "counts": {
     "agreement_cases": 20,
     "agreement_files": 60,
@@ -91,12 +91,13 @@
     "javascript_executed": false,
     "logical_form_interpretation": "inert_source_text",
     "maximum_source_file_bytes": 16384,
-    "parser": "bounded-js-string-header-v1"
+    "parser": "bounded-js-string-header-v1",
+    "upstream_text_line_endings": "canonical_lf_before_hash_and_parse"
   },
-  "schema_version": "llf-import-v1",
+  "schema_version": "llf-import-v2",
   "split": {
     "algorithm": "sha256-trial-rank-v1",
-    "assignment_sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618",
+    "assignment_sha256": "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc",
     "development": {
       "cases": 200,
       "trials": 86
@@ -172,11 +173,11 @@
     "commit_url": "https://github.com/uw-bionlp/leaf-corpora/commit/461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e",
     "corpus_git_tree_sha1": "f846019a2743b8ac20f5d0e7323347e8bcaedf15",
     "corpus_path": "leaf_logical_forms",
-    "inventory_hash_algorithm": "sha256(path_utf8 + NUL + size_ascii + NUL + bytes + NUL)",
-    "inventory_sha256": "c8ee39eaff21251075d36d8d0e3b506fbbc196d3a6eaa95084dda25a5fe88297",
+    "inventory_hash_algorithm": "sha256(path_utf8 + NUL + canonical_lf_size_ascii + NUL + canonical_lf_utf8_bytes + NUL)",
+    "inventory_sha256": "c2e0ac8758b4f8a7bc9ccc2b8385ce1a374fab48222ee3a5dff5fc2daa4fe5b1",
     "license": "MIT",
     "license_path": "LICENSE.upstream.txt",
-    "license_sha256": "5748126bdf992602f455023784c420638dcd18ed5710e17200491a254d110f60",
+    "license_sha256": "18b58607518531a46cbb564feb9b8575b3aff24b4cf2c0750eda664a9fe169d5",
     "repository": "https://github.com/uw-bionlp/leaf-corpora"
   }
 }
