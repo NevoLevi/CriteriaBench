@@ -1,273 +1,224 @@
 # Benchmark methodology
 
-CriteriaBench has two deliberately separate current evaluation paths and a third, offline artifact boundary for future model comparisons:
+CriteriaBench Real v1 evaluates whether a system can reproduce human-authored Leaf Logical Forms (LLF) from real clinical-trial eligibility criteria. This page explains the implemented data, parser, baselines, agreement analysis, metrics, and interpretation rules. The actual Luna canary is pending.
 
-1. a one-case engineering smoke that verifies guarded extraction, deterministic scoring, and provenance/cost artifact plumbing; and
-2. the unchanged 80-case Synthetic v0.1 dataset analyzed by offline-suite-v0.1.1, which verifies dataset, evaluator, baseline, slice/family analysis, and report regressions without network or model calls.
+## Evaluation unit
 
-The separate `prediction-bundle-v1` importer can validate and score a future canonical prediction artifact, but cannot generate predictions or call a provider.
+One case is one annotated inclusion or exclusion criterion associated with an NCT trial. The primary corpus contains 2,000 cases from 885 trials. The split is grouped by complete trial so that related criteria from one study cannot appear in both development and test:
 
-None of these paths establishes clinical accuracy or a research-grade benchmark. The offline suite compares two deterministic software baselines, not language models. The approved one-case Luna smokes remain separate engineering evidence and are not included in Synthetic v0.1.
+- development: 200 cases from 86 trials;
+- locked test: 1,800 cases from 799 trials; and
+- agreement context: three annotations for each of 20 selected cases, kept in development.
 
-## Implemented extraction contract
+The primary corpus has 1,997 available references. Three absent upstream logical-form bodies remain explicit operational cases. They are not fabricated, silently removed, or included in semantic denominators.
 
-Each `ClinicalTrialEligibility` object contains:
+## Deterministic import and provenance
 
-- `schema_version` and `trial_id`;
-- inclusion and exclusion criterion lists;
-- per criterion: stable ID, kind/category, concept, operator, value, unit, negation, temporal constraint, logic group, and exact evidence span/quote; and
-- an ambiguities list.
+The LLF source is pinned to `uw-bionlp/leaf-corpora` commit `461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e`. The importer records the repository tree/inventory, every source path and SHA-256, the split algorithm/seed, counts, and generated artifact hashes.
 
-Semantic validation includes operator/value compatibility, between/list/existence forms, temporal duration/reference rules, single versus AND/OR group cardinality, and evidence quote equality. Extractor/provider prediction evidence offsets and quotes are cross-checked against the exact eligibility text before output is accepted.
+Each upstream file is treated as untrusted text. Import decodes only three bounded JavaScript string-literal assignments needed for criterion text, augmented text, and logical form. It does not run JavaScript.
 
-Synthetic v0.1 additionally verifies every reference quote and offset against its source text during suite loading. The manually authored reference in the older one-case smoke remains typed but is not source-cross-checked by that CLI.
+The generated artifacts have distinct responsibilities:
 
-The representation is a flat set of grouped predicates with parent links, not a general Boolean abstract-syntax tree. It does not contain registry demographics, a queryability score, or a generated database query.
+| Artifact | Contains references? | Intended reader |
+|---|---:|---|
+| `generation_cases.jsonl` | No | Baseline/model generation |
+| `generation_manifest.json` | No reference identities, availability, denominators, or hashes | Generation integrity checks |
+| `split_assignments.json` | No | Both planes |
+| `development_references.jsonl` | Development only | Development scorer/baseline |
+| `test_references.jsonl` | Locked test only | Locked offline scorer |
+| `agreement_annotations.jsonl` | Agreement subset | Human-agreement analysis |
+| `records.jsonl` | All primary source/reference records | Mechanical audit only |
 
-## Normalization and alignment
+This physical separation is stronger than asking model code not to inspect a field in a combined object. The paid container never mounts either reference file.
 
-Exact criterion-text comparison uses `(criterion kind, normalize(normalized_text))` as its multiset key. Normalization applies Unicode-aware lowercasing, whitespace collapse, and punctuation/token handling implemented in the evaluator. A multiset counter preserves duplicate cardinality.
+## Safe LLF semantic representation
 
-An exact criterion-text match says that criterion kind and normalized criterion text agree. It does not imply equality of category, concept, operator, value, unit, negation, temporal relation, logic connector, evidence, group topology, ambiguities, or the complete structured object.
+LLF annotations resemble chained Python expressions, but CriteriaBench never treats them as executable programs. The parser:
 
-For token and field scoring:
+1. validates bounded UTF-8 input;
+2. applies documented keyword normalization needed for LLF method names;
+3. asks Python's parser only for an inert expression AST;
+4. accepts an explicit allowlist of names, string/Boolean literals, attributes, calls without keyword arguments, tuples, and Boolean `and`/`or`;
+5. rejects every other syntax node; and
+6. serializes the result to a strict, flat, canonical postorder node table.
 
-1. Only reference/prediction criteria of the same kind are candidates.
-2. Candidate weight is token F1 over normalized text.
-3. Weights below 0.25 are excluded.
-4. Deterministic Hungarian assignment finds a maximum-weight one-to-one matching.
-5. Unmatched references and extra predictions contribute zero to token and field scores.
+It never compiles, evaluates, executes, imports, or invokes the parsed expression. Bounds cover source bytes, decoded string bytes, semantic nodes, depth, identifier length, call arguments, and collection size. The output validator also requires one connected acyclic tree, canonical contiguous node IDs, backward-only child references, and no shared child nodes.
 
-Exact multiset intersection makes missing references lower recall and extra predictions lower precision. Token and each field score sum aligned-pair values and divide by `max(prediction_count, reference_count)`, so unmatched references and extra predictions each contribute zero. This prevents one prediction from being reused for multiple references and avoids giving structured-field credit to unrelated zero-overlap text.
+All 1,997 available primary references parse under this contract. Of 60 agreement annotations, 57 parse; the three malformed annotations and six unavailable pairs are disclosed.
 
-## Implemented metrics
+## Canonicalization
 
-### Criterion-level
+Canonicalization is intentionally narrow. These direct call forms are treated as commutative:
 
-- exact criterion-text precision;
-- exact criterion-text recall;
-- exact criterion-text F1; and
-- token-overlap score summed across aligned pairs and divided by `max(prediction_count, reference_count)`.
+- `intersect(...)`;
+- `union(...)`;
+- `and(...)`; and
+- `or(...)`.
 
-Both valid empty extraction/reference sets score as perfect agreement.
+Infix Boolean `and` and `or` are also commutative. Their child payloads are sorted canonically for scoring. Method calls, `seq`, tuples, and all other argument lists preserve order. An undocumented method form named `union`, for example, remains ordered.
 
-### Structured fields
+Exact match compares the complete canonical scoring payload. It is stricter than matching a bag of labels and insensitive only to the declared commutative reorderings.
 
-Accuracy is computed for exactly eight fields:
+## Direct model boundary
 
-1. category;
-2. concept;
-3. operator;
-4. value;
-5. unit;
-6. negation;
-7. temporal relation; and
-8. logic connector.
+For the LLF paid lane, the strict provider response schema is deliberately small:
 
-The macro field score is the arithmetic mean of those eight accuracies.
-
-Not yet scored separately:
-
-- temporal quantity, unit, raw text, or reference event;
-- evidence quote/offset similarity;
-- logic group IDs, parent topology, or full Boolean equivalence; and
-- ambiguity quality/completeness.
-
-Source-bound evidence validation is a structural validity check, not an evidence-similarity metric. `schema_valid=true` means a typed object passed the boundary, not that it is medically correct.
-
-## Built-in data and evaluation paths
-
-The repository contains:
-
-- a minimally retained public ClinicalTrials.gov trial fixture/manifest for downloader and input demonstrations;
-- one synthetic trial with a manually specified gold extraction for the original frozen smoke benchmark; and
-- Synthetic v0.1, exactly 80 constructed reference cases across 10 families with 8 controlled variants per family.
-
-The one-case smoke is sufficient to detect guarded-pipeline and artifact regressions, not to estimate generalization. Its CLI does not exercise Redis, the worker, or PostgreSQL; those paths have separate API/Compose/kind integration evidence.
-
-### Synthetic v0.1 design
-
-Synthetic v0.1 was created through AI-assisted template design and label construction, then encoded in a deterministic, source-controlled generator. Generating and evaluating the committed fixtures is offline and makes no model or network calls. The content contains no patient records, personal data, network-sourced trial text, or proprietary corpus material.
-
-The manifest records 10 balanced families, eight controlled variants per family, and 20 declared slices. Sixteen cases represent one source bullet as multiple labels with AND or OR grouping.
-
-Each of the 80 fixture bytes is pinned by SHA-256. The loader requires the exact ordered case set, unique trial IDs and hashes, strict schema validity, matching fixture/manifest provenance, sequential criterion IDs, correct inclusion/exclusion kinds, and exact source-bound evidence quotes and offsets.
-
-The frozen manifest uses `single_author` and `deterministic_templates` for one historical authoring workflow; those fields do not mean unaided human authorship. Independent second-human and clinical-domain review/adjudication are still pending. The suite is small, English-only, template-shaped, and balanced by design rather than natural sampling. Its results are engineering regression evidence only: they are not research-grade and do not measure clinical validity, real-registry generalization, inter-annotator agreement, fairness, safety, or production model quality.
-
-See the [dataset card](../data/synthetic_v0_1/README.md) for the complete authoring and future independent-review procedure.
-
-### Offline baselines
-
-The suite accepts only these allowlisted configurations:
-
-- `empty-v1`, which returns a schema-valid empty extraction; and
-- `rules-v1`, a deterministic adapter over the repository's mock extraction provider.
-
-Both baselines run sequentially and record `paid=false`, `network=false`, zero input/output tokens, and USD 0 estimated cost. They do not call an LLM. Their comparison checks that the evaluator and deterministic extraction path respond meaningfully to the constructed cases; it is not evidence that one production model outperforms another.
-
-### Aggregation, slices, and error analysis
-
-For each baseline, the report includes:
-
-- completion and schema-valid rates;
-- micro exact criterion-text precision/recall/F1 and TP/FP/FN counts;
-- mean exact criterion-text F1, token F1, and macro field accuracy;
-- separate case-weighted means for all eight structured fields;
-- criterion-text-perfect trial rate;
-- all-case and nonempty-reference cohorts;
-- all 20 declared slices;
-- all 10 families and 10 leave-one-family-out subsets;
-- case-resampled and family-cluster sensitivity intervals;
-- derived family/base-template/variant lineage; and
-- deterministic count/denominator/rate/basis entries for missing/spurious criteria and aligned text, field, temporal, logic, and evidence mismatch events.
-
-The error taxonomy reuses the evaluator's deterministic optimal alignment so its pair choices cannot diverge from scoring. Missing-criterion rates use reference criteria, spurious-criterion rates use predicted criteria, and paired mismatch rates use aligned pairs as their denominator.
-
-Taxonomy events can overlap: one aligned pair can contribute text, concept, operator, value, evidence, and other mismatch events simultaneously. Counts therefore cannot be summed as unique cases, criteria, or failures. The same-kind 0.25 token-F1 alignment threshold can also affect which paired events are classified.
-
-The AND/OR families deliberately encode two grouped reference criteria in one source bullet. `rules-v1` emits one unsplit criterion per bullet, producing a known segmentation/grouping mismatch and zero exact criterion-text F1 on those slices. This controlled failure is useful, but it is not general evidence that a system can or cannot reason over arbitrary Boolean logic. The current schema remains a flat grouped-predicate representation, not a general Boolean AST.
-
-### Deterministic resampling sensitivity
-
-Case-resampled mean metrics and rules-minus-empty paired deltas retain the historical percentile view with 10,000 resamples, seed `20260901`, and 95% coverage. This view treats all 80 controlled variants as exchangeable and can understate their shared-template dependence.
-
-The separate 10-family-cluster sensitivity resamples whole families, keeping each family's eight variants together. It is explicitly labeled a sensitivity analysis rather than an unqualified confidence interval.
-
-Leave-one-family-out results show how the aggregate changes when each family is omitted in turn.
-
-Only 10 upper-level clusters exist, and each family is confounded with one root template structure. Neither resampling view estimates clinical, registry, model-run, or broad template-population uncertainty; bootstrap resampling cannot create missing template diversity. All serialized values remain fixed-seed and rounded to six decimals.
-
-### Policy and report regression gate
-
-`benchmarks/synthetic-v0.1-policy.json` freezes the expected dataset/config structure and requires:
-
-- exactly 80 cases, 10 families, all 20 declared slices, and 16 one-bullet/multi-label cases;
-- both `empty-v1` and `rules-v1`;
-- suite version `offline-suite-v0.1.1`;
-- all eight named mean structured-field accuracies;
-- per-family and leave-one-family-out results for all 10 families;
-- 10-family-cluster sensitivity metadata;
-- taxonomy count/denominator/rate/basis fields and overlap disclosure;
-- 80 derived lineage entries across 10 base templates and variants 1–8;
-- 100% completion and schema validity;
-- manifest hash and source-evidence validity through the loader contract;
-- `paid=false`, `network=false`, zero tokens, and zero estimated cost for both baselines; and
-- rules-v1 mean token F1 and mean macro field accuracy each at least 0.20 above empty-v1.
-
-The primary regression gate is stronger than numeric thresholds: CI regenerates both report formats and requires byte-for-byte equality with the current v0.1.1 [JSON](results/synthetic-v0.1.1.json) and [Markdown report](results/synthetic-v0.1.1.md). This catches drift in the fixtures, analysis contract, ordering, rounding, wording, and output serialization. The historical v0.1 [JSON](results/synthetic-v0.1.json) and [Markdown](results/synthetic-v0.1.md) remain byte-immutable and SHA-256 pinned; corrections are published under a new analysis version rather than silently rewriting old evidence.
-
-Reproduce the suite from a frozen environment:
-
-```powershell
-uv run --frozen --no-env-file criteriabench-suite `
-  data/synthetic_v0_1/manifest.json `
-  --configs empty-v1 rules-v1 `
-  --json-output artifacts/synthetic-v0.1.1.json `
-  --markdown-output artifacts/synthetic-v0.1.1.md `
-  --check-json docs/results/synthetic-v0.1.1.json `
-  --check-markdown docs/results/synthetic-v0.1.1.md
+```json
+{"logical_form":"one bounded LLF expression"}
 ```
 
-The CLI rejects environment-style paths and existing output files unless `--overwrite` is explicit.
+Local trusted code then applies the stricter length constraints and safe parser. This avoids asking the provider to generate internal node IDs or provenance fields and avoids depending on unsupported remote JSON-Schema keywords.
 
-## One-case smoke artifact
+The model input contains only criterion text and inclusion/exclusion kind. Case ID, trial ID, source hash, reference, score, and neighbouring annotations are excluded. The frozen prompt includes five development-only examples and the development-derived LLF vocabulary. No tool use or web retrieval is enabled.
 
-The original CLI writes a unique temporary file and atomically replaces the requested JSON output, refuses an existing path unless `--overwrite` is explicit, and removes temporary output after failure. It does not claim filesystem `fsync` durability.
+## Deterministic BM25 comparator
 
-Its artifact records:
+`llf-bm25-nearest-development-v1` is a retrieval baseline, not a language model. It asks whether lexical similarity alone can recover a useful logical form.
 
-- artifact/schema version and creation time;
-- provider and exact model label;
-- paid flag and applied price assumptions;
-- fixture version, relative source path, and SHA-256;
-- extraction contract SHA-256 binding schema/provider implementation/service code;
-- evaluation contract SHA-256 binding evaluator implementation;
-- top-level maximum permitted attempts per case, batch projected authorization, aggregate counts/scores, and total usage-priced cost; and
-- per-case extraction, optional evaluation, latency, token usage, and usage-priced cost.
+The frozen algorithm uses:
 
-The current artifact does not report latency percentiles, throughput, queue age, CPU/memory, cached-token pricing, or a raw provider response. Those are future benchmark dimensions.
+- Unicode NFKC normalization and casefolding;
+- tokens made from letters, numbers, and attached combining marks;
+- Okapi BM25 with `k1=1.2`, `b=0.75`, binary query-term frequency, and the documented smoothed IDF;
+- exact inclusion/exclusion polarity matching;
+- ascending development case ID for deterministic ties;
+- all 200 development references as the training set for test targets; and
+- leave-the-entire-target-trial-out training for development targets.
 
-### Frozen smoke expectations
+The implementation accepts already loaded typed objects and has no file, environment, provider, or network entry point.
 
-The canonical mock case is gated in tests/CI with these expected values:
+### Development evidence
 
-- provider: deterministic mock;
-- paid: false;
-- evaluated cases: 1;
-- exact criterion-text F1: 1.0;
-- token F1: 1.0;
-- macro field accuracy: 0.875;
-- usage-priced cost: USD 0; and
-- 64-character hexadecimal extraction/evaluation hashes.
+On all 200 development cases, the leave-trial-out baseline returns a valid prediction for every case:
 
-The non-perfect macro score is useful: it shows the smoke measures the implementation rather than hard-coding every metric to one.
+| Metric | Value |
+|---|---:|
+| Exact canonical tree | 8 / 200 |
+| Node F1 | 0.369699 |
+| Edge F1 | 0.213939 |
+| Combined node-plus-edge F1 | 0.293919 |
 
-## Paid-run controls
+On the frozen 25-case canary subset, its exact count is 1/25 and combined node-plus-edge F1 is `0.202918` (153 TP, 624 FP, 578 FN). These are development results used to set a meaningful go/no-go threshold, not test performance.
 
-Live use is optional and currently accepts only the reviewed `gpt-5.6-luna` model with the repository's exact configured rates. Terra, Sol, arbitrary aliases, alternate endpoints, and zero/stale rates are rejected.
+## Human-agreement context
 
-Before the first request, the live CLI:
+The agreement analysis forms all three unordered annotator pairs within each of 20 cases. Pair orientation is deterministic. Metrics are calculated in both directions, averaged within pair, then averaged within case; the headline gives every case equal weight.
 
-1. verifies all live flags/provider/key/model/rate constraints;
-2. requires an explicit budget no greater than USD 2;
-3. verifies each input against the committed manifest;
-4. hashes and parses the same bytes;
-5. estimates prompt/schema/trial/max-output cost for every permitted attempt and every case; and
-6. rejects the complete batch if the projection exceeds the selected budget.
+Pairs touching a malformed annotation are unavailable rather than assigned zero. Consequently:
 
-After a provider call starts, the authorization ledger consumes at least the conservative reservation even if the call times out. Usage-priced cost is separately computed from returned token usage and configured rates. Neither value is a provider-side spending cap.
+- 60 annotations are present;
+- 57 annotations parse;
+- 54 of 60 possible pairs are available;
+- 17 cases are fully parseable and three partially parseable; and
+- 7 cases have full three-annotation exact consensus.
 
-Synthetic v0.1 and offline-suite-v0.1.1 do not use this live path. A future model evaluation requires a separately reviewed protocol and explicit authorization for any network or paid calls.
+The case-macro results are:
 
-## Offline prediction-bundle import and scoring
+| Metric | Value |
+|---|---:|
+| Canonical exact agreement | 0.466667 |
+| Node F1 | 0.879308 |
+| Edge F1 | 0.788692 |
+| Typed-component F1 | 0.880009 |
 
-Future model results must cross a separate artifact boundary. A separately reviewed and explicitly authorized workflow may produce a canonical `prediction-bundle-v1` outside CI.
+These values describe consistency on a selected subset. They do not prove annotation correctness, form a formal model ceiling, or substitute for biomedical adjudication.
 
-```powershell
-python -m criteriabench.predictions `
-  --bundle <canonical.json> `
-  --manifest data/synthetic_v0_1/manifest.json `
-  --check <canonical.json.sha256> `
-  --output <new-score-report.json>
+## Semantic metrics
+
+For each prediction/reference pair, the evaluator extracts multisets of local structural signatures.
+
+### Nodes
+
+A node signature records its local kind and relevant local value—for example symbol name, string value, Boolean value, attribute name, call shape, tuple arity, or Boolean operator/arity. Duplicate signatures are counted, not collapsed.
+
+### Edges
+
+An edge signature records the local parent and child signatures plus the relationship role: attribute target, call callee, call argument, tuple item, or Boolean operand. Position is retained for ordered structures and removed only for declared commutative structures.
+
+### Typed components
+
+Separate multisets measure calls, method attributes, symbols, strings, and Booleans. Their counts are also combined into a typed-component metric.
+
+### Aggregation
+
+For any multiset, true positives are the summed minimum signature multiplicities. Remaining predicted multiplicity is false positive; remaining reference multiplicity is false negative.
+
+The primary score sums node and edge TP/FP/FN across all scorable cases and computes one micro F1:
+
+```text
+precision = TP / (TP + FP)
+recall    = TP / (TP + FN)
+F1        = 2TP / (2TP + FP + FN)
 ```
 
-The importer validates the bundle against the hash-pinned manifest and cases, then emits `prediction-score-v1`. It imports no settings, provider, HTTP client, or network path and exposes no generation/live mode. It independently recomputes observed usage-priced token costs from hash-bound run rates; if any call's usage is unavailable, the score reports coverage and marks observed monetary totals as lower bounds, not proof of provider billing.
+Exact canonical-tree accuracy, node/edge metrics, and every typed component are mandatory secondary results. Scores are rounded for reporting only after integer counts are fixed.
 
-CI may hash-check and replay a reviewed committed bundle. It must never generate model predictions, accept a key, or make a model/network call.
+An operational failure with an available reference is represented as an empty prediction: zero true positives, zero false positives, and every reference component as a false negative. This keeps failures in the denominator. A missing upstream reference remains in operational completion figures but has no defensible semantic target.
 
-No model-comparison claim exists until a reviewed canonical bundle, prompt/model protocol, and score artifact are actually committed.
+## Live operational metrics
 
-## What a research or model-comparison benchmark would require
+The semantic report is accepted only after the offline scorer validates the sealed plan, preregistration, execution binding, authorization, external claim, local authorization consumption, request/attempt/outcome chain, and terminal summary. It rejects missing, extra, duplicate, symlinked, nonregular, inconsistent, or path-mismatched artifacts.
 
-Before making an accuracy, clinical, or model-comparison claim, add:
+The report includes:
 
-- a substantially larger frozen corpus with documented inclusion/exclusion sampling;
-- trial-level train/development/test separation where training occurs;
-- at least two independent annotators plus adjudication guidance;
-- recorded disagreements and inter-annotator agreement;
-- complete fixture provenance and licensing/redistribution review;
-- a frozen schema, evaluator, prompt, model snapshot/settings, dependency lock, and code revision;
-- multiple runs for nondeterministic conditions;
-- confidence intervals and paired significance/effect analysis appropriate to the target population;
-- error categories and qualitative source-grounded review; and
-- explicit reporting of missing fields, exclusions, failures, and cost/latency.
+- attempted, completed, failed, unattempted, and fatal-abort counts;
+- schema/output-contract status;
+- per-category token usage and unknown-usage coverage;
+- authorization consumption and usage-priced cost under the frozen rates;
+- p50/p95 observed latency;
+- response-ID coverage and uniqueness; and
+- returned provider model, response object, and service-tier coverage.
 
-Possible future metrics include evidence-span overlap, temporal component accuracy, logic-topology equivalence, ambiguity calibration, schema-failure rate, per-category recall, and trial-level all-criteria correctness.
+Request IDs and returned identity hashes are recorded provenance. They are not cryptographic proof of which weights executed. Provider dashboard reconciliation is separate.
 
-## Interpretation rules
+## Canary decision
 
-Safe claims:
+The 25-case development canary is selected deterministically across 25 trials, inclusion/exclusion polarity, and source-length tertiles, with prompt-example trials excluded. Its exact case set and BM25 predictions are sealed before a paid call.
 
-- “The frozen one-case smoke completed reproducibly and caught guarded pipeline/artifact regressions.”
-- “Offline-suite-v0.1.1 reproducibly evaluates two zero-network deterministic baselines on the unchanged 80-case Synthetic v0.1 dataset with hash-pinned inputs, exact criterion-text and structured-field metrics, per-slice/per-family analysis, leave-one-family-out and 10-family-cluster sensitivity checks, and denominator-aware overlapping error events.”
+The decision is conjunctive: 25/25 clean completion and provenance, no retry, known usage/latency, p95 at most 60 seconds, consumption at most USD 0.17, at least two exact trees, and combined structural F1 at least `0.50` and at least `0.10` above BM25. There is no discretionary pass.
 
-Unsafe claims:
+A failed quality gate requires a new versioned configuration and preregistration. A genuine operational rerun requires a new public execution binding, fresh authorization, and full disclosure. The procedure prohibits repeated sampling of the same preregistration followed by selective publication.
 
-- “The model understands clinical criteria.”
-- “The extractor is clinically accurate.”
-- “The system matches patients.”
-- “Rules-v1 is a production model.”
-- “Model A outperforms model B.”
+## Statistical and validity boundaries
 
-The benchmark is deliberately useful as engineering evidence while remaining explicit about the amount, authorship, and synthetic nature of its data.
+No confidence interval or repeated-run variance is claimed for the one-shot canary. It is a readiness gate with a small development sample. The locked public test, if separately authorized, would be a larger public-benchmark estimate but still may be contaminated by model pretraining.
+
+The correct claim is “performance on a pinned public LLF benchmark with no runtime gold leakage.” Do not call it contamination-resistant generalization. A fresh temporal holdout with independent annotation and adjudication is future work.
+
+Structural LLF agreement also does not establish:
+
+- clinical correctness;
+- patient-trial eligibility accuracy;
+- safe handling of protected health information;
+- transfer to the separate GraphV2 contract;
+- API production readiness; or
+- model superiority before the preregistered result exists.
+
+## Legacy deterministic regressions
+
+The one-case synthetic gold smoke and 80-case Synthetic v0.1/v0.1.1 suite remain useful for testing the older API/extractor/evaluator/report plumbing at zero cost. The latter includes deterministic empty/rules baselines, exact criterion-text diagnostics, a 10-family-cluster sensitivity, and byte-stable JSON/Markdown reports.
+
+Those constructed, AI-assisted labels are not part of Real v1 and are not model-quality evidence. Their older criterion-text and field-accuracy metrics are a different evaluation contract and must not be compared numerically with LLF node/edge scores.
+
+The legacy `prediction-bundle-v1` importer remains offline-only. CI may hash-check and replay a reviewed committed bundle, but CI must never generate model predictions or receive paid credentials. If provider usage is missing, imported usage-priced totals are reported as lower bounds and are not proof of provider billing. The synthetic suite is not research-grade, has no independent second-human adjudication, and is not clinical validation. Its overlapping taxonomy categories and known segmentation/grouping errors must not be generalized into evidence of general reasoning ability.
+
+- [Current legacy Synthetic v0.1.1 report](results/synthetic-v0.1.1.md)
+- [Historical immutable Synthetic v0.1 report](results/synthetic-v0.1.md)
+
+## Reproduction
+
+The focused zero-network verification is:
+
+```powershell
+.\.tools\uv\uv.exe run --frozen --no-env-file pytest `
+  tests/test_llf_import.py `
+  tests/test_llf_semantics.py `
+  tests/test_llf_semantic_evaluation.py `
+  tests/test_llf_baselines.py `
+  tests/test_llf_agreement.py `
+  tests/test_llf_canary_preregistration.py `
+  tests/test_llf_live_score.py
+```
+
+The live process is intentionally separate. See [Real-v1 protocol](real-v1-protocol.md) and [Operations runbook](operations-runbook.md).

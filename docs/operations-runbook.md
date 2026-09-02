@@ -1,226 +1,512 @@
 # Operations runbook
 
-All routine paths are mock-only and cost USD 0. Paid inference and Azure creation require separate explicit approval.
+This runbook separates reproducible offline work from the one-shot paid Luna canary. The Real-v1 canary has not run, and no locked-test run is authorized.
+
+The reviewed PowerShell wrappers below are the supported operator interface. They fail closed on existing outputs and mismatched paths, hashes, image IDs, expiry, or artifact lineage. At the time of this document, no Real-v1 plan, execution binding, paid authorization, provider attempt, or charge exists.
 
 ## Prerequisites
 
-- Windows PowerShell 5.1 or PowerShell 7;
+- Windows PowerShell;
 - Docker Desktop using Linux containers;
-- Python 3.12 and uv 0.12.8 for source checks;
-- project-local Helm/kind/Terraform tooling installed by the supplied scripts as needed; and
-- Git.
+- Git;
+- the repository-local `uv` at `.tools\uv\uv.exe`; and
+- only for the paid phase, a direct OpenAI API key with API billing enabled.
 
-Never inspect, print, commit, or pass `.env.local` to Docker/Compose/Kubernetes. The application does not load it automatically.
+Azure CLI and `az login` are **not required** for the direct Real-v1 Luna run. An Entra error such as `530035` for the Microsoft Azure CLI does not block this benchmark.
 
-## Source checks
+Never paste an API key into chat, a command, an environment variable, Docker configuration, or a repository file. The live wrapper will ask for it in a hidden prompt at the final execution phase.
+
+## 1. Verify source and offline evidence
+
+From the repository root:
 
 ```powershell
-uv lock --check
-uv sync --frozen --extra dev
-uv run --frozen --no-env-file ruff check .
-uv run --frozen --no-env-file ruff format --check .
-uv run --frozen --no-env-file mypy src
-uv run --frozen --no-env-file python -m compileall -q src
-uv run --frozen --no-env-file pytest -m "not live and not integration" `
-  --cov=criteriabench --cov-fail-under=75
+.\.tools\uv\uv.exe lock --check
+.\.tools\uv\uv.exe sync --frozen --extra dev
+.\.tools\uv\uv.exe run --frozen --no-env-file ruff check .
+.\.tools\uv\uv.exe run --frozen --no-env-file ruff format --check .
+.\.tools\uv\uv.exe run --frozen --no-env-file mypy src
+.\.tools\uv\uv.exe run --frozen --no-env-file pytest -m "not live and not integration"
 ```
 
-Real PostgreSQL/Redis integration tests require `TEST_POSTGRES_URL` and `TEST_REDIS_URL`. CI supplies them through isolated service containers and runs `pytest -m integration` as a separate fail-closed step.
+The focused Real-v1 verification is:
 
-## Docker Compose
+```powershell
+.\.tools\uv\uv.exe run --frozen --no-env-file pytest `
+  tests/test_llf_import.py `
+  tests/test_llf_semantics.py `
+  tests/test_llf_semantic_evaluation.py `
+  tests/test_llf_baselines.py `
+  tests/test_llf_agreement.py `
+  tests/test_llf_canary_preregistration.py `
+  tests/test_llf_live_score.py `
+  tests/test_real_live.py
+```
 
-Use only the wrapper. Plain Compose can discover a root `.env`, and alternate Compose files can change environment/network boundaries.
+These commands must use no provider, network, environment secret, or locked-test model output.
+
+Before any paid plan, reproduce and inspect:
+
+- 2,000 source-only generation cases and 885 trial assignments;
+- exactly 200 development and 1,800 test cases, with 86/799 trials and no overlap;
+- 1,997/1,997 available primary references parsed and three disclosed missing upstream rows;
+- byte-stable full/development/test coverage artifacts;
+- the 20 × 3 human-agreement report, including three malformed annotations and six unavailable pairs;
+- the deterministic all-development BM25 evidence; and
+- the exact 25-case canary selection/BM25 preregistration.
+
+Any unexpected diff requires investigation and a new version where appropriate. Do not “refresh” a frozen artifact in place to make a check pass.
+
+## 2. Build and identify one exact image
+
+Build the locked production image only after all code, prompt, schema, evaluator, preregistration builder, and dependency changes are complete. Scan/test those exact bytes. Resolve the local image to `sha256:<64 hex>` and retain that image ID.
+
+All subsequent offline and live phases must use the exact image ID, not a mutable tag. A plan for one image cannot authorize another.
+
+The image must contain `uv.lock` and the complete frozen Python execution inventory. The paid container must run read-only, non-root, with all capabilities dropped, `no-new-privileges`, a PID limit, and only the declared mounts.
+
+Set the paths and the intended one-shot identities once. Replace the three angle-bracket values in this setup block; do not reuse a run or authorization ID from another execution:
+
+```powershell
+$repoRoot = (Resolve-Path -LiteralPath '.').Path
+$generationRoot = Join-Path $repoRoot 'data\real\llf'
+$coverageRoot = Join-Path $repoRoot 'docs\results'
+$artifactRoot = Join-Path $repoRoot 'artifacts\real-v1-luna'
+$reportRoot = Join-Path $artifactRoot 'reports'
+$publicPreregistration = Join-Path $coverageRoot 'llf-canary-preregistration.json'
+$image = '<exact-reviewed-local-tag-or-digest>'
+$runId = '<new-run-id>'
+$authorizationId = '<new-authorization-id>'
+
+New-Item -ItemType Directory -Path $artifactRoot -ErrorAction Stop | Out-Null
+New-Item -ItemType Directory -Path $reportRoot -ErrorAction Stop | Out-Null
+```
+
+`$image` may be a tag for discovery, but every wrapper resolves it to one local `sha256:<64 hex>` image ID and binds that ID. Keep the resolved image bytes available for every later phase.
+
+## 3. Create and publish the static canary preregistration
+
+Build the canonical artifact once, then independently reproduce it:
+
+```powershell
+if (Test-Path -LiteralPath $publicPreregistration) {
+  throw 'Refusing to replace an existing public preregistration'
+}
+
+.\.tools\uv\uv.exe run --frozen --no-env-file `
+  criteriabench-llf-canary-preregister build `
+  --dataset-dir $generationRoot `
+  --coverage-dir $coverageRoot `
+  --output $publicPreregistration
+
+.\.tools\uv\uv.exe run --frozen --no-env-file `
+  criteriabench-llf-canary-preregister check `
+  --dataset-dir $generationRoot `
+  --coverage-dir $coverageRoot `
+  --artifact $publicPreregistration
+```
+
+The provider-free builder uses:
+
+- source-only development generation artifacts;
+- development references and development coverage;
+- the exact current code and `uv.lock`; and
+- a builder with no provider, network, environment, or secret entry point.
+
+The artifact must bind:
+
+- the exact 25 cases from 25 different development trials;
+- prompt-example trial exclusion and source-only selection strata;
+- BM25 identity, training/prediction hashes, and frozen comparator scores;
+- provider wire schema and local LLF parser;
+- evaluator/runner/dependency identity;
+- Luna configuration and price snapshot;
+- `USD 0.163840000` reserved under the exact `USD 0.170000000` cap; and
+- the complete conjunctive advancement gates.
+
+Verify that its evidence scope says model/provider called `false`, network used `false`, secret/environment read `false`, locked references opened `false`, and locked-test evidence `false`.
+
+Commit and push the exact preregistration bytes before proceeding to the exact plan. After that public checkpoint, copy—not regenerate—the bytes into the sealed artifact root used by the wrappers and verify byte equality:
+
+```powershell
+$preregistrationPath = Join-Path $artifactRoot 'llf-canary-preregistration.json'
+if (Test-Path -LiteralPath $preregistrationPath) {
+  throw 'Refusing to replace the sealed preregistration copy'
+}
+Copy-Item -LiteralPath $publicPreregistration -Destination $preregistrationPath -ErrorAction Stop
+if ((Get-FileHash -Algorithm SHA256 $publicPreregistration).Hash -cne `
+    (Get-FileHash -Algorithm SHA256 $preregistrationPath).Hash) {
+  throw 'Public and sealed preregistration bytes differ'
+}
+```
+
+Record both its canonical `preregistration_sha256` and file-byte SHA-256.
+
+## 4. Create the exact offline plan
+
+Create the plan in the exact image with networking disabled:
+
+```powershell
+$planFileName = 'llf-canary-plan.json'
+$planPath = Join-Path $artifactRoot $planFileName
+$planCreatedAtUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
+
+.\scripts\plan-real-luna-canary.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -GenerationRoot $generationRoot `
+  -Image $image `
+  -CreatedAtUtc $planCreatedAtUtc `
+  -PlanFileName $planFileName
+```
+
+The plan wrapper:
+
+- runs the exact image with `--network=none`;
+- mount only the source-only generation files plus a writable artifact root;
+- select exactly the preregistered 25 cases in the same order;
+- record a four-hour-or-shorter lifetime inside the frozen pricing window;
+- bind the exact image, implementation, prompt/output/parser, model settings, rates, reservations, and cap; and
+- create a plan only—never an authorization or provider call.
+
+Review at minimum:
+
+- plan and artifact-byte SHA-256;
+- selected case-set SHA-256;
+- preregistration match;
+- exact image ID;
+- purpose `development_llf_canary_25`;
+- 25 cases / 25 trials;
+- model `gpt-5.6-luna` and direct LLF output track;
+- one attempt, zero retries, 60-second deadline;
+- `USD 0.170000000` cap; and
+- creation, expiry, and rate validity times.
+
+If the price snapshot has expired or the full conservative remaining duration does not fit, stop. Do not extend an artifact by editing JSON. After independent review, type the displayed values into new variables; do not derive “reviewed” values automatically in the authorization command:
+
+```powershell
+$reviewedPreregistrationSha256 = '<reviewed-preregistration-sha256>'
+$reviewedPlanSha256 = '<reviewed-plan-sha256>'
+$reviewedCaseSetSha256 = '<reviewed-selected-case-set-sha256>'
+```
+
+## 5. Publish the one-execution binding
+
+Create the one-shot binding offline:
+
+```powershell
+$executionBindingFileName = "$runId-execution-binding.json"
+$executionBindingPath = Join-Path $artifactRoot $executionBindingFileName
+
+.\scripts\bind-real-luna-canary.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -Image $image `
+  -PreregistrationPath $preregistrationPath `
+  -PlanPath $planPath `
+  -RunId $runId `
+  -AuthorizationId $authorizationId `
+  -ReviewedPreregistrationSha256 $reviewedPreregistrationSha256 `
+  -ReviewedPlanSha256 $reviewedPlanSha256 `
+  -ExecutionBindingFileName $executionBindingFileName
+```
+
+The binding joins exactly one preregistration and plan to:
+
+- one intended run ID;
+- one intended authorization ID;
+- `/run/artifacts/output` inside the container;
+- the normalized exact host output directory hash;
+- the separate durable authorization-state directory hash;
+- the exact image and case/configuration/cost fields;
+- maximum execution count one;
+- optional stopping prohibited;
+- the versioned-quality-failure policy; and
+- the new-binding/fresh-authorization/full-disclosure operational-rerun policy.
+
+Publish or commit byte-for-byte copies of the exact plan and execution binding before authorization. Confirm the public byte hashes equal `$planPath` and `$executionBindingPath`, and confirm the binding reproduces from the public preregistration and exact plan; do not merely compare a few displayed fields.
+
+After that public review, type the displayed binding hash into a new variable:
+
+```powershell
+$reviewedExecutionBindingSha256 = '<reviewed-execution-binding-sha256>'
+```
+
+## 6. Obtain fresh exact authorization
+
+Only after the user gives the exact acknowledgement for the reviewed public chain, create the fresh authorization offline:
+
+```powershell
+$authorizationFileName = 'llf-canary-authorization.json'
+$authorizationPath = Join-Path $artifactRoot $authorizationFileName
+$authorizedAtUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
+
+.\scripts\authorize-real-luna-canary.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -Image $image `
+  -PlanPath $planPath `
+  -PreregistrationPath $preregistrationPath `
+  -ExecutionBindingPath $executionBindingPath `
+  -ReviewedPlanSha256 $reviewedPlanSha256 `
+  -ReviewedPreregistrationSha256 $reviewedPreregistrationSha256 `
+  -ReviewedExecutionBindingSha256 $reviewedExecutionBindingSha256 `
+  -ReviewedCaseSetSha256 $reviewedCaseSetSha256 `
+  -ApprovedBudgetCapUsd '0.170000000' `
+  -CanaryAcknowledgement 'I authorize this exact sealed 25-case LLF semantic paid Luna canary plan.' `
+  -AuthorizedAtUtc $authorizedAtUtc `
+  -AuthorizationId $authorizationId `
+  -RunId $runId `
+  -AuthorizationFileName $authorizationFileName
+```
+
+Authorization runs with networking disabled and requires the exact:
+
+- preregistration and artifact-byte hashes;
+- plan and artifact-byte hashes;
+- execution-binding and artifact-byte hashes;
+- image ID, case-set hash, run ID, authorization ID, and path hashes;
+- `USD 0.170000000` cap;
+- authorization time and expiry; and
+- acknowledgement text:
+
+> I authorize this exact sealed 25-case LLF semantic paid Luna canary plan.
+
+The resulting authorization is not reusable for another root, run, binding, plan, image, case set, price snapshot, or time window. It is also not authorization for the locked test.
+
+The binding step creates the intended output directory and separate durable authorization-state directory. Authorization re-resolves and verifies those same path scopes. Neither step creates a provider attempt.
+
+## 7. Recover/preflight offline, then execute once
+
+Use the exact reviewed chain. Do not set or export `OPENAI_API_KEY`:
+
+```powershell
+$runDirectory = Join-Path $artifactRoot $runId
+$authorizationStateDirectory = Join-Path $artifactRoot '.real-live-authorization-state'
+
+.\scripts\run-real-luna.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -GenerationRoot $generationRoot `
+  -PlanPath $planPath `
+  -AuthorizationPath $authorizationPath `
+  -PreregistrationPath $preregistrationPath `
+  -ExecutionBindingPath $executionBindingPath `
+  -OutputDirectory $runDirectory `
+  -RunId $runId `
+  -Image $image
+```
+
+Before it requests a key, this wrapper always invokes the core `recover` command in the exact image with `--network=none`. Recovery validates/reconciles the sealed prefix and prints `recovery_remaining=N`. If `N=0`, the wrapper returns without requesting a key. If work safely remains, it continues to the hidden prompt and live command.
+
+The wrapper displays:
+
+```text
+OpenAI API key (input hidden):
+```
+
+Paste/type the key there. Input must remain hidden. The wrapper sends it over standard input to one interactive container and then clears its temporary plaintext representation.
+
+Immediately before the first provider call, the runner must:
+
+1. verify the preregistration → plan → binding → authorization chain;
+2. verify exact image, source-only mounts, host/container path hashes, run ID, case order, and freshness;
+3. prove the full remaining worst-case duration fits every expiry;
+4. confirm the external authorization claim and local consumption are both absent or both present and identical for recovery; and
+5. create the exclusive one-time authorization claim.
+
+For each ordinal, it creates an external append-only attempt claim before the local pending request and provider call. It then writes exactly one matching attempt and one terminal case outcome. No retry is allowed.
+
+Do not interrupt a healthy run. If interruption occurs, rerun the **same wrapper command above** with the same exact roots and artifacts. Its offline recovery must turn an already-started pending ordinal into an explicit failed outcome and seal any fatal prefix before another call. Never delete claims or artifacts to “start clean.” A separate operational execution requires a new public binding, fresh authorization, and full disclosure.
+
+Any failure means the canary cannot pass. Preserve the complete directory and external ledger.
+
+## 8. Score with networking disabled
+
+After a terminal sealed summary exists, score the run:
+
+```powershell
+$scoreReportFileName = 'llf-canary-score.json'
+$scoreReportPath = Join-Path $reportRoot $scoreReportFileName
+
+.\scripts\score-real-luna-canary.ps1 `
+  -RunDirectory $runDirectory `
+  -AuthorizationStateDirectory $authorizationStateDirectory `
+  -PreregistrationPath $preregistrationPath `
+  -ExecutionBindingPath $executionBindingPath `
+  -GenerationRoot $generationRoot `
+  -CoverageRoot $coverageRoot `
+  -ReportOutputDirectory $reportRoot `
+  -Image $image `
+  -ReportFileName $scoreReportFileName
+```
+
+The score phase must:
+
+- use the same exact image ID;
+- run with `--network=none`;
+- mount the run and durable state read-only;
+- add only development references and development coverage;
+- write to a report directory disjoint from the run directory; and
+- refuse to overwrite an existing report.
+
+The scorer must validate all preregistration/binding/authorization/state/attempt/outcome/summary lineage before computing exact, node, edge, typed-component, usage, latency, provider-provenance, and operational metrics.
+
+Do not hand-edit a run or score report. A mismatch is evidence of a failed integrity check, not a formatting problem.
+
+## 9. Seal the PASS/FAIL decision
+
+Create and immediately reproduce the sealed decision:
+
+```powershell
+$decisionFileName = 'llf-canary-advancement-decision.json'
+$decisionPath = Join-Path $artifactRoot $decisionFileName
+
+.\scripts\decide-real-luna-canary.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -Image $image `
+  -PreregistrationPath $preregistrationPath `
+  -ExecutionBindingPath $executionBindingPath `
+  -PlanPath $planPath `
+  -AuthorizationPath $authorizationPath `
+  -ScoreReportPath $scoreReportPath `
+  -DecisionFileName $decisionFileName
+```
+
+The wrapper runs both `decide` and `check-decision` inside the exact image with `--network=none`. It emits every observed/required comparison and sets PASS only if all checks are true.
+
+PASS requires:
+
+- 25 attempted and 25 completed;
+- zero failed, unattempted, or fatal-abort cases;
+- known usage, observed latency, unique response ID, and required returned provider provenance for all 25;
+- one attempt per case and no retries;
+- charged consumption at most USD 0.17;
+- p95 latency at most 60 seconds;
+- combined node-plus-edge F1 at least 0.50 and at least 0.10 above BM25; and
+- at least two exact trees.
+
+If any check fails, the decision is FAIL and no locked plan may be authorized or run.
+
+## 10. Reconcile and publish
+
+After scoring:
+
+1. independently reconcile response IDs, usage, and billing in the OpenAI dashboard;
+2. retain the provider-dashboard evidence privately according to account policy;
+3. publish the sealed source/preregistration/plan/binding/run/report/decision lineage after secret/path review;
+4. disclose every failed or interrupted attempt; and
+5. state public-benchmark contamination, alias drift, small-canary, human-agreement, missing-reference, and nonclinical limitations beside the result.
+
+Internal hashes are reproducible lineage, not provider attestation. Usage-priced cost is not an invoice.
+
+## PASS-gated locked planning; paid locked execution disabled
+
+Do not even create a locked plan unless the canary decision is sealed PASS. The only supported planning command requires the complete canary chain:
+
+```powershell
+$lockedPlanFileName = 'llf-locked-plan.json'
+$lockedPlanPath = Join-Path $artifactRoot $lockedPlanFileName
+$lockedPlanCreatedAtUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
+
+.\scripts\plan-real-luna-locked.ps1 `
+  -ArtifactRoot $artifactRoot `
+  -GenerationRoot $generationRoot `
+  -Image $image `
+  -CreatedAtUtc $lockedPlanCreatedAtUtc `
+  -PreregistrationPath $preregistrationPath `
+  -ExecutionBindingPath $executionBindingPath `
+  -CanaryPlanPath $planPath `
+  -CanaryAuthorizationPath $authorizationPath `
+  -ScoreReportPath $scoreReportPath `
+  -AdvancementDecisionPath $decisionPath `
+  -LockedPlanFileName $lockedPlanFileName
+```
+
+Both the host wrapper and the exact network-disabled image verify the full PASS lineage. The command creates a plan only; it creates no locked authorization and makes no provider call.
+
+Even after PASS, the current locked constants are insufficient as an execution plan. The 1,800-case conservative duration is 30 hours at 60 seconds per case, longer than the current four-hour plan and two-hour authorization windows. The current pricing snapshot also expires.
+
+A future paid locked phase needs refreshed official pricing, mechanically sufficient validity windows, a reviewed plan/binding protocol, and separate explicit authorization under its own acknowledgement. It is not covered by the USD 0.17 canary or any earlier general budget approval. Paid locked execution remains structurally disabled until that bounded authorization-window protocol is implemented.
+
+## Local mock application
+
+The older service path is safe to run locally in mock mode through the wrapper that disables implicit dotenv discovery:
 
 ```powershell
 .\scripts\compose-safe.ps1 up --build -d --wait
 .\scripts\compose-safe.ps1 ps
 ```
 
-Check:
+Endpoints:
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/healthz
-Invoke-RestMethod http://127.0.0.1:8000/readyz
-Invoke-WebRequest http://127.0.0.1:8000/metrics -UseBasicParsing
-```
+- OpenAPI: <http://127.0.0.1:8000/docs>
+- liveness: <http://127.0.0.1:8000/healthz>
+- readiness: <http://127.0.0.1:8000/readyz>
+- metrics: <http://127.0.0.1:8000/metrics>
 
-OpenAPI is at <http://127.0.0.1:8000/docs>. `/readyz` should report both database and Redis as `up`.
-
-Stop while preserving the PostgreSQL volume:
+Stop while preserving the named PostgreSQL volume:
 
 ```powershell
 .\scripts\compose-safe.ps1 down
 ```
 
-Deleting volumes is destructive and should be done only when the data is disposable.
+Only use `down --volumes` when the development database is confirmed disposable.
 
-## Offline benchmark
-
-Choose a new output name or pass `--overwrite` deliberately:
-
-```powershell
-uv run --frozen --no-env-file criteriabench-benchmark `
-  data/synthetic/benchmark_case_001.json `
-  --output artifacts/smoke.json
-```
-
-Expected canonical smoke: one evaluated mock case, exact criterion-text F1 1.0, token F1 1.0, macro field accuracy 0.875, cost USD 0, and 64-character extraction/evaluation hashes.
-
-## Deliberate live benchmark
-
-Do not run this for ordinary development. The wrapper reads only `OPENAI_API_KEY` from the exact ignored `.env.local` file, and only after non-secret tool/path/budget/switch checks pass. It scopes the key to the child process and restores the prior environment.
-
-```powershell
-.\scripts\run-live-benchmark.ps1 `
-  -FixturePath data\synthetic\benchmark_case_001.json `
-  -OutputPath artifacts\live-reviewed.json `
-  -BudgetUsd 0.25 `
-  -Live `
-  -AcknowledgePaidApi
-```
-
-This still requires separate approval before execution. The wrapper pins uv 0.12.8; the CLI pins the official OpenAI endpoint, reviewed Luna model/rates, manifested input, whole-batch budget preflight, and USD 2 maximum application authorization. The guard is not a provider spending cap.
-
-After a live run, inspect the JSON and reconcile its usage with the provider dashboard before publishing anything. The canonical manifested-live path omits the application key and redacts absolute machine paths, but operator review is still required. Never publish `.env.local` or shell/environment dumps.
-
-Two early approved guarded Luna calls failed closed with `ProvenanceError`. After deterministic provenance repair, one separately approved local Luna run completed on 2026-09-01 against the single synthetic case: 1,083 input tokens, 295 output tokens, exact criterion-text F1 0.5, token F1 0.75, macro field accuracy 1.0, and a USD 0.000571 usage-priced estimate. This is one-case engineering evidence, not clinical or comparative model-quality evidence. The estimate is not a provider invoice; provider billing can lag or differ.
-
-## Local Kubernetes with kind/Kustomize
-
-Create or refresh the exact disposable cluster:
+The disposable kind/Kustomize demonstration remains:
 
 ```powershell
 .\scripts\kind-up.ps1
-```
-
-The script builds/loads the locked local image, deletes a previous migration Job, reapplies the kind overlay, restarts API/worker, and waits for PostgreSQL, Redis, migration, API, and worker. The API is loopback-only at <http://127.0.0.1:8080/docs>.
-
-Useful inspection commands (the script stores its kubeconfig below `.tools/kind`):
-
-```powershell
-$env:KUBECONFIG = (Resolve-Path .tools\kind\criteriabench.kubeconfig).Path
-kubectl -n criteriabench get pods
-kubectl -n criteriabench get job migrate
-kubectl -n criteriabench logs deployment/api --tail=100
-kubectl -n criteriabench logs deployment/worker --tail=100
-```
-
-Destroy the disposable cluster and its unrecoverable in-cluster data:
-
-```powershell
 .\scripts\kind-down.ps1 -Confirmation DELETE-KIND
 ```
 
-## Helm
+API/worker, Compose, kind, Helm, CI, and the old AKS service path remain mock-only.
 
-Static validation:
+## Historical Azure operations
 
-```powershell
-helm lint deploy/helm/criteriabench --strict
-helm template criteriabench deploy/helm/criteriabench `
-  --namespace criteriabench > $env:TEMP\criteriabench-helm.yaml
-```
+The 2026-09-01 AKS proof was explicitly approved, exercised, and destroyed. The earlier Container Apps Job was a one-case synthetic no-ingress proof. Do not rerun, mutate, or present either as current production without a new scoped request, current cloud-state check, fresh cost review, and explicit authorization.
 
-For a local runtime proof, use the already loaded image and a separate disposable namespace:
-
-```powershell
-helm upgrade --install criteriabench-helm deploy/helm/criteriabench `
-  --namespace criteriabench-helm --create-namespace `
-  --set image.repository=criteriabench `
-  --set image.tag=local `
-  --set image.pullPolicy=Never `
-  --rollback-on-failure --wait --wait-for-jobs --timeout 5m
-```
-
-Port-forward locally, smoke the API, then uninstall and delete the namespace. Demo PostgreSQL/Redis and the generated credential are ephemeral.
-
-## Queue failure semantics
-
-- Claimed work moves to a processing list until acknowledgement.
-- A worker restart recovers stranded processing items to pending.
-- A malformed envelope is moved atomically to a dead-letter list capped at 100.
-- A contract, stored-request, or queued-trial mismatch becomes a stable terminal failure without extraction.
-- There is one supported worker; do not scale it without redesigning recovery/locking.
-- There is no general delayed retry scheduler. `retry_pending` remains processing until worker restart recovery.
-
-Real Redis integration tests exercise claim/ACK, simulated crash recovery, and poison dead-letter behavior.
-
-## Infrastructure validation (no Azure resources)
-
-```powershell
-.\scripts\validate-infra.ps1
-```
-
-This safely validates canonical Compose, Helm, Kustomize, Terraform formatting/init/validation and prints that no Azure resources were created.
-
-## Historical AKS guarded proof
-
-Do not use direct `terraform apply`/`destroy`. The supported sequence binds identity, subscription, reviewed plan bytes, immutable image digest, expiry, and cleanup.
-
-The guarded default is one `Standard_D2as_v4` worker node. Preflight fails closed before planning when SKU availability or either VM-family or total regional vCPU quota is missing, restricted, malformed, or insufficient. There is no automatic SKU or region fallback; retry only after capacity becomes available or a deliberate, reviewed configuration change.
-
-1. Run preflight with the exact subscription and budget contacts:
-
-   ```powershell
-   .\scripts\azure-preflight.ps1 <reviewed parameters>
-   ```
-
-2. Create the saved plan and summary:
-
-   ```powershell
-   .\scripts\azure-plan.ps1 <reviewed parameters>
-   ```
-
-3. Review the exact plan, both resource-group names, one-node SKU, TTL, billing currency, Azure Retail Prices, plan SHA-256, and immutable GHCR digest.
-4. Obtain explicit billing approval.
-5. Apply only the reviewed inputs:
-
-   ```powershell
-   .\scripts\azure-apply-reviewed.ps1 <plan hash, image digest, approval parameters>
-   ```
-
-6. Collect only mock deployment evidence.
-7. Destroy immediately using the exact confirmation required by `scripts/azure-destroy.ps1`.
-8. Verify that no managed Terraform resource addresses remain (residual data-source-only state is permitted), and that both the parent `rg-criteriabench-*` and explicitly configured AKS node resource group `rg-criteriabench-aks-nodes-*` no longer exist in CLI and the Azure portal. Cost data can lag.
-
-An explicitly approved ephemeral mock-only proof followed this sequence on 2026-09-01 with immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. AKS health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
-
-Teardown was independently confirmed: the parent and managed-node resource groups and the budget were absent, Terraform retained only data-source entries and no managed resources, and temporary proof artifacts were absent. No AKS deployment currently exists, and the proof was not a production deployment.
-
-AKS budget alerts cover both groups in subscription billing currency but are notifications, not caps. The AKS workflow uses local Azure CLI/Terraform identity and local state; it does not implement OIDC, Key Vault, remote state, or workload identity. The separate Container Apps proof below implements a narrow user-assigned-identity/Key Vault secret reference; GitHub-to-Azure OIDC, remote state, and a full production data plane remain future work.
-
-## Azure Container Apps production proof
-
-An explicitly approved bounded production-mode proof completed on 2026-09-01 in Germany West Central. Terraform deployed a manual, no-ingress Consumption Container Apps Job from immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, with a user-assigned identity, an identity-backed Key Vault secret reference and no literal secret value, 0.25 CPU, 0.5 GiB memory, a 300-second timeout, zero replica retries, parallelism one, and one required completion. Exactly one execution reached `Succeeded`.
-
-The successful job ran the reviewed Luna model once against the single synthetic case. Sanitized evidence reports 1,083 input tokens, 296 output tokens, 5,764.961 ms latency, one inclusion and one exclusion criterion, two predictions and two references, `schema_valid=true`, exact criterion-text F1 0.0, token F1 0.5, and macro field accuracy 1.0. The USD 0.000572 usage-priced estimate and USD 0.0111 application authorization consumed under the USD 0.02 guard are repository accounting values, not a provider invoice. Provider and Azure billing data can lag or differ.
-
-The job remains deployed but idle. Never start or rerun it without fresh explicit paid authorization. Its review-by value, `2026-09-15T14:58:49Z`, is an operator-reminder tag, not automatic teardown. The exact EUR 15 Azure budget is a delayed alert, not a hard spending cap.
-
-Two earlier Container Apps infrastructure attempts failed before job start, produced zero executions, and were fully cleaned up before the successful run. They are useful as a repair trail, not model-run evidence. This proof demonstrates a bounded deployment/execution path only; one synthetic case does not establish clinical validity, model quality, or a customer-facing production service.
+Azure budget alerts are delayed notifications, not hard caps. Terraform plan hashes, image digests, and teardown verification remain good infrastructure practice but are unrelated to direct Real-v1 authentication.
 
 ## Troubleshooting
 
-### Readiness fails
+### Docker is unavailable
 
-Check PostgreSQL/Redis health, migration completion, and application logs. Do not log credentials or dump full environments.
+Run `docker version` and require both client and server sections. Start Docker Desktop and wait for the Linux engine. Do not fall back to an unsealed host run.
 
-### kind PostgreSQL cannot initialize
+### Azure sign-in says access denied
 
-The manifest must retain UID/GID/fsGroup 70, `fsGroupChangePolicy: OnRootMismatch`, and `PGDATA=/var/lib/postgresql/data/pgdata`. Do not “fix” it with a privileged root init container.
+Ignore it for Real v1. The direct Luna run uses OpenAI credentials, not Azure CLI or Microsoft Entra authorization.
 
-### A repeat kind run shows stale behavior
+### Price, plan, or authorization expired
 
-Use `scripts/kind-up.ps1`; it recreates the migration Job and restarts API/worker after loading the image. A manual `kubectl apply` alone can leave the same local image tag running.
+Stop before a provider request. Review current official pricing and create a new versioned price snapshot, plan, public execution binding, and fresh authorization. Never edit timestamps.
 
-### A queue item is stranded
+### Plan, binding, path, image, or hash mismatch
 
-Restart the single worker and confirm startup recovery. Inspect queue depth/dead-letter metrics without printing payload/source text.
+Treat it as a safety failure. Resolve the exact intended roots/image/artifacts and rebuild the chain. Do not weaken validation or copy an authorization to another directory.
 
-### A secret might be exposed
+### External claim exists but output is missing
 
-Stop the affected run, revoke/rotate at the provider, inspect provider/audit logs, remove the value from future files/history, and follow GitHub history-removal guidance if committed. Rotation is the containment step.
+The authorization is consumed and the pair is inconsistent. Preserve the state and investigate. Deleting the claim to reuse authorization is prohibited.
+
+### Pending/attempt state exists after interruption
+
+Use only the reviewed no-key recovery path first. It must reconcile the prefix and seal interruption/fatal state without contacting the provider. Do not manually remove pending or per-ordinal files.
+
+### Provider returns 401, 429, timeout, refusal, or invalid output
+
+Preserve it as the single attempt's failure. Do not retry the same authorization. A 429 may indicate quota or billing state and still fails the 25/25 gate.
+
+### A key may have been exposed
+
+Revoke or rotate it immediately. Deleting logs, messages, or files is not revocation. Inspect the repository and artifacts without printing the value.
 
 ## Evidence to retain
 
-For the committed revision, retain CI links/artifacts for static/tests, real services, offline benchmark, infrastructure render/validate, exact image scan/digest, and approved deployment evidence. Retain the AKS proof only as a historical apply/destroy result. Retain sanitized evidence for the successful local Luna run and the currently deployed but idle Container Apps Job, and reconcile usage-priced estimates with provider/Azure billing when available. Treat the two local `ProvenanceError` calls and two cleaned pre-start Container Apps failures as repair history, not successful-run evidence. Never publish credentials, private cloud/account identifiers, or unreviewed raw logs.
+- source revision, artifact hashes, split and parser coverage;
+- BM25 identity/results and human-agreement report;
+- static preregistration and byte hash;
+- exact image ID and scan/test evidence;
+- plan, public execution binding, and authorization;
+- external authorization/per-ordinal claims and local consumption;
+- every request hash, attempt, outcome, pending recovery record, and summary;
+- network-disabled score and decision reports;
+- provider-dashboard reconciliation; and
+- code revision, CI result, date, operator limitations, and full failure disclosure.

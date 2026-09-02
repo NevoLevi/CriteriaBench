@@ -1,88 +1,109 @@
 # Data use and provenance
 
-CriteriaBench is limited to public ClinicalTrials.gov text and disclosed synthetic examples. Synthetic v0.1 used AI-assisted template design and label construction encoded in a deterministic, source-controlled generator. Do not use patient data, protected health information, credentials, proprietary corpora, or other sensitive input.
+CriteriaBench Real v1 uses public clinical-trial eligibility text and public research annotations. It must not receive patient records, protected health information, credentials, private documents, proprietary corpora, or unpublished clinical data.
 
-## ClinicalTrials.gov retrieval
+## Real-v1 source and license
 
-The explicit downloader accepts one or more NCT identifiers and fetches each one at a time. For each identifier, it:
+The benchmark redistributes a deterministic import of Leaf Logical Forms (LLF) annotations from the University of Washington BioNLP [`leaf-corpora`](https://github.com/uw-bionlp/leaf-corpora) repository at commit [`461288a`](https://github.com/uw-bionlp/leaf-corpora/commit/461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e).
 
-1. validates the identifier format;
-2. requests the fixed official ClinicalTrials.gov HTTPS endpoint;
-3. rejects redirects;
-4. streams the response with a 2 MB ceiling;
-5. parses the single-study JSON;
-6. validates that the returned NCT ID matches the request; and
-7. maps the minimum `TrialDocument` fields.
+- The annotation code/data is distributed under the upstream MIT notice preserved in `data/real/llf/LICENSE.upstream.txt`.
+- The underlying eligibility criteria derive from the LCT corpus. Its [data descriptor](https://doi.org/10.1038/s41597-022-01521-0) and Creative Commons Attribution 4.0 license must be respected.
+- The LLF task is described in the [LeafAI publication](https://pmc.ncbi.nlm.nih.gov/articles/PMC10654856/).
 
-Retained fields are only:
+The repository's complete notice is [data/real/llf/ATTRIBUTION.md](../data/real/llf/ATTRIBUTION.md).
+
+CriteriaBench does not correct or adjudicate upstream criterion text or logical forms. It converts them to inert JSONL, adds lineage hashes, freezes a trial-disjoint split, and marks absent or malformed upstream rows explicitly.
+
+## Imported content
+
+The pinned import contains:
+
+- 2,000 primary criteria from 885 NCT trials;
+- 1,997 available primary logical forms and three files with no logical-form body;
+- 60 agreement annotations over 20 selected cases; and
+- an inventory of all 2,060 upstream JavaScript files.
+
+NCT identifiers remain in local benchmark metadata so criteria can be traced to their public trial. Paid model payloads do not need those identifiers.
+
+Every source file and generated artifact is hash-bound. These SHA-256 values support reproducible internal lineage; they are not proof supplied or signed by the upstream repository or model provider.
+
+## Physical separation
+
+The generation and scoring planes use different files:
+
+```mermaid
+flowchart LR
+    U["Pinned LLF source"] --> I["Bounded no-exec import"]
+    I --> G["Source-only generation files"]
+    I --> D["Development references"]
+    I --> T["Locked-test references"]
+    G --> M["BM25 or paid model"]
+    M --> P["Sealed predictions"]
+    P --> S["Offline scorer"]
+    D -. "development only" .-> S
+    T -. "locked run only" .-> S
+```
+
+`generation_cases.jsonl` contains case/trial identity, inclusion/exclusion kind, source text, split, and source hash, but no logical form or reference hash. `generation_manifest.json` also omits reference availability and missing-reference identities. The live container mounts only these source-only artifacts and split assignments.
+
+Development and test references are separate direct files. The canary scorer mounts development references only after the live run is terminal and sealed. A future locked scorer would mount test references only after all test outcomes were sealed.
+
+`records.jsonl`, full semantic coverage, and agreement annotations are audit/evaluation inputs. They are never live-generation mounts.
+
+## Data sent to OpenAI
+
+The direct Luna request contains:
+
+- the frozen system/developer instructions and five development-only examples;
+- one public criterion's inclusion/exclusion kind and text; and
+- a strict response schema requiring one `logical_form` string.
+
+It excludes the reference logical form, case ID, NCT ID, source hash, neighbouring criteria, evaluator result, and previous model feedback. No web or other tool is enabled. The request sets `store=false`, but that flag is not a promise about every provider retention or organizational control. Operators must review the provider's current policy and their account settings before sending data.
+
+Only public research text is allowed even though the input is not secret. The model alias may have encountered the public corpus during training; runtime isolation does not make the benchmark contamination-resistant.
+
+## Secrets are not benchmark data
+
+The OpenAI API key is never a corpus field or artifact. For the Real-v1 run, PowerShell reads it with a hidden `SecureString` prompt and sends it to one interactive container process over standard input. The key must not be placed in:
+
+- chat;
+- `.env` or `.env.local`;
+- a process or Docker environment variable;
+- a command-line argument;
+- source, JSON, YAML, Terraform, a Docker layer, or an image;
+- logs, screenshots, issues, or result artifacts; or
+- shell history.
+
+The repository's agent and container policies prohibit reading or copying dotenv secrets. If exposure is suspected, revoke or rotate the key; deleting visible text does not invalidate it.
+
+## Publication review
+
+Source and reference artifacts are public research data with attribution, but live result directories still require review before publication. Check that they contain only expected direct-child artifacts and no:
+
+- plaintext response identifier when only its hash is intended;
+- credential, Authorization header, or provider request dump;
+- machine/user path, account email, subscription, tenant, or cloud resource identifier;
+- process environment or diagnostic dump;
+- temporary/pending partial artifact; or
+- private input.
+
+Published reports should identify the dataset version, split, source/case-set hashes, requested and returned model labels, prompt/schema/implementation identity, pricing snapshot, usage coverage, safe failures, and limitations. Provider-dashboard reconciliation should be stated separately; internal artifact hashes are not provider attestation.
+
+## Legacy downloader boundary
+
+The older application includes an explicit ClinicalTrials.gov downloader for public single-study data. It validates NCT IDs, uses the fixed official HTTPS host, rejects redirects, bounds streamed responses to 2 MB, verifies the returned ID, and retains only:
 
 - NCT ID;
 - brief title;
 - eligibility text; and
 - canonical source URL.
 
-The client receives the upstream single-study response transiently, so other modules may be present in memory during parsing. They are discarded, not persisted, and not sent to an extractor. The current mapper does not project registry fields server-side.
+The full single-study response exists transiently while mapping and may contain other registry modules, but those modules are discarded. The downloader does not currently record the upstream API version, exact acquisition timestamp, `dataTimestamp`, last update, or raw-response hash, and it does not update Real-v1 automatically.
 
-The downloader does not normalize markup, infer demographics, split criteria into a gold structure, or update dataset manifests automatically.
+The API and worker accept an already captured `TrialDocument`; they never fetch ClinicalTrials.gov during a job. Persisted local mock requests have no production retention/deletion policy, so they must also remain public or synthetic.
 
-## Fixture provenance
+## Drift and new holdouts
 
-The committed public fixture has a small manual manifest with source identifier, retrieval date, and content hash. The synthetic benchmark manifest records the reference fixture hash/version.
+ClinicalTrials.gov entries can change. The frozen LLF snapshot must never be silently refreshed in place. Any replacement dataset needs a new version, retrieval timestamps, raw/source hashes, transformation revision, exclusion log, attribution review, and a new preregistration.
 
-Synthetic v0.1's frozen `single_author` and `deterministic_templates` metadata describes one historical AI-assisted authoring workflow, not unaided human authorship. Independent second-human and clinical-domain review/adjudication remain pending. Dataset generation and offline-suite execution make no model or network calls.
-
-This is sufficient for an engineering smoke, but it is not complete source provenance. The general downloader does not currently record:
-
-- ClinicalTrials.gov API version;
-- `dataTimestamp` or last study update;
-- exact acquisition time;
-- raw upstream response hash;
-- transformation/parser revision; or
-- an automated manifest entry.
-
-A research dataset should retain those fields, a redistribution/license review, the exact code revision, schema version, exclusion reasons, and a reproducible immutable snapshot.
-
-## Processing boundary
-
-```mermaid
-flowchart LR
-    ID["Validated NCT ID"] --> Fetch["Bounded fixed-host fetch"]
-    Fetch --> Validate["JSON + returned-ID validation"]
-    Validate --> Map["Map four TrialDocument fields"]
-    Map --> Fixture["Optional public fixture + manual manifest"]
-    Fixture --> Extract["Mock or guarded CLI extractor"]
-    Gold["Synthetic/manual reference"] --> Eval["Deterministic evaluator"]
-    Extract --> Eval
-    Eval --> Artifact["Artifact requiring operator review"]
-```
-
-The API/worker path accepts an already captured `TrialDocument`; it does not contact the registry.
-
-## Model data sent
-
-Mock extraction is local and sends nothing to a provider.
-
-Separately approved local and Azure Container Apps live runs have now sent the single synthetic `TrialDocument` JSON, extraction instructions, and strict JSON schema to the provider. The Container Apps run used an embedded, hash-bound copy of that synthetic fixture. No ClinicalTrials.gov contact modules or full upstream registry response were sent. These were one-case engineering-smoke executions within the public/synthetic data boundary; no patient, protected, private, or proprietary data was used.
-
-OpenAI request storage is disabled where supported by the request interface, but operators must still review the provider's current data controls and organizational policy before sending even public text.
-
-## Persistence and publication
-
-API requests with persistence enabled store trial text, extraction state/result, and linked evaluation in the development database. Benchmark artifacts can include arbitrary caller-provided offline fixture content and require operator review before sharing. There is no production retention/deletion policy.
-
-Before publishing a fixture or artifact:
-
-- confirm its input is public or synthetic;
-- verify manifest and artifact hashes;
-- inspect paths/metadata for machine or account identifiers;
-- confirm no credential, header, environment dump, cloud ID, or private data is present;
-- retain the source URL/identifier and retrieval note; and
-- state whether it is a smoke fixture or research dataset.
-
-## Drift and refresh
-
-ClinicalTrials.gov studies can change. The current repository does not automatically check freshness or drift. A future refresh workflow should compare the upstream last-update/timestamp and raw-response hash, review the mapped diff, version the fixture/manifest, and never silently replace evidence used by an earlier report.
-
-## External terms
-
-Use the official [ClinicalTrials.gov API documentation](https://clinicaltrials.gov/data-api/about-api) and comply with the site's [terms and conditions](https://clinicaltrials.gov/about-site/terms-conditions). Public availability does not remove the obligation to preserve attribution and avoid implying endorsement or clinical validation.
+A future contamination-resistant extension should use newly retrieved post-cutoff trials, independent human annotation without model output, and biomedical adjudication. It must remain a distinct dataset rather than overwriting Real v1.

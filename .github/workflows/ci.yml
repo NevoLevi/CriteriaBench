@@ -97,6 +97,38 @@ jobs:
           name: synthetic-v0.1.1-suite-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/synthetic-v0.1.1.*
           if-no-files-found: error
+      - name: Reproduce frozen Real v1 evidence
+        run: |
+          uv run --frozen --no-env-file python -m criteriabench.real.llf_semantics \
+            --records data/real/llf/records.jsonl \
+            --agreement data/real/llf/agreement_annotations.jsonl \
+            > artifacts/llf-semantic-coverage.json
+          cmp artifacts/llf-semantic-coverage.json docs/results/llf-semantic-coverage.json
+          uv run --frozen --no-env-file python -m criteriabench.real.llf_semantics \
+            --split-reference data/real/llf/development_references.jsonl \
+            --split development \
+            > artifacts/llf-semantic-coverage-development.json
+          cmp artifacts/llf-semantic-coverage-development.json docs/results/llf-semantic-coverage-development.json
+          uv run --frozen --no-env-file python -m criteriabench.real.llf_semantics \
+            --split-reference data/real/llf/test_references.jsonl \
+            --split test \
+            > artifacts/llf-semantic-coverage-test.json
+          cmp artifacts/llf-semantic-coverage-test.json docs/results/llf-semantic-coverage-test.json
+          uv run --frozen --no-env-file python -m criteriabench.real.llf_agreement \
+            data/real/llf/agreement_annotations.jsonl \
+            --output artifacts/llf-human-agreement.json
+          cmp artifacts/llf-human-agreement.json docs/results/llf-human-agreement.json
+          uv run --frozen --no-env-file criteriabench-llf-canary-preregister build \
+            --dataset-dir data/real/llf \
+            --coverage-dir docs/results \
+            --output artifacts/llf-canary-preregistration.json
+          cmp artifacts/llf-canary-preregistration.json docs/results/llf-canary-preregistration.json
+      - name: Upload Real v1 LLF integrity evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: real-v1-llf-integrity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/llf-*.json
+          if-no-files-found: error
       - name: Upload coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

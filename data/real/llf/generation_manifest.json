@@ -1,0 +1,48 @@
+{
+  "artifacts": [
+    {
+      "bytes": 538698,
+      "path": "generation_cases.jsonl",
+      "record_count": 2000,
+      "sha256": "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
+    },
+    {
+      "bytes": 60945,
+      "path": "split_assignments.json",
+      "record_count": 885,
+      "sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618"
+    }
+  ],
+  "canonical_payload_sha256": "90ad4dcf6b6e2279d36ec7213233c811b72584bde93a268e45d30ddb9624c91a",
+  "dataset_id": "leaf-logical-forms",
+  "dataset_version": "llf-461288a",
+  "safety": {
+    "missing_reference_identities_present": false,
+    "reference_artifact_hashes_present": false,
+    "reference_availability_present": false,
+    "scorable_counts_present": false,
+    "source_only": true
+  },
+  "schema_version": "llf-generation-manifest-v1",
+  "split": {
+    "algorithm": "sha256-trial-rank-v1",
+    "development": {
+      "case_set_sha256": "5a876de7d211b9bd9c289cfabae3dbf1106e9fb02b80a095c31148f87156201a",
+      "cases": 200,
+      "trials": 86
+    },
+    "seed": "criteriabench-llf-real-v1",
+    "test": {
+      "case_set_sha256": "3de1ce22afb825b485a4f882461b9c9638e6ec1ce4420346ee4a4330d164793c",
+      "cases": 1800,
+      "trials": 799
+    },
+    "unit": "trial_id"
+  },
+  "upstream": {
+    "commit": "461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e",
+    "corpus_git_tree_sha1": "f846019a2743b8ac20f5d0e7323347e8bcaedf15",
+    "inventory_sha256": "c8ee39eaff21251075d36d8d0e3b506fbbc196d3a6eaa95084dda25a5fe88297",
+    "repository": "https://github.com/uw-bionlp/leaf-corpora"
+  }
+}

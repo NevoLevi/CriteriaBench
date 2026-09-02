@@ -1,0 +1,182 @@
+{
+  "agreement": {
+    "annotations_per_case": 3,
+    "cases_also_have_one_primary_annotation": true,
+    "use": "sensitivity_and_ambiguity_analysis_only"
+  },
+  "artifacts": [
+    {
+      "bytes": 2064579,
+      "path": "records.jsonl",
+      "record_count": 2000,
+      "sha256": "9cb335fad4d571cf82164b1953f6d68c60bc63d2b9726128799cb9968f78d064"
+    },
+    {
+      "bytes": 538698,
+      "path": "generation_cases.jsonl",
+      "record_count": 2000,
+      "sha256": "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84"
+    },
+    {
+      "bytes": 1586,
+      "path": "generation_manifest.json",
+      "sha256": "312ebf02fbbfe1bb157a2f71853939a9ef81f87e024091881d8f481696e2c655"
+    },
+    {
+      "bytes": 208496,
+      "path": "development_references.jsonl",
+      "record_count": 200,
+      "sha256": "fd1d7e57559cd0b8ddfde5b5fc5d1fd68be364287cd1b520d2665d0687518e57"
+    },
+    {
+      "bytes": 1856083,
+      "path": "test_references.jsonl",
+      "record_count": 1800,
+      "sha256": "1e140baa1ddda022997c0d68a705e6767e624fdb7ae7c2e1aa07d0a7ad2b854a"
+    },
+    {
+      "bytes": 67804,
+      "path": "agreement_annotations.jsonl",
+      "record_count": 60,
+      "sha256": "3ffba65df1d2da0f46f43cbd8a2c96d8a7b333616f26c6c71d3d18e322677bad"
+    },
+    {
+      "bytes": 1231500,
+      "path": "source_manifest.jsonl",
+      "record_count": 2060,
+      "sha256": "a39e885381e4d76b75f6fc3c1c3635f21990c5268b1a2062c14af528ff7e6fb1"
+    },
+    {
+      "bytes": 60945,
+      "path": "split_assignments.json",
+      "record_count": 885,
+      "sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618"
+    },
+    {
+      "bytes": 1190,
+      "path": "ATTRIBUTION.md",
+      "sha256": "ce20c44bf74fc3e97f1159b4d9a97a6d516539b8ddbf2ab55d1e0f622c17712f"
+    },
+    {
+      "bytes": 1088,
+      "path": "LICENSE.upstream.txt",
+      "sha256": "5748126bdf992602f455023784c420638dcd18ed5710e17200491a254d110f60"
+    },
+    {
+      "bytes": 1829,
+      "path": "README.md",
+      "sha256": "6e575511baced1608a28aa116aeba20595a57306c601ea5bf234ab6d1296bf1a"
+    }
+  ],
+  "canonical_payload_sha256": "c82ae574f23c1f567aa333273915111afd487cb5a13d8f93e4d3eb49d107c953",
+  "counts": {
+    "agreement_cases": 20,
+    "agreement_files": 60,
+    "available_primary_references": 1997,
+    "duplicate_primary_case_ids": 0,
+    "missing_upstream_case_ids": [
+      "NCT03868891_6",
+      "NCT03923894_9",
+      "NCT03928561_4"
+    ],
+    "missing_upstream_primary_references": 3,
+    "primary_cases": 2000,
+    "source_files": 2060,
+    "unique_trials": 885
+  },
+  "dataset_id": "leaf-logical-forms",
+  "dataset_version": "llf-461288a",
+  "safety": {
+    "generation_reference_isolation": "physical_source_only_artifact",
+    "javascript_executed": false,
+    "logical_form_interpretation": "inert_source_text",
+    "maximum_source_file_bytes": 16384,
+    "parser": "bounded-js-string-header-v1"
+  },
+  "schema_version": "llf-import-v1",
+  "split": {
+    "algorithm": "sha256-trial-rank-v1",
+    "assignment_sha256": "c7f2388d5a68dc3fb8613a9ca1edb13e59cd7e77b4bd9e0cb1dfedb389d8a618",
+    "development": {
+      "cases": 200,
+      "trials": 86
+    },
+    "development_target_cases": 200,
+    "forced_development_reasons": {
+      "annotator_training_and_agreement_analysis": [
+        "NCT03860350",
+        "NCT03861637",
+        "NCT03861962",
+        "NCT03862937",
+        "NCT03863249",
+        "NCT03863314",
+        "NCT03863977",
+        "NCT03865602",
+        "NCT03866135",
+        "NCT03867903",
+        "NCT03920748",
+        "NCT03922295",
+        "NCT03926559",
+        "NCT03926949",
+        "NCT03927456",
+        "NCT03927846",
+        "NCT03928795",
+        "NCT03929237",
+        "NCT03929679",
+        "NCT03931772"
+      ],
+      "manually_inspected_disclosed_examples": [
+        "NCT03860038",
+        "NCT03860324",
+        "NCT03862937",
+        "NCT03865043",
+        "NCT03925818"
+      ]
+    },
+    "forced_development_trial_ids": [
+      "NCT03860038",
+      "NCT03860324",
+      "NCT03860350",
+      "NCT03861637",
+      "NCT03861962",
+      "NCT03862937",
+      "NCT03863249",
+      "NCT03863314",
+      "NCT03863977",
+      "NCT03865043",
+      "NCT03865602",
+      "NCT03866135",
+      "NCT03867903",
+      "NCT03920748",
+      "NCT03922295",
+      "NCT03925818",
+      "NCT03926559",
+      "NCT03926949",
+      "NCT03927456",
+      "NCT03927846",
+      "NCT03928795",
+      "NCT03929237",
+      "NCT03929679",
+      "NCT03931772"
+    ],
+    "seed": "criteriabench-llf-real-v1",
+    "test": {
+      "cases": 1800,
+      "trials": 799
+    },
+    "trial_disjoint": true,
+    "unit": "trial_id"
+  },
+  "upstream": {
+    "commit": "461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e",
+    "commit_url": "https://github.com/uw-bionlp/leaf-corpora/commit/461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e",
+    "corpus_git_tree_sha1": "f846019a2743b8ac20f5d0e7323347e8bcaedf15",
+    "corpus_path": "leaf_logical_forms",
+    "inventory_hash_algorithm": "sha256(path_utf8 + NUL + size_ascii + NUL + bytes + NUL)",
+    "inventory_sha256": "c8ee39eaff21251075d36d8d0e3b506fbbc196d3a6eaa95084dda25a5fe88297",
+    "license": "MIT",
+    "license_path": "LICENSE.upstream.txt",
+    "license_sha256": "5748126bdf992602f455023784c420638dcd18ed5710e17200491a254d110f60",
+    "repository": "https://github.com/uw-bionlp/leaf-corpora"
+  }
+}

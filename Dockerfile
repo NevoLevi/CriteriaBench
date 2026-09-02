@@ -35,11 +35,16 @@ ENV PATH="/opt/venv/bin:$PATH" \
 
 RUN python -m pip uninstall --yes pip \
     && groupadd --gid 10001 app \
-    && useradd --uid 10001 --gid app --create-home --shell /usr/sbin/nologin app
+    && useradd --uid 10001 --gid app --create-home --shell /usr/sbin/nologin app \
+    && mkdir -p /run/artifacts /run/generation /run/authorization-state \
+        /run/bind /run/dataset /run/coverage /run/report \
+    && chown -R app:app /run/artifacts /run/generation /run/authorization-state \
+        /run/bind /run/dataset /run/coverage /run/report
 
 COPY --from=builder /opt/venv /opt/venv
 
 WORKDIR /app
+COPY --from=builder --chown=app:app /build/uv.lock /app/uv.lock
 COPY --chown=app:app migrations ./migrations
 
 USER app

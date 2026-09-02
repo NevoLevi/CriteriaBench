@@ -1,249 +1,151 @@
 # CriteriaBench
 
-CriteriaBench is a small, auditable engineering project that turns public clinical-trial eligibility text into a typed structure and measures how closely an extractor reproduces a reference. It demonstrates API design, background processing, deterministic evaluation, containers, observability, CI, Kubernetes packaging, infrastructure as code, and guarded LLM use.
+CriteriaBench is a reproducible benchmark for turning real clinical-trial eligibility criteria into structured logical forms. Real v1 contains **2,000 human-annotated criteria from 885 ClinicalTrials.gov trials**. Its frozen split has **200 development cases from 86 trials** and **1,800 locked-test cases from 799 different trials**; no trial appears in both splits.
 
-> **Not for clinical use.** CriteriaBench is an engineering demonstration, not a medical device. It does not decide whether a person qualifies for a trial and has not been clinically validated.
+The project is deliberately honest about its current state: the data, safe parser, evaluator, retrieval baseline, human-agreement analysis, and guarded live runner are implemented. The one-shot `gpt-5.6-luna` development canary is preregistered and pending. **No Real-v1 Luna result, locked-test result, or related charge exists yet.**
 
-Last factual review: **2026-09-01**.
+> **Research and engineering only.** CriteriaBench is not a medical device, patient-matching system, or clinical decision tool. It evaluates structural reproduction of public annotations.
 
-## What is implemented
+Last factual review: **2026-09-02**.
 
-| Area | Current state |
+## Real v1 at a glance
+
+| Area | Implemented evidence or status |
 |---|---|
-| Extraction contract | Strict Pydantic models cover inclusion/exclusion criteria, category, concept, operator, value/unit, negation, temporal constraints, logic groups, evidence spans, and ambiguities. Cross-field semantic rules are validated. |
-| API | FastAPI exposes mock-only sync/async extraction, evaluation, saved runs, service info, health, readiness, OpenAPI, and Prometheus metrics. Paid providers are rejected. |
-| Worker and storage | PostgreSQL persistence plus a single Redis worker with atomic claim, acknowledgement, restart recovery, bounded dead-letter storage, frozen job contracts, and fail-closed payload checks. Delivery is **at least once**, not exactly once. |
-| Evaluation | Duplicate-safe exact criterion-text precision/recall/F1, token-overlap F1, eight structured-field accuracies, and their macro average. “Exact” compares criterion kind plus normalized criterion text, not the full structured object. Alignment uses deterministic maximum-weight one-to-one assignment among same-kind criteria with a 0.25 token-F1 floor. |
-| Offline benchmark evidence | The original zero-cost, one-case synthetic gold smoke remains a pipeline/artifact regression. The unchanged 80-case Synthetic v0.1 dataset is reported under the corrected offline-suite-v0.1.1 analysis with empty/rules baselines, all eight field means, per-slice/per-family results, leave-one-family-out analysis, a 10-family-cluster sensitivity, explicit taxonomy denominators/rates, and byte-stable reports. Neither path is clinical validation, a research-grade benchmark, or model-quality evidence. |
-| Paid model path | Available through the guarded local benchmark CLI and a separately guarded, no-ingress manual Azure Container Apps Job. Both pin the reviewed `gpt-5.6-luna` model/rates and official OpenAI endpoint. Two local attempts failed closed on provenance, followed by one successful local smoke; two ACA attempts failed before job start, followed by exactly one successful ACA execution. These are one-case engineering smokes, not model-quality evidence. |
-| Data input | A bounded, fixed-host ClinicalTrials.gov downloader maps NCT ID, brief title, eligibility text, and source URL. The worker never downloads studies. |
-| Packaging | A non-root multi-stage image consumes `uv.lock` with digest-pinned Python and uv bases. Compose, Kustomize, Helm, and Terraform definitions are present. |
-| Automation | GitHub Actions runs frozen static/unit/integration checks, retains the original one-case smoke, reproduces the current v0.1.1 offline analysis byte for byte while preserving the historical v0.1 reports, validates infrastructure, scans the exact image bytes later published, and attests the pushed digest. |
+| Public corpus | Leaf Logical Forms (LLF), pinned to upstream commit `461288aeba8b37fabd43bd7c55f0e1cb1bb10b9e`: 2,000 primary criteria, 885 trials, and 60 additional annotations over 20 agreement cases |
+| Reference coverage | 1,997 available primary logical forms parse successfully; three missing upstream references remain explicitly counted rather than fabricated or dropped |
+| Split | 200 development / 1,800 locked test, grouped by NCT trial; prompt examples and every manually exposed reference are forced into development |
+| Leakage boundary | Paid generation can mount only source-only cases, split assignments, and a source-only manifest. Development and test references live in separate files and are mounted only by the corresponding offline scorer |
+| Safe semantics | A bounded Python-AST allowlist converts inert LLF text to a canonical flat node table. It never compiles, evaluates, executes, imports, or invokes the annotation code |
+| Retrieval baseline | Deterministic polarity-matched BM25 over development references. On all 200 development cases with the target trial excluded: 8 exact trees, node F1 `0.369699`, edge F1 `0.213939`, and combined node-plus-edge F1 `0.293919` |
+| Frozen 25-case comparator | The preregistered development canary subset gives BM25 1/25 exact and combined node-plus-edge F1 `0.202918` |
+| Human agreement | 20 cases × 3 annotations; 57/60 annotations parse, yielding 54/60 pairs. Case-macro exact agreement is `0.466667`, node F1 `0.879308`, edge F1 `0.788692`, and typed-component F1 `0.880009`; 7/20 cases have full three-way exact consensus |
+| Luna | Direct LLF lane only: the provider returns `{ "logical_form": "..." }`, then local bounded code parses and scores it. The actual 25-case call has not run yet |
+| GraphV2 | A future product/evidence contract. Paid GraphV2 execution is structurally disabled and is not part of Real v1 |
+| Synthetic suite | Preserved as a deterministic legacy regression for old application plumbing; it is not headline model-quality evidence |
 
-OpenTelemetry traces, API authentication, GitHub-to-Azure OIDC, remote locked Terraform state, end-to-end AKS workload identity, and a production API data plane are future work. The narrow Container Apps benchmark path implements a user-assigned managed identity and Key Vault-backed secret reference.
+The full-development BM25 numbers are descriptive development evidence, not a held-out estimate. The 25-case canary is also a readiness gate, not a performance estimate.
 
-## How it fits together
+## What the benchmark asks
+
+Given a criterion such as:
+
+> No history of severe asthma requiring systemic corticosteroids.
+
+the system must reproduce the annotation's logical structure: calls, method chains, symbols, string and Boolean literals, tuples, and their parent-child relationships. It is not enough to emit plausible prose.
+
+The model receives only the criterion text, its inclusion/exclusion kind, the frozen prompt, and the strict response schema. It receives no reference logical form, neighbouring annotation, web tool, or scorer feedback. Trusted local code attaches case identity and source hashes outside the model response.
+
+The primary score is micro F1 over canonical LLF nodes and edges. Exact canonical-tree match and separate call, method-attribute, symbol, string, and Boolean scores make partial correctness inspectable. A timeout, refusal, invalid response, duplicate response ID, or other failed case is retained and scored as an empty prediction where a reference exists.
+
+See [Benchmark methodology](docs/benchmark-methodology.md) and the frozen [Real-v1 protocol](docs/real-v1-protocol.md).
+
+## Why the evidence is stronger than a demo
 
 ```mermaid
 flowchart LR
-    U["Local client"] --> A["FastAPI API<br/>mock only"]
-    A --> P[("PostgreSQL")]
-    A --> R[("Redis queue")]
-    R --> W["Single worker<br/>mock only"]
-    W --> P
-    A --> M["Prometheus metrics"]
-    W --> M
-
-    D["Explicit downloader"] --> C["ClinicalTrials.gov"]
-    C --> F["Minimal public fixture"]
-    F --> B["Guarded benchmark CLI"]
-    G["One-case synthetic gold"] --> B
-    B --> X["Deterministic mock"]
-    B -. "explicit paid opt-in" .-> O["Official OpenAI API"]
-    B --> J["Temporary write + atomic-replace JSON"]
-    F --> ACA["Manual ACA benchmark Job<br/>no ingress"]
-    KV["Azure Key Vault"] -->|"managed-identity secret reference"| ACA
-    ACA -. "explicit paid authorization" .-> O
-
-    S["Synthetic v0.1 dataset<br/>80 hash-pinned cases"] --> OB["offline-suite-v0.1.1<br/>empty and rules baselines"]
-    OB --> SR["Stable JSON and Markdown<br/>offline CI regression evidence"]
+    U["Pinned public LLF corpus"] --> S["Trial-disjoint split"]
+    S --> G["Source-only generation files"]
+    S --> R["Physically separate references"]
+    G --> B["BM25 or sealed Luna runner"]
+    B --> P["Append-only attempts and outcomes"]
+    P --> O["Network-disabled scorer"]
+    R --> O
+    O --> D["Conjunctive pass/fail decision"]
 ```
 
-The important cost boundary is simple: the web API and worker are always mock-only. A live model can run only through the guarded local CLI or the separately authorized manual Container Apps Job. The 80-case suite accepts only allowlisted offline baselines and records `paid=false`, `network=false`, zero tokens, and zero estimated cost.
+The benchmark separates prediction from scoring at both the file and process boundary. The public corpus, code, prompt, model settings, price snapshot, exact container image, case set, plan, execution binding, and authorization are hash-linked before a paid request. These hashes are reproducible internal lineage controls; they are **not** cryptographic attestation by the model provider.
 
-## What the evaluators measure
+Human agreement provides context for annotation variability. It is not a model ceiling and does not establish clinical correctness.
 
-Implemented metrics are:
+## One-shot Luna canary
 
-- exact criterion-text precision, recall, and F1, where the multiset key is criterion kind plus normalized criterion text;
-- token-overlap F1 after same-kind maximum-weight Hungarian alignment;
-- accuracy for category, concept, operator, value, unit, negation, temporal **relation**, and logic **connector**; and
-- the macro average of those eight field accuracies.
+The preregistered canary selects 25 development cases from 25 distinct trials, excludes prompt-example trials, and balances criterion kind and source length. It reserves a worst-case `USD 0.163840000` under a hard application authorization cap of `USD 0.170000000`, with one attempt per case, zero SDK retries, zero application retries, sequential execution, and a 60-second total request deadline.
 
-The evaluator does not separately measure temporal quantity/unit/reference, evidence similarity, logic-parent topology, or ambiguities. Extractor/provider prediction evidence offsets and quotes are checked against the exact supplied source text. The synthetic v0.1 loader additionally checks every reference quote and offset against its source and verifies every fixture hash. The older one-case smoke reference remains typed but is not source-cross-checked by that CLI. `schema_valid=true` means typed objects passed validation; it does not mean an extraction is clinically correct.
+Advancement requires every frozen gate to pass together:
 
-The exact criterion-text score is deliberately narrower than full structured equality: it does not include category, concept, operator, value, unit, negation, temporal relation, logic connector, evidence, or group topology.
+- exactly 25 attempted and completed cases, with no failure, fatal abort, or unattempted case;
+- known usage, observed latency, a unique response ID, and the required returned provider identity for every case;
+- no more than one attempt per case and no retries;
+- p95 latency at most 60 seconds and charged authorization consumption at most USD 0.17;
+- combined node-plus-edge F1 at least `0.50` and at least `0.10` above the frozen BM25 comparator; and
+- at least 2 exact canonical-tree matches.
 
-### What the corrected offline analysis shows
+Failure of any gate prohibits the locked run. A quality failure requires a new versioned configuration and preregistration; it cannot be retried until a favourable sample appears. An operational rerun requires a new public execution binding, fresh authorization, and disclosure of every attempt.
 
-| `rules-v1` signal | Result |
-|---|---:|
-| Exact criterion-text TP / predicted / reference | 110 / 128 / 144 |
-| Micro exact criterion-text precision / recall / F1 | 0.859375 / 0.763889 / 0.808824 |
-| Mean exact criterion-text F1 | 0.775000 |
-| Mean token-overlap F1 | 0.859843 |
-| Mean structured-field macro accuracy | 0.651563 |
+Passing the canary would permit planning—not executing—the locked test. The existing locked constants (`1,800` cases and an `USD 11.80` application cap) are not a current authorization: the frozen rate window expires, and a conservative `1,800 × 60 seconds = 30 hours` cannot fit the current four-hour plan and two-hour authorization windows. A locked run therefore requires refreshed pricing, a mechanically valid new plan, and separate explicit user authorization after a canary pass.
 
-On this fixed constructed suite, `rules-v1` is stronger at recovering or overlapping criterion text than at reproducing the evaluated structured fields. This is a descriptive engineering finding across complementary metrics, not proof of semantic understanding. The metrics use different aggregation rules, and the AI-assisted labels still await independent second-human and domain-expert review.
+The requested model name is an alias and can change behind the same name. Artifacts record requested and returned model identity, response object, service tier, usage, latency, response-ID hashes, and pricing assumptions. Provider-dashboard reconciliation remains an independent required check.
 
-The zero exact criterion-text scores for `logic_and`, `logic_or`, and `multi_clause` primarily expose a segmentation/grouping mismatch: `rules-v1` emits one criterion for a bullet whose reference contains two grouped criteria. They do not by themselves prove a general reasoning limitation.
+See [Operations runbook](docs/operations-runbook.md) and [Security, privacy, and cost](docs/security-cost.md).
 
-Taxonomy events can overlap: one aligned criterion pair can contribute concept, operator, value, evidence, and other mismatches simultaneously. Rates therefore state an explicit basis—144 reference criteria for missing criteria, 128 predicted criteria for spurious criteria, or 128 aligned pairs for paired text/field/evidence events—and counts must not be summed as unique failed cases.
+## Reproduce the offline evidence
 
-The one-case smoke proves guarded execution and artifact plumbing. Synthetic v0.1 is a stronger deterministic engineering regression: 80 constructed cases, 10 families, 20 declared slices, 16 one-bullet/multi-label cases, and two zero-network baselines. Template design and label construction were AI-assisted and then encoded in a deterministic, source-controlled generator. The frozen manifest's `single_author` and `deterministic_templates` fields describe that one authoring workflow; they do not mean unaided human authorship. Independent second-human and clinical-domain review/adjudication remain pending. Suite execution and CI make no model or network calls.
+The repository uses a frozen `uv.lock`. The Real-v1 checks make no provider call and need no API key:
 
-See the current [synthetic v0.1.1 analysis](docs/results/synthetic-v0.1.1.md), the immutable [historical v0.1 report](docs/results/synthetic-v0.1.md), and the [benchmark methodology](docs/benchmark-methodology.md).
+```powershell
+.\.tools\uv\uv.exe lock --check
+.\.tools\uv\uv.exe sync --frozen --extra dev
+.\.tools\uv\uv.exe run --frozen --no-env-file pytest `
+  tests/test_llf_import.py `
+  tests/test_llf_semantics.py `
+  tests/test_llf_semantic_evaluation.py `
+  tests/test_llf_baselines.py `
+  tests/test_llf_agreement.py `
+  tests/test_llf_canary_preregistration.py `
+  tests/test_llf_live_score.py
+```
 
-## Run the local stack safely
+The public evidence artifacts include:
 
-Prerequisites are Docker Desktop (Linux containers) and PowerShell.
+- [human-agreement analysis](docs/results/llf-human-agreement.json);
+- [full parser coverage](docs/results/llf-semantic-coverage.json);
+- [development coverage](docs/results/llf-semantic-coverage-development.json); and
+- [locked-test coverage](docs/results/llf-semantic-coverage-test.json).
 
-Use the wrapper, not plain `docker compose`: Compose otherwise discovers a project-root `.env` file implicitly. The wrapper disables that behavior and rejects explicit env-file arguments.
+No Azure login is needed for the direct OpenAI canary. At execution time, the operator enters the API key at a hidden PowerShell prompt; the Real-v1 wrapper sends it to one container process over standard input. The key is never an argument, file, Docker environment value, committed dotenv value, or artifact.
+
+## Legacy application and deployment engineering
+
+The repository also contains a FastAPI/PostgreSQL/Redis mock extraction service, Prometheus metrics, Docker Compose, Kustomize/kind, Helm, Terraform, and GitHub Actions. API and worker paths are mock-only and should remain local or private because the API is unauthenticated.
+
+On 2026-09-01, the earlier system demonstrated its plumbing with one local and one no-ingress Azure Container Apps synthetic Luna smoke, plus an ephemeral mock-only AKS deployment that was destroyed after verification. Those dated exercises support claims about guarded execution, containers, queues, health checks, identity-backed secret references, and teardown. They do **not** support a Real-v1 quality result, clinical validation, or a public production service claim.
+
+Run the local mock stack with the safe wrapper:
 
 ```powershell
 .\scripts\compose-safe.ps1 up --build -d --wait
 .\scripts\compose-safe.ps1 ps
 ```
 
-Local endpoints:
+Local OpenAPI is at <http://127.0.0.1:8000/docs>. Stop without deleting the database volume with `./scripts/compose-safe.ps1 down`.
 
-- OpenAPI: <http://127.0.0.1:8000/docs>
-- liveness: <http://127.0.0.1:8000/healthz>
-- dependency readiness: <http://127.0.0.1:8000/readyz>
-- Prometheus metrics: <http://127.0.0.1:8000/metrics>
+## Interpretation limits
 
-Stop the stack while retaining its named PostgreSQL volume:
+- LLF is a public benchmark and may have appeared in model pretraining. Real v1 measures reproducible public-benchmark performance with no runtime gold leakage; it is not contamination-resistant generalization.
+- The locked test is public, not a substitute for a fresh temporal holdout.
+- The 20 agreement cases are selected and small. Their values measure annotation consistency, not correctness.
+- Three primary references are missing upstream; they stay in operational accounting but not semantic scoring.
+- Structural LLF similarity is not patient-level eligibility accuracy.
+- No result makes the API safe to expose publicly or suitable for clinical use.
 
-```powershell
-.\scripts\compose-safe.ps1 down
-```
-
-Only use `down --volumes` after confirming that the local database is disposable.
-
-## Run checks and the zero-cost benchmarks
-
-Dependencies are frozen in `uv.lock`; see [dependency-lock.md](docs/dependency-lock.md).
-
-```powershell
-uv lock --check
-uv sync --frozen --extra dev
-uv run --frozen --no-env-file ruff check .
-uv run --frozen --no-env-file ruff format --check .
-uv run --frozen --no-env-file mypy src
-uv run --frozen --no-env-file pytest -m "not live and not integration"
-```
-
-Run the original offline gold smoke to a new artifact path:
-
-```powershell
-uv run --frozen --no-env-file python -m criteriabench.benchmark_cli `
-  data/synthetic/benchmark_case_001.json `
-  --output artifacts/smoke.json
-```
-
-Run the 80-case offline suite and require exact equality with the committed reports:
-
-```powershell
-uv run --frozen --no-env-file criteriabench-suite `
-  data/synthetic_v0_1/manifest.json `
-  --configs empty-v1 rules-v1 `
-  --json-output artifacts/synthetic-v0.1.1.json `
-  --markdown-output artifacts/synthetic-v0.1.1.md `
-  --check-json docs/results/synthetic-v0.1.1.json `
-  --check-markdown docs/results/synthetic-v0.1.1.md
-```
-
-The suite command rejects environment-style paths, accepts only the two allowlisted offline baselines, validates all 80 case hashes and source-bound reference spans, and refuses existing outputs unless `--overwrite` is explicit. The policy contract in `benchmarks/synthetic-v0.1-policy.json` requires 100% completion/schema validity, every declared slice, zero network/paid/token/cost accounting, and a minimum 0.20 rules-over-empty improvement in both mean token F1 and mean macro field accuracy. Exact report reproduction is the primary CI regression gate.
-
-### Offline prediction-bundle boundary
-
-Future model comparisons use a separate, canonical `prediction-bundle-v1` artifact produced outside CI under a separately reviewed and explicitly authorized workflow. The repository's importer only validates and scores an existing bundle against the hash-pinned dataset:
-
-```powershell
-python -m criteriabench.predictions `
-  --bundle <canonical.json> `
-  --manifest data/synthetic_v0_1/manifest.json `
-  --check <canonical.json.sha256> `
-  --output <new-score-report.json>
-```
-
-The importer emits `prediction-score-v1`; it has no provider, generation, live, paid, or network mode. It independently recomputes observed usage-priced token costs from hash-bound run rates; if any call's usage is unavailable, the score reports coverage and marks observed monetary totals as lower bounds, not proof of provider billing. CI may hash-check and replay a reviewed committed bundle, but it never generates predictions, receives an API key, or makes a model/network call.
-
-No model comparison should be claimed until a reviewed canonical bundle and its protocol are actually committed.
-
-For the one-case smoke, existing artifacts are not overwritten unless `--overwrite` is explicit. Its artifact records fixture provenance, extraction and evaluator implementation hashes, provider/model, maximum permitted attempts per case, latency, usage-priced cost, extraction, and evaluation. Canonical synthetic and manifested-live outputs omit the application key and redact absolute machine paths; arbitrary offline input can appear in an artifact, so operators must review it before sharing. The default mock costs USD 0.
-
-## Local Kubernetes and Helm
-
-The supported disposable Kustomize path is:
-
-```powershell
-.\scripts\kind-up.ps1
-# API: http://127.0.0.1:8080/docs
-.\scripts\kind-down.ps1 -Confirmation DELETE-KIND
-```
-
-The script builds and loads the locked local image, recreates the migration Job on repeat runs, restarts API/worker pods so a reused tag cannot hide stale code, waits for all workloads, and binds the unauthenticated demo API to loopback only. The in-cluster PostgreSQL and Redis data are disposable.
-
-The Helm chart is independently linted/rendered in CI and can be installed into a local cluster with `demoDependencies.enabled=true`. Those demo dependencies are ephemeral and are not a production database or secret strategy.
-
-## Paid benchmark boundary
-
-The API and worker remain mock-only across CI, Compose, Kubernetes, Helm, and AKS. A source-launched API or worker may inherit an ambient key through `Settings`, but both runtime surfaces enforce mock-only execution and prohibit paid calls. The separate manual Container Apps benchmark Job resolves its key through a user-assigned managed identity and Key Vault secret reference; no key literal is stored in Terraform or the job definition.
-
-A deliberate local live CLI run requires all of the following:
-
-1. `LLM_PROVIDER=openai` in that process;
-2. `ALLOW_PAID_CALLS=true` in that process;
-3. `OPENAI_API_KEY` supplied privately to that process;
-4. `--live`;
-5. `--acknowledge-paid-api`;
-6. an explicit `--budget-usd` greater than zero and no more than USD 2;
-7. a manifest-approved input whose verified bytes are the bytes parsed; and
-8. an output beneath the repository `artifacts/` directory.
-
-Inspect the exact current interface before any local run:
-
-```powershell
-uv run --frozen --no-env-file python -m criteriabench.benchmark_cli --help
-```
-
-The application does not automatically load `.env` files. Never put a key in source, YAML, a Docker argument, shell history, an issue, or an artifact. The CLI's budget and the Container Apps authorization guard are application controls, not provider spending caps: failed or retried calls can still be billable. Verify model pricing against the official [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna) immediately before use and reconcile any result with the provider dashboard.
-
-## Data boundary
-
-Use only public ClinicalTrials.gov text or synthetic content—never patient data, protected health information, credentials, or proprietary corpora. The downloader receives the upstream single-study response transiently, validates its size and returned NCT ID, and retains only NCT ID, brief title, eligibility text, and source URL. It does not currently preserve the upstream API version, update timestamp, or raw-response hash.
-
-See the official [ClinicalTrials.gov API documentation](https://clinicaltrials.gov/data-api/about-api) and [terms and conditions](https://clinicaltrials.gov/about-site/terms-conditions).
-
-## Verification evidence
-
-Verified locally and through explicitly approved Azure proofs on 2026-09-01:
-
-- Ruff, formatting, strict mypy, bytecode compilation, and the complete non-live/non-integration suite pass above the 75% coverage gate.
-- Frozen dependency resolution and a digest-pinned production image build/import pass.
-- Real PostgreSQL migration upgrade/downgrade/upgrade and repository round-trip pass.
-- Real Redis claim, acknowledgement, restart recovery, and poison-message dead-letter behavior pass.
-- Compose health/readiness, sync extraction, queued worker extraction, persistence, and metrics pass in mock mode.
-- A clean loopback-only kind cluster, non-root PostgreSQL initialization, migration, API, worker, sync/async extraction, persistence, metrics, and teardown pass.
-- A separate Helm runtime install, migration, API/worker sync/async smoke, and uninstall pass.
-- Helm lint/render, Kustomize render, and Terraform offline format/init/validate pass.
-- The one-case synthetic gold smoke reports exact criterion-text F1 1.0, token F1 1.0, macro field accuracy 0.875, and USD 0 cost.
-- Synthetic v0.1 loads exactly 80 unique, hash-pinned, source-validated cases across 10 families; the current offline-suite-v0.1.1 analysis adds all-eight-field, per-family, leave-one-family-out, family-cluster sensitivity, lineage, and denominator-aware taxonomy reporting. Both baselines complete with valid schemas, no network or paid calls, zero tokens, and zero estimated cost. Generated v0.1.1 JSON/Markdown reproduce the current committed reports byte for byte while the historical v0.1 pair remains immutable.
-- After two local provenance failures, one approved guarded local Luna smoke completed one case: 1,083 input and 295 output tokens, usage-priced estimate USD 0.000571, USD 0.0111 of application authorization consumed under a USD 0.02 guard, exact criterion-text F1 0.5, token F1 0.75, and macro field accuracy 1.0. No zero-provider-billing claim is made for the earlier failures.
-- The approved AKS proof applied immutable image `sha256:a23de765a424d74d205f84e4255d572ab5cc79bd7774af034cfa9dca804d8ba2`. Health and readiness were up; sync extraction returned 200; async extraction returned 202 and the worker completed; the result contained one inclusion and one exclusion criterion under schema 1.0 with zero tokens and USD 0 cost; and API and worker metrics were observed.
-- The AKS parent and managed-node resource groups and budget were independently confirmed absent after teardown; Terraform retained only data-source entries and temporary proof artifacts were absent.
-- A separate no-ingress manual Container Apps Job uses immutable image `sha256:94bb5ca7ebf26a331a202cacd455ce922db954f71697229df5439775f9a5b9ad`, `retries=0`, a 300-second timeout, 0.25 CPU, 0.5 GiB memory, and an identity-backed Key Vault secret reference with no literal key. Its EUR 15 budget alert is delayed notification, not a hard cap.
-- After two ACA attempts failed before job start with zero executions and were fully cleaned up, the approved proof produced exactly one `Succeeded` execution with one paid Luna attempt. It recorded 1,083 input and 296 output tokens, usage-priced estimate USD 0.000572, USD 0.0111 of application authorization consumed under a USD 0.02 guard, and latency 5,764.961 ms. The schema was valid; prediction and reference each contained two criteria—one inclusion and one exclusion—and scores were exact criterion-text F1 0.0, token F1 0.5, and macro field accuracy 1.0.
-
-The successful Container Apps Job remains deployed but idle, with review-by date **2026-09-15**; it is not a public or continuously serving API. Both successful paid results are synthetic one-case engineering smokes of guarded execution, validation, provenance, and evaluation—not clinical evidence, statistically meaningful model-quality evidence, or proof that Luna outperforms another model.
+A stronger future extension would use newly collected post-cutoff trials, independent double annotation, biomedical adjudication, and a frozen temporal holdout. That extension is not implemented.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
+- [Real-v1 protocol](docs/real-v1-protocol.md)
 - [Benchmark methodology](docs/benchmark-methodology.md)
-- [Current Synthetic v0.1.1 analysis](docs/results/synthetic-v0.1.1.md)
-- [Historical Synthetic v0.1 report (immutable)](docs/results/synthetic-v0.1.md)
-- [Data use and provenance](docs/data-use.md)
+- [Architecture](docs/architecture.md)
 - [Operations runbook](docs/operations-runbook.md)
-- [Security, privacy, and cost boundaries](docs/security-cost.md)
+- [Data use and provenance](docs/data-use.md)
+- [Security, privacy, and cost](docs/security-cost.md)
+- [Reproducible dependencies](docs/dependency-lock.md)
 - [Learning guide](docs/learning-guide.md)
-- [Azure proof environment](infra/azure/README.md)
+- [Legacy Synthetic v0.1.1 report](docs/results/synthetic-v0.1.1.md)
+- [Historical immutable Synthetic v0.1 report](docs/results/synthetic-v0.1.md)
 
-## Honest portfolio claims
+## Honest portfolio summary
 
-This repository supports claims such as: designed a strict LLM extraction contract; implemented deterministic evaluation and provenance-bound evidence; built an 80-case, hash-pinned synthetic regression suite with per-slice/per-family analysis, all-eight-field reporting, leave-one-family-out and 10-family-cluster sensitivity checks, denominator-aware overlapping error taxonomy, predeclared policy gates, and byte-stable CI reports; built an offline prediction-bundle import/scoring boundary for future model comparisons; built mock-only API/worker paths with PostgreSQL and Redis; containerized a non-root service with frozen dependencies; exercised Compose, Kustomize, and Helm locally; added Prometheus observability; executed then destroyed an explicitly approved, mock-only AKS proof using an immutable image digest; and deployed a bounded, no-ingress manual Container Apps benchmark Job with managed identity, a Key Vault secret reference, and one successful guarded synthetic Luna execution.
+> Built a trial-disjoint benchmark over 2,000 real human-annotated clinical-trial criteria, including a no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically isolated references, structural scoring, and a hash-bound one-shot LLM execution protocol with explicit cost and failure gates.
 
-It should not be described as clinically validated, research-grade, production-ready, exactly-once, publicly secure, a public or continuously serving production API, proven to outperform another model, backed by statistically meaningful model-quality evidence, or protected by a hard Azure or OpenAI spending cap. Current Azure status should be stated precisely: the AKS proof was destroyed, while one manual Container Apps Job remains deployed but idle pending its 2026-09-15 review.
-
-Licensed under the [MIT License](LICENSE).
+Until a result is published, add: **“The Luna development canary is preregistered and pending; no live result or charge is claimed.”** Do not claim model improvement, contamination-resistant generalization, production deployment, or clinical validity.

@@ -1,10 +1,14 @@
 # CriteriaBench learning guide
 
-This guide explains the infrastructure around CriteriaBench for someone who already knows Python/data/AI but is new to cloud-native engineering.
+This guide explains the infrastructure around CriteriaBench for someone who already knows Python/data/AI but is new to cloud-native engineering. The headline Real-v1 work is now a separate offline/one-shot benchmark plane; the API/worker stack below remains a mock-only systems demonstration.
 
 ## Start with the mental model
 
-CriteriaBench has two ordinary Python processes:
+CriteriaBench has two distinct mental models.
+
+The **Real-v1 benchmark** takes a pinned public LLF corpus through a source-only generation boundary, a safe no-exec semantic parser, deterministic BM25 and human-agreement analysis, a sealed one-shot Luna runner, and a network-disabled scorer. It does not use PostgreSQL or Redis and it never exposes a public inference endpoint.
+
+The **legacy application demonstration** has two ordinary Python processes:
 
 - an **API**, which receives requests and returns status/results; and
 - a **worker**, which performs queued mock extraction in the background.
@@ -14,7 +18,7 @@ They share:
 - **PostgreSQL**, the durable record of requests, states, and results; and
 - **Redis**, the short-lived work queue between API and worker.
 
-Everything else answers one of four questions:
+Its surrounding infrastructure answers one of four questions:
 
 1. How do we package the processes consistently? **Docker**.
 2. How do we run several packages together? **Compose** on one computer; **Kubernetes** in a cluster.
@@ -163,7 +167,9 @@ Never put high-cardinality IDs, source text, prompts, credentials, or exception 
 
 ## Security and cost reasoning
 
-The API, worker, CI, Compose, kind/Helm workloads, and historical AKS proof remain mock-only. Paid inference is isolated to the explicit local benchmark wrapper and the fixed Container Apps Job; either path requires fresh explicit authorization before each execution. The local wrapper scopes the ignored key to one child. The cloud job obtains it through a user-assigned-identity-backed Key Vault secret reference, has no ingress, and permits no provider or replica retry.
+The API, worker, CI, Compose, kind/Helm workloads, and historical AKS proof remain mock-only. Current paid evaluation is isolated to the Real-v1 direct Luna runner: static preregistration, exact offline plan, public one-execution binding, fresh authorization, an external append-only claim/attempt ledger, one provider attempt per case, network-disabled scoring, and a conjunctive decision. The API key enters only through a hidden prompt and standard input. Azure login is not involved.
+
+The older no-ingress Container Apps Job remains dated one-case synthetic transport/infrastructure evidence. Its user-assigned identity and Key Vault secret reference are useful engineering proof, not Real-v1 quality evidence or current authorization.
 
 Controls to explain:
 
@@ -174,7 +180,9 @@ Controls to explain:
 - immutable dependency/image/action references;
 - plan/hash/digest binding for cloud apply;
 - identity-backed cloud secret references without literal values;
-- explicit authorization and one-attempt execution bounds; and
+- preregistration, exact plan/image/path binding, fresh authorization, and one-attempt execution bounds;
+- physical source/reference separation and network-disabled scoring;
+- application cost reservations plus independent provider-dashboard reconciliation; and
 - alerts plus prompt teardown rather than pretending a pay-as-you-go budget is a hard cap.
 
 The Container Apps proof implements Key Vault integration and a user-assigned managed identity narrowly for that job. GitHub-to-Azure OIDC, remote Terraform state, a full production data plane, and equivalent identity integration for the AKS stack remain future work.
@@ -189,12 +197,20 @@ The Container Apps proof implements Key Vault integration and a user-assigned ma
 6. Run the disposable kind proof and diagnose a pod with `get`, `describe`, and `logs`.
 7. Install/uninstall the Helm demo in kind.
 8. Read CI/publish workflows and follow one artifact/digest through them.
-9. Run Terraform offline validation and read a generated plan only after Azure login is ready.
-10. Study the completed Azure proofs and their cleanup/cost evidence. Do not repeat a paid model or cloud execution without separate explicit approval.
+9. Reproduce the Real-v1 import, safe parser, BM25, agreement, preregistration, and offline scorer tests.
+10. Read the sealed canary lifecycle. Do not execute it until its public binding and fresh exact authorization exist.
+11. Run Terraform offline validation; Azure login is relevant only to optional historical/cloud infrastructure work, not the direct Luna benchmark.
+12. Study the completed Azure proofs and their cleanup/cost evidence. Do not repeat a paid model or cloud execution without separate explicit approval.
 
 ## Honest CV/interview phrasing
 
 Supported now:
+
+> Built a trial-disjoint evaluation benchmark over 2,000 real human-annotated clinical-trial criteria, with a bounded no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically separated gold data, structural metrics, and a hash-bound one-shot LLM execution protocol.
+
+Until the live result is published, immediately add: **“The Luna development canary is preregistered and pending; no live result or charge is claimed.”**
+
+The legacy systems-engineering claim is also supported:
 
 > Built a typed AI extraction/evaluation service with FastAPI, PostgreSQL and Redis; locked and containerized it with Docker; exercised mock sync/async workloads through Compose, Kustomize/kind, and Helm; and added CI, security gates, health/readiness probes, Prometheus metrics, failure recovery, provenance, and cost accounting.
 
@@ -202,8 +218,8 @@ Also supported:
 
 > Executed and destroyed an explicitly approved ephemeral mock-only one-node AKS proof with modern networking, plan/hash/digest binding, budget alerts, health/readiness, sync/async workload evidence, API/worker metrics, and verified teardown.
 
-And, for the current bounded cloud job:
+For the dated bounded cloud proof:
 
-> Provisioned a Terraform-managed, no-ingress Azure Container Apps Job using a user-assigned identity, Key Vault secret references, an immutable container digest, and bounded execution/cost guards; verified one successful synthetic LLM execution and left the job deployed but idle.
+> Provisioned a Terraform-managed, no-ingress Azure Container Apps Job using a user-assigned identity, Key Vault secret references, an immutable container digest, and bounded execution/cost guards; verified one successful synthetic LLM execution as infrastructure plumbing.
 
-Do not broaden this into “customer-facing production service,” “clinically validated,” “production Kubernetes operations,” “exactly once,” “OpenTelemetry tracing,” “GitHub-to-Azure OIDC,” “remote Terraform state,” or “improved model accuracy.” One synthetic case demonstrates the guarded engineering path, not model quality. The repair trail—two local `ProvenanceError` calls before one successful local run, and two cleaned Container Apps pre-start failures before exactly one successful execution—is useful in an interview but is not itself an accuracy claim.
+Do not broaden this into “customer-facing production service,” “clinically validated,” “production Kubernetes operations,” “exactly once,” “OpenTelemetry tracing,” “GitHub-to-Azure OIDC,” “remote Terraform state,” “contamination-resistant,” or “improved model accuracy.” The public benchmark may have appeared in model pretraining, the Luna name is a drifting alias, and the actual Real-v1 call has not run. Earlier one-case synthetic successes demonstrate guarded plumbing, not model quality.

@@ -15,8 +15,11 @@ def test_docker_context_excludes_local_data_and_evidence() -> None:
     }
 
     assert {
+        ".pytest-*",
         ".pytest_tmp*",
+        ".tmp-*",
         "artifacts",
+        "data/real",
         "reports",
         "*.db",
         "*.sqlite",
