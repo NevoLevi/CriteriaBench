@@ -1,0 +1,579 @@
+{
+  "advancement_gates": {
+    "app_retries": 0,
+    "decision_rule": "all_gates_must_pass",
+    "maximum_attempts_per_case": 1,
+    "maximum_charged_total_usd": "1.250000000",
+    "maximum_p95_latency_ms": 60000.0,
+    "minimum_exact_match_count": 2,
+    "minimum_primary_structure_f1": 0.5,
+    "minimum_primary_structure_uplift_over_bm25": 0.1,
+    "on_any_failure": "do_not_authorize_or_run_locked_test",
+    "report_schema_version": "llf-live-score-report-v1",
+    "required_attempted_count": 25,
+    "required_complete_timing_count": 25,
+    "required_completed_count": 25,
+    "required_external_attempt_claim_count": 25,
+    "required_failed_count": 0,
+    "required_fatal_abort": false,
+    "required_latency_observed_count": 25,
+    "required_not_attempted_count": 0,
+    "required_provider_hash_count": 25,
+    "required_provider_model": "gpt-5.6-luna",
+    "required_provider_model_count": 25,
+    "required_provider_response_object": "response",
+    "required_provider_response_object_count": 25,
+    "required_provider_service_tier": "default",
+    "required_provider_service_tier_count": 25,
+    "required_purpose": "development_llf_canary_25",
+    "required_response_id_count": 25,
+    "required_split": "development",
+    "required_terminal_state": "completed",
+    "required_unique_external_attempt_claim_count": 25,
+    "required_unique_response_id_count": 25,
+    "required_usage_known_count": 25,
+    "required_usage_unknown_count": 0,
+    "resulting_minimum_primary_structure_f1": 0.5,
+    "sdk_retries": 0
+  },
+  "artifact_id": "criteriabench-real-v1-llf-development-canary-25",
+  "artifact_purpose": "Pre-model paired development diagnostic for the sealed medium profile; this artifact cannot advance the locked-none lane and is not locked-test evidence.",
+  "baseline": {
+    "algorithm_contract_sha256": "45903d14b986782e2cf2e6d06e552e0abec7f9a8a42ffa6c4dbe4455004a918a",
+    "baseline_id": "llf-bm25-nearest-development-v1",
+    "code_sha256": "e2626cb7aeb8b7117e4f4aacf5bba583565b787faef2bde84117361300fa7b1d",
+    "configuration_sha256": "69564a6fff8084acc74b2434435eea0fe23beeca0472401620f37440bb56d556",
+    "development_prediction_policy": "leave-entire-target-trial-out",
+    "identity_sha256": "1516cd81a29b653df282f8d44e458b80f052215cbd35ef477be9e277e4dc047f",
+    "prediction_set_sha256": "839567dcc1d271dbe88cd3b61a9f2d41f6db9cd2ea865123d9bad21e40431920",
+    "schema_version": "llf-retrieval-baseline-identity-v1",
+    "training_case_count": 200,
+    "training_set_sha256": "e56d8f425b1ee140cb4ca10850f164697d16dc29fa6f85ce053b4b292aaf5e57",
+    "training_trial_count": 86
+  },
+  "baseline_metrics": {
+    "booleans": {
+      "f1": 0.0,
+      "false_negative": 0,
+      "false_positive": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "true_positive": 0
+    },
+    "calls": {
+      "f1": 0.27541,
+      "false_negative": 105,
+      "false_positive": 116,
+      "precision": 0.265823,
+      "recall": 0.285714,
+      "true_positive": 42
+    },
+    "edges": {
+      "f1": 0.142661,
+      "false_negative": 301,
+      "false_positive": 324,
+      "precision": 0.138298,
+      "recall": 0.147309,
+      "true_positive": 52
+    },
+    "exact_match_accuracy": 0.04,
+    "exact_match_count": 1,
+    "method_attributes": {
+      "f1": 0.202532,
+      "false_negative": 34,
+      "false_positive": 29,
+      "precision": 0.216216,
+      "recall": 0.190476,
+      "true_positive": 8
+    },
+    "nodes": {
+      "f1": 0.259307,
+      "false_negative": 277,
+      "false_positive": 300,
+      "precision": 0.25187,
+      "recall": 0.267196,
+      "true_positive": 101
+    },
+    "primary_structure": {
+      "f1": 0.202918,
+      "false_negative": 578,
+      "false_positive": 624,
+      "precision": 0.196911,
+      "recall": 0.209302,
+      "true_positive": 153
+    },
+    "semantic_case_count": 25,
+    "strings": {
+      "f1": 0.059259,
+      "false_negative": 68,
+      "false_positive": 59,
+      "precision": 0.063492,
+      "recall": 0.055556,
+      "true_positive": 4
+    },
+    "symbols": {
+      "f1": 0.361538,
+      "false_negative": 70,
+      "false_positive": 96,
+      "precision": 0.328671,
+      "recall": 0.401709,
+      "true_positive": 47
+    },
+    "typed_components": {
+      "f1": 0.259307,
+      "false_negative": 277,
+      "false_positive": 300,
+      "precision": 0.25187,
+      "recall": 0.267196,
+      "true_positive": 101
+    }
+  },
+  "composition": {
+    "complexity_disclosure": "aggregate development-reference counts only; no per-case reference complexity disclosed",
+    "criterion_kind_counts": {
+      "exclusion": 16,
+      "inclusion": 9
+    },
+    "reference_edge_count_bins": {
+      "0-4": 7,
+      "10+": 13,
+      "5-9": 5
+    },
+    "reference_node_count_bins": {
+      "1-5": 7,
+      "11+": 13,
+      "6-10": 5
+    },
+    "selection_stratum_counts": {
+      "exclusion:long": 5,
+      "exclusion:medium": 5,
+      "exclusion:short": 6,
+      "inclusion:long": 3,
+      "inclusion:medium": 3,
+      "inclusion:short": 3
+    },
+    "source_length_bin_counts": {
+      "long": 8,
+      "medium": 8,
+      "short": 9
+    }
+  },
+  "development_reference": {
+    "coverage_artifact_bytes": 4886,
+    "coverage_path": "llf-semantic-coverage-development.json",
+    "coverage_sha256": "bda3d2a2144931213032cc3ffb368e59640dee63176573e96af35017756cd8ee",
+    "missing_upstream_case_count": 0,
+    "operational_case_count": 200,
+    "reference_artifact_bytes": 206094,
+    "reference_artifact_sha256": "3fda6daba1368826b02317e0f7eec82baeb9bb1526c87877fe1364a674dfea12",
+    "reference_path": "development_references.jsonl",
+    "selected_reference_set_sha256": "221a25545e16cf391d4cf6afd7438fc9eb2cd4b36e9f209a4db4830b9e24701f",
+    "semantic_case_count": 200
+  },
+  "evidence_scope": {
+    "claim": "development-only preregistration and baseline; not an estimate of locked-test performance",
+    "environment_or_secret_read": false,
+    "locked_test_evidence": false,
+    "locked_test_references_opened": false,
+    "model_or_provider_called": false,
+    "network_used": false,
+    "uses_only_development_generation_split": true,
+    "uses_only_development_references": true
+  },
+  "generation_dataset": {
+    "case_count": 200,
+    "case_set_sha256": "5a876de7d211b9bd9c289cfabae3dbf1106e9fb02b80a095c31148f87156201a",
+    "dataset_id": "leaf-logical-forms",
+    "dataset_version": "llf-461288a",
+    "generation_cases_sha256": "ac7d9c0cf01158afb8b1ea6f8d320dc632b9211742296225d16308aa60884f84",
+    "generation_manifest_sha256": "c67911011a906afe5e81c4f39310a765d899244a3c831f180111b3260ac9ce58",
+    "split": "development",
+    "split_assignments_sha256": "2c00584303dbb653838eb21b1fec4eebae28ec3508f3acbddd333012391c68fc",
+    "split_unit": "trial_id"
+  },
+  "implementation": {
+    "engineering_limits": {
+      "call_arguments": 32,
+      "collection_items": 32,
+      "development_reference_statistics_used": false,
+      "identifier_characters": 128,
+      "locked_test_reference_statistics_used": false,
+      "logical_form_characters": 8192,
+      "logical_form_utf8_bytes": 16384,
+      "policy_id": "llf-live-engineering-limits-v1",
+      "policy_sha256": "0ed21cce49d625018b0f26f5fb4b27667d8e9757e38755f7f17e8c4aee7dff52",
+      "selection_policy": "predeclared_split_independent_engineering_and_security_limits",
+      "semantic_depth": 64,
+      "semantic_nodes": 256,
+      "string_utf8_bytes": 1024
+    },
+    "execution": {
+      "cli_sha256": "af1ed1b0c2e52cfc3cf3c03b39a42048072f1619ccbec7665767c25a833445fa",
+      "contracts_sha256": "332bdc0dd117776345e0d7ee267c3139bf8808e9d3ef6a20b5dae2deb41b23f7",
+      "implementation_sha256": "16ccc174f09cf440ef65bd05102aab177e9694c0a1151f45fd4074e89f01d9d9",
+      "openai_sdk_version": "2.54.0",
+      "package_python_inventory_sha256": "3e2f6c607027c946efc3956aa16d26d34a7a98b6a5de97affdc1d679ecc9035b",
+      "planning_sha256": "e406bc9a6f39676b8a252b6ff0d90c7f49c02d5601886c7617c3f48350461831",
+      "runner_sha256": "b879cc2edfe1a5173d7ffcd64a6307eb9fbbcc0a06ac08045dd9bdfed86f294f",
+      "schema_version": "real-live-execution-implementation-v1",
+      "transport_sha256": "d029a616d32d61ae22baee55f56d48a2f12be9a324693a5cdf308c32a5e7a7d0",
+      "uv_lock_sha256": "e4600c744265aaee6781afcbe9f8176bbe025424891dbf685bd258bc7d5dcc0b"
+    },
+    "live_evaluator_code_sha256": "92ce78827da7992897154989043faa54feb3773cd3b420217030620f45d25644",
+    "live_evaluator_id": "criteriabench.real_eval.llf_live_score:v1",
+    "llf_semantics_module_sha256": "94105961346467e9471fefe4227ff5f26e05e430679759f2ff2134e1a654ff0b",
+    "parser_version": "bounded-python-ast-allowlist-v1",
+    "preregistration_module_sha256": "abcc02304656bcdedac9a2f93a63bbaf28e162d3058f0e8764a1d9c382ff27f5",
+    "selection_module_sha256": "e406bc9a6f39676b8a252b6ff0d90c7f49c02d5601886c7617c3f48350461831"
+  },
+  "limitations": [
+    "The canary and BM25 comparator use development annotations and are not held-out results.",
+    "The 25-case canary is a go/no-go smoke test, not a precise performance estimate.",
+    "The medium profile is a paired development diagnostic only; it cannot advance the locked-none lane.",
+    "The pricing snapshot must be refreshed if it is stale before any paid request.",
+    "No clinical-validity or deployment-safety claim follows from this structural LLF benchmark."
+  ],
+  "planned_paid_call": {
+    "caller_execution_identity_sha256": "77deee11a6baef3514c225130b691c80eac52f66c1d1409e428741466d2eadde",
+    "case_count": 25,
+    "exact_plan_and_fresh_authorization_required_before_paid_execution": true,
+    "hard_budget_cap_usd": "1.250000000",
+    "luna": {
+      "app_max_retries": 0,
+      "endpoint": "https://api.openai.com/v1/responses",
+      "execution": "sequential",
+      "follow_redirects": false,
+      "http_trust_env": false,
+      "max_output_tokens": 32768,
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "medium",
+      "request_timeout_seconds": 240,
+      "sdk_max_retries": 0,
+      "service_tier": "default",
+      "store": false,
+      "tools": []
+    },
+    "maximum_attempts_per_case": 1,
+    "output_contract": {
+      "contract_id": "llf-semantic-ast-v1.1-prompt-card",
+      "parser_code_sha256": "332bdc0dd117776345e0d7ee267c3139bf8808e9d3ef6a20b5dae2deb41b23f7",
+      "parser_id": "criteriabench.real_live.contracts.parse_llf_wire_payload:v1",
+      "parser_sha256": "2bf8081cd7dc1e57ecb2a561295b283b63a1330c1b4b70142e9aa2991accbb38",
+      "prompt_sha256": "bc1ac1fe6fed66e2560d64b7c3b92b8e61f6e23c96bb080747e3d1a594637243",
+      "schema_name": "criteriabench_llf_logical_form",
+      "schema_sha256": "ab7cf39603900057b25d005b9722953987f3212ae6d10ab5cd9d6ef059fd8f15",
+      "track": "llf_semantic_ast"
+    },
+    "pricing": {
+      "cache_write_input_usd_per_million": "0.250000000",
+      "cached_input_usd_per_million": "0.020000000",
+      "currency": "USD",
+      "output_usd_per_million": "1.200000000",
+      "pricing_id": "openai-gpt-5.6-luna-2026-09-02",
+      "pricing_sha256": "df95cfd802c81e6deffda8d833fe6d226df13a387526f1aae2f1ffbf68275b41",
+      "reviewed_at_utc": "2026-09-02T00:00:00Z",
+      "rounding": "usd_9dp_half_up",
+      "uncached_input_usd_per_million": "0.200000000",
+      "valid_through_utc": "2026-09-02T23:59:59Z"
+    },
+    "refresh_pricing_if_execution_is_outside_frozen_validity": true,
+    "reservation_input_tokens_per_case": 16384,
+    "reservation_output_tokens_per_case": 32768,
+    "reservation_per_case_usd": "0.043417600",
+    "reserved_total_usd": "1.085440000"
+  },
+  "preregistration_sha256": "062c02acf0c18d13b966b55639f95f6a83a7f10c299262cbc7d63b3eea790ed5",
+  "schema_version": "llf-canary-preregistration-v1",
+  "selection": {
+    "algorithm": "polarity-length-tertile-trial-stratified-sha256-v1",
+    "cases": [
+      {
+        "case_id": "NCT03866200_7",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03866200_7",
+        "ordinal": 1,
+        "source_character_count": 89,
+        "source_length_bin": "long",
+        "source_sha256": "d8266d592dc2e92c2885c7b5704e2561b8b257a0cd7c505cecfa0aa86cdacbc8",
+        "source_utf8_byte_count": 89,
+        "trial_id": "NCT03866200"
+      },
+      {
+        "case_id": "NCT03931772_11",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03931772_11",
+        "ordinal": 2,
+        "source_character_count": 130,
+        "source_length_bin": "long",
+        "source_sha256": "ad0deec285c0dbce7a1e660daa0cc6ba7f73bad6737ac75a3ae2c78d9d9cc4c6",
+        "source_utf8_byte_count": 130,
+        "trial_id": "NCT03931772"
+      },
+      {
+        "case_id": "NCT03860350_7",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03860350_7",
+        "ordinal": 3,
+        "source_character_count": 115,
+        "source_length_bin": "long",
+        "source_sha256": "c3fe6718bd539c990d5c615870f1f39b42d026aaf79745fd8689836435cafd3e",
+        "source_utf8_byte_count": 115,
+        "trial_id": "NCT03860350"
+      },
+      {
+        "case_id": "NCT03860714_5",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03860714_5",
+        "ordinal": 4,
+        "source_character_count": 206,
+        "source_length_bin": "long",
+        "source_sha256": "444ef2dc3708eb72f6ce9bea6c18d7f2f87aaa5c5512b50a9ba0ef80d1795b5a",
+        "source_utf8_byte_count": 210,
+        "trial_id": "NCT03860714"
+      },
+      {
+        "case_id": "NCT03860753_10",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03860753_10",
+        "ordinal": 5,
+        "source_character_count": 148,
+        "source_length_bin": "long",
+        "source_sha256": "bdeabccef343092f77b00ea0dea76f44a740c14da98e64fc132a5ce5e4ad4299",
+        "source_utf8_byte_count": 148,
+        "trial_id": "NCT03860753"
+      },
+      {
+        "case_id": "NCT03927846_7",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03927846_7",
+        "ordinal": 6,
+        "source_character_count": 54,
+        "source_length_bin": "medium",
+        "source_sha256": "d0438cdbd1645c68e97009e262f002cd6ab043642343bf499277d35491f56b26",
+        "source_utf8_byte_count": 54,
+        "trial_id": "NCT03927846"
+      },
+      {
+        "case_id": "NCT03920423_5",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03920423_5",
+        "ordinal": 7,
+        "source_character_count": 54,
+        "source_length_bin": "medium",
+        "source_sha256": "bfbe75c0922c672e0bd9076664d317d3a78bb454e06802665f4714b493daf7e5",
+        "source_utf8_byte_count": 54,
+        "trial_id": "NCT03920423"
+      },
+      {
+        "case_id": "NCT03927092_7",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03927092_7",
+        "ordinal": 8,
+        "source_character_count": 63,
+        "source_length_bin": "medium",
+        "source_sha256": "21f0b30c1b57e432a3288d8ed791845af043444a2f24491ada03466f5f2c4c65",
+        "source_utf8_byte_count": 63,
+        "trial_id": "NCT03927092"
+      },
+      {
+        "case_id": "NCT03866018_16",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03866018_16",
+        "ordinal": 9,
+        "source_character_count": 67,
+        "source_length_bin": "medium",
+        "source_sha256": "fed77a800e2c51dde3a60c01e2576e342258eabde113aa127d5945995830df40",
+        "source_utf8_byte_count": 67,
+        "trial_id": "NCT03866018"
+      },
+      {
+        "case_id": "NCT03921788_5",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03921788_5",
+        "ordinal": 10,
+        "source_character_count": 77,
+        "source_length_bin": "medium",
+        "source_sha256": "349484465dcc6cf5f65e6a3f9a429224c7066300fc7e7fa12025d6d7c003fcbc",
+        "source_utf8_byte_count": 77,
+        "trial_id": "NCT03921788"
+      },
+      {
+        "case_id": "NCT03925922_9",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03925922_9",
+        "ordinal": 11,
+        "source_character_count": 43,
+        "source_length_bin": "short",
+        "source_sha256": "eecde99dd47128692b2d9b6b792131801f4e08834cf19a45cebd8fb963ed325b",
+        "source_utf8_byte_count": 43,
+        "trial_id": "NCT03925922"
+      },
+      {
+        "case_id": "NCT03928535_8",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03928535_8",
+        "ordinal": 12,
+        "source_character_count": 17,
+        "source_length_bin": "short",
+        "source_sha256": "8c647f711fe91a33c9523120a0588cd4229ef48b4ca9f19d50ad43f4ae101b65",
+        "source_utf8_byte_count": 17,
+        "trial_id": "NCT03928535"
+      },
+      {
+        "case_id": "NCT03860363_10",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03860363_10",
+        "ordinal": 13,
+        "source_character_count": 36,
+        "source_length_bin": "short",
+        "source_sha256": "baeba134aee2b26b571d2950876d01a6e912ba8ffa0f2098f504f9f6b8566bb2",
+        "source_utf8_byte_count": 36,
+        "trial_id": "NCT03860363"
+      },
+      {
+        "case_id": "NCT03925129_7",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03925129_7",
+        "ordinal": 14,
+        "source_character_count": 42,
+        "source_length_bin": "short",
+        "source_sha256": "ac5c309fcc02078403ed329ee0cc943faddd09c0bc668ed09ae61ae55f5979ab",
+        "source_utf8_byte_count": 42,
+        "trial_id": "NCT03925129"
+      },
+      {
+        "case_id": "NCT03863613_14",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03863613_14",
+        "ordinal": 15,
+        "source_character_count": 19,
+        "source_length_bin": "short",
+        "source_sha256": "45b49883306c74f7ff871bb717c2a999af32df2a236e9e926aeed35be8fa2569",
+        "source_utf8_byte_count": 19,
+        "trial_id": "NCT03863613"
+      },
+      {
+        "case_id": "NCT03924778_9",
+        "criterion_kind": "exclusion",
+        "document_id": "NCT03924778_9",
+        "ordinal": 16,
+        "source_character_count": 14,
+        "source_length_bin": "short",
+        "source_sha256": "eb1f42657b167e73742c27b8ec9a2f26fe5141cbc60f27855d9442f62c3272c3",
+        "source_utf8_byte_count": 14,
+        "trial_id": "NCT03924778"
+      },
+      {
+        "case_id": "NCT03921047_1",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03921047_1",
+        "ordinal": 17,
+        "source_character_count": 90,
+        "source_length_bin": "long",
+        "source_sha256": "86068e945782fd26adc9b59f34d43995d9577422f962f8eeabcd37b78b0fbe03",
+        "source_utf8_byte_count": 90,
+        "trial_id": "NCT03921047"
+      },
+      {
+        "case_id": "NCT03861962_2",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03861962_2",
+        "ordinal": 18,
+        "source_character_count": 178,
+        "source_length_bin": "long",
+        "source_sha256": "66d32d261a68c5640f1dc040ef9f16b71dc919c7468dccbdb8525d257d8f2575",
+        "source_utf8_byte_count": 178,
+        "trial_id": "NCT03861962"
+      },
+      {
+        "case_id": "NCT03923959_4",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03923959_4",
+        "ordinal": 19,
+        "source_character_count": 169,
+        "source_length_bin": "long",
+        "source_sha256": "b9d7d54d59510520973750f3139cfbb2037c1c43e45b4ccaecb5ea6b6907ea65",
+        "source_utf8_byte_count": 169,
+        "trial_id": "NCT03923959"
+      },
+      {
+        "case_id": "NCT03863431_5",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03863431_5",
+        "ordinal": 20,
+        "source_character_count": 70,
+        "source_length_bin": "medium",
+        "source_sha256": "e9b7306d6ceb177f561f03aff2562373789171d70ce11a0fbbf16e3179cc82df",
+        "source_utf8_byte_count": 70,
+        "trial_id": "NCT03863431"
+      },
+      {
+        "case_id": "NCT03929198_5",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03929198_5",
+        "ordinal": 21,
+        "source_character_count": 56,
+        "source_length_bin": "medium",
+        "source_sha256": "746ab879c44460b339c276ea904712ca7447f8378cfd6006237c98fafe4a14a7",
+        "source_utf8_byte_count": 56,
+        "trial_id": "NCT03929198"
+      },
+      {
+        "case_id": "NCT03922087_2",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03922087_2",
+        "ordinal": 22,
+        "source_character_count": 68,
+        "source_length_bin": "medium",
+        "source_sha256": "60505ead1ebf0349a52f22ffec1bd2eb675045793dd70068fda9b377856d4a7c",
+        "source_utf8_byte_count": 68,
+        "trial_id": "NCT03922087"
+      },
+      {
+        "case_id": "NCT03864640_1",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03864640_1",
+        "ordinal": 23,
+        "source_character_count": 42,
+        "source_length_bin": "short",
+        "source_sha256": "6d8b5ab003abf4acdc64d104c02a43d96854fa090799b1a6aca4d5ceef867364",
+        "source_utf8_byte_count": 42,
+        "trial_id": "NCT03864640"
+      },
+      {
+        "case_id": "NCT03925818_1",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03925818_1",
+        "ordinal": 24,
+        "source_character_count": 36,
+        "source_length_bin": "short",
+        "source_sha256": "d7151ff3cbd9558fd7fbcaef030e98f4455643e7dcaccd79f5f37b7bdeeb891d",
+        "source_utf8_byte_count": 36,
+        "trial_id": "NCT03925818"
+      },
+      {
+        "case_id": "NCT03929237_3",
+        "criterion_kind": "inclusion",
+        "document_id": "NCT03929237_3",
+        "ordinal": 25,
+        "source_character_count": 40,
+        "source_length_bin": "short",
+        "source_sha256": "d04b6bc931d489be73d064a029fd0eaa4669366634484cdbbbf6122f9a242518",
+        "source_utf8_byte_count": 40,
+        "trial_id": "NCT03929237"
+      }
+    ],
+    "development_population_case_count": 200,
+    "development_population_trial_count": 86,
+    "eligible_population_case_count": 191,
+    "eligible_population_trial_count": 82,
+    "lower_source_character_cut": 44,
+    "prompt_example_trials_excluded": true,
+    "seed": "criteriabench-real-v1-luna-canary",
+    "selected_case_count": 25,
+    "selected_case_set_sha256": "675c19d64172aa4d9545dbff2232664025bf8cd3aca45622f76f03cc0add432e",
+    "selected_trial_count": 25,
+    "selection_rows_sha256": "9e4e42a4be36fbfb5c3b6b903d2174f68ef2ed052b75f31bfa6186b510a30b44",
+    "upper_source_character_cut": 82
+  }
+}
