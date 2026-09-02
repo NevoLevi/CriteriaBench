@@ -117,6 +117,7 @@ def _create_plan(args: argparse.Namespace) -> LivePlan:
             contract=llf_semantic_output_contract(),
             created_at_utc=args.created_at_utc,
             runtime_image_id=args.runtime_image_id,
+            reasoning_effort=args.reasoning_effort,
         )
         return plan
     raise ValueError("GraphV2 paid planning is disabled in Real v1")
@@ -160,6 +161,10 @@ def _verify_locked_plan_advancement(args: argparse.Namespace) -> None:
         or decision.proceed_to_separate_locked_authorization is not True
     ):
         raise ValueError("locked LLF planning requires an exact sealed PASS advancement decision")
+    if canary_plan.luna.reasoning_effort != "none":
+        raise ValueError(
+            "medium-reasoning canary is development-only and cannot advance the locked-none lane"
+        )
     if args.runtime_image_id != canary_plan.runtime_image_id:
         raise ValueError("locked LLF planning must use the exact canary runtime image ID")
 
@@ -241,7 +246,7 @@ async def _run(args: argparse.Namespace) -> int:
         api_key = _process_openai_api_key()
     if not api_key:
         raise ValueError("OPENAI_API_KEY is not configured in the current process")
-    caller = LunaResponsesCaller.from_api_key(api_key)
+    caller = LunaResponsesCaller.from_api_key(api_key, plan.luna)
     api_key = None
     try:
         summary = await run_live_plan(
@@ -410,6 +415,12 @@ def _parser() -> argparse.ArgumentParser:
         command.add_argument("--runtime-image-id", required=True)
         command.add_argument("--generation-root", type=Path, required=True)
         command.add_argument("--output", type=Path, required=True)
+        if name == "plan-llf-canary":
+            command.add_argument(
+                "--reasoning-effort",
+                choices=("none", "medium"),
+                default="none",
+            )
         if name == "plan-locked":
             command.add_argument("--preregistration", type=Path, required=True)
             command.add_argument("--execution-binding", type=Path, required=True)

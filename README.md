@@ -60,20 +60,22 @@ Human agreement provides context for annotation variability. It is not a model c
 
 ## One-shot Luna canary
 
-The preregistered canary selects 25 development cases from 25 distinct trials, excludes prompt-example trials, and balances criterion kind and source length. It reserves a worst-case `USD 0.163840000` under a hard application authorization cap of `USD 0.170000000`, with one attempt per case, zero SDK retries, zero application retries, sequential execution, and a 60-second total request deadline.
+The preregistered canary selects 25 development cases from 25 distinct trials, excludes prompt-example trials, and balances criterion kind and source length. The historical/default `none` profile reserves `USD 0.163840000` under a `USD 0.170000000` cap with 2,048 output tokens and a 60-second request timeout. The current versioned `medium` experiment reserves `USD 1.085440000` under a `USD 1.250000000` cap with 32,768 output/reasoning tokens and a 240-second request timeout. Both profiles allow one attempt per case, zero SDK retries, zero application retries, and sequential execution.
+
+The medium run is a paired development diagnostic on the same 25 cases. It changes reasoning effort and the nonbinding output ceiling together, so it cannot isolate which control caused a score change and it is not a held-out or production-performance estimate. Its p95 advancement SLA remains 60 seconds, even though the larger request timeout lets a slow call complete and be scored.
 
 Advancement requires every frozen gate to pass together:
 
 - exactly 25 attempted and completed cases, with no failure, fatal abort, or unattempted case;
 - known usage, observed latency, a unique response ID, and the required returned provider identity for every case;
 - no more than one attempt per case and no retries;
-- p95 latency at most 60 seconds and charged authorization consumption at most USD 0.17;
+- p95 latency at most 60 seconds and charged authorization consumption at most the exact sealed profile cap;
 - combined node-plus-edge F1 at least `0.50` and at least `0.10` above the frozen BM25 comparator; and
 - at least 2 exact canonical-tree matches.
 
-Failure of any gate prohibits the locked run. A quality failure requires a new versioned configuration and preregistration; it cannot be retried until a favourable sample appears. An operational rerun requires a new public execution binding, fresh authorization, and disclosure of every attempt.
+Failure of any gate prohibits the locked run. The `medium` diagnostic always fails the explicit `locked_profile_compatibility` gate, regardless of its quality metrics, because the locked lane remains `none`. A quality failure requires a new versioned configuration and preregistration; it cannot be retried until a favourable sample appears. An operational rerun requires a new public execution binding, fresh authorization, and disclosure of every attempt.
 
-Passing the canary would permit planning—not executing—the locked test. The existing locked constants (`1,800` cases and an `USD 11.80` application cap) are not a current authorization: the frozen rate window expires, and a conservative `1,800 × 60 seconds = 30 hours` cannot fit the current four-hour plan and two-hour authorization windows. A locked run therefore requires refreshed pricing, a mechanically valid new plan, and separate explicit user authorization after a canary pass.
+Only a passing `none`-profile canary would permit planning—not executing—the locked test. The current `medium` experiment may be published only as a paired development diagnostic; it cannot supply that permission. The existing locked constants (`1,800` cases and an `USD 11.80` application cap) are not a current authorization: the frozen rate window expires, and a conservative `1,800 × 60 seconds = 30 hours` cannot fit the current four-hour plan and two-hour authorization windows. A locked run therefore requires refreshed pricing, a mechanically valid new plan, and separate explicit user authorization after a qualifying canary pass.
 
 The requested model name is an alias and can change behind the same name. Artifacts record requested and returned model identity, response object, service tier, usage, latency, response-ID hashes, and pricing assumptions. Provider-dashboard reconciliation remains an independent required check.
 

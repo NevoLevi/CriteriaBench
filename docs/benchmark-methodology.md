@@ -176,7 +176,7 @@ Request IDs and returned identity hashes are recorded provenance. They are not c
 
 The 25-case development canary is selected deterministically across 25 trials, inclusion/exclusion polarity, and source-length tertiles, with prompt-example trials excluded. Its exact case set and BM25 predictions are sealed before a paid call.
 
-The decision is conjunctive: 25/25 clean completion and provenance, no retry, known usage/latency, p95 at most 60 seconds, consumption at most USD 0.17, at least two exact trees, and combined structural F1 at least `0.50` and at least `0.10` above BM25. There is no discretionary pass.
+The measurement gates are conjunctive: 25/25 clean completion and provenance, no retry, known usage/latency, p95 at most 60 seconds, consumption at most the exact sealed profile cap, at least two exact trees, and combined structural F1 at least `0.50` and at least `0.10` above BM25. Advancement also requires the locked-compatible `none` profile. The versioned `medium` experiment is a paired development diagnostic and fails that compatibility gate by design; there is no discretionary pass.
 
 A failed quality gate requires a new versioned configuration and preregistration. A genuine operational rerun requires a new public execution binding, fresh authorization, and full disclosure. The procedure prohibits repeated sampling of the same preregistration followed by selective publication.
 

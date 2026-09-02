@@ -50,7 +50,9 @@ OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 LUNA_MODEL = "gpt-5.6-luna"
 MAX_INPUT_TOKENS_RESERVED = 16_384
 MAX_OUTPUT_TOKENS = 2_048
-REQUEST_TIMEOUT_SECONDS = 60.0
+MEDIUM_MAX_OUTPUT_TOKENS = 32_768
+REQUEST_TIMEOUT_SECONDS = 60
+MEDIUM_REQUEST_TIMEOUT_SECONDS = 240
 MAXIMUM_ATTEMPTS = 1
 
 UNCACHED_INPUT_USD_PER_MILLION = Decimal("0.20")
@@ -61,8 +63,11 @@ MONEY_QUANTUM = Decimal("0.000000001")
 TOKENS_PER_MILLION = Decimal(1_000_000)
 
 RESERVATION_PER_CASE_USD = Decimal("0.006553600")
+MEDIUM_RESERVATION_PER_CASE_USD = Decimal("0.043417600")
+SUPPORTED_RESERVATION_PER_CASE_USD = frozenset({"0.006553600", "0.043417600"})
 CANARY_CASE_COUNT = 25
 CANARY_BUDGET_CAP_USD = Decimal("0.170000000")
+MEDIUM_CANARY_BUDGET_CAP_USD = Decimal("1.250000000")
 LOCKED_CASE_COUNT = 1_800
 LOCKED_BUDGET_CAP_USD = Decimal("11.800000000")
 EXPECTED_OPENAI_SDK_VERSION = "2.54.0"
@@ -86,8 +91,8 @@ LLF_SEMANTIC_PARSER_SHA256 = hashlib.sha256(LLF_SEMANTIC_PARSER_ID.encode("utf-8
 
 # These are predeclared engineering/security limits, not statistics learned from
 # either benchmark split.  They bound hostile provider output while leaving
-# ample room for ordinary LLF expressions under the separately frozen 2,048
-# output-token request cap.
+# ample room for ordinary LLF expressions under either sealed request profile's
+# output-token cap.
 LLF_ENGINEERING_LIMITS: dict[str, str | int] = {
     "policy_id": "llf-live-engineering-limits-v1",
     "logical_form_characters": 8_192,
@@ -112,6 +117,7 @@ LOCKED_ACKNOWLEDGEMENT = "I separately authorize this exact sealed locked LLF pa
 HexDigest = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 ImageDigest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 Identifier = Annotated[str, Field(pattern=r"^[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*$")]
+ReasoningEffort = Literal["none", "medium"]
 ProviderIdentifier = Annotated[
     str,
     Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/-]*$"),
@@ -602,16 +608,26 @@ class FrozenLunaConfiguration(StrictModel):
     endpoint: Literal["https://api.openai.com/v1/responses"]
     model: Literal["gpt-5.6-luna"]
     store: Literal[False]
-    reasoning_effort: Literal["none"]
-    max_output_tokens: Literal[2048]
+    reasoning_effort: ReasoningEffort
+    max_output_tokens: Literal[2048, 32768]
     service_tier: Literal["default"]
     tools: Annotated[tuple[object, ...], Field(max_length=0)]
     sdk_max_retries: Literal[0]
     app_max_retries: Literal[0]
-    request_timeout_seconds: Literal[60]
+    request_timeout_seconds: Literal[60, 240]
     execution: Literal["sequential"]
     http_trust_env: Literal[False]
     follow_redirects: Literal[False]
+
+    @model_validator(mode="after")
+    def reasoning_profile_is_exact(self) -> FrozenLunaConfiguration:
+        expected = {
+            "none": (MAX_OUTPUT_TOKENS, REQUEST_TIMEOUT_SECONDS),
+            "medium": (MEDIUM_MAX_OUTPUT_TOKENS, MEDIUM_REQUEST_TIMEOUT_SECONDS),
+        }[self.reasoning_effort]
+        if (self.max_output_tokens, self.request_timeout_seconds) != expected:
+            raise ValueError("Luna reasoning effort, output cap, and timeout must use one profile")
+        return self
 
 
 class FrozenExecutionImplementationPayload(StrictModel):
@@ -681,8 +697,8 @@ class LivePlanPayload(StrictModel):
     execution_implementation: FrozenExecutionImplementation
     pricing: FrozenPricing
     reservation_input_tokens: Literal[16384]
-    reservation_output_tokens: Literal[2048]
-    reservation_per_case_usd: Literal["0.006553600"]
+    reservation_output_tokens: Literal[2048, 32768]
+    reservation_per_case_usd: Literal["0.006553600", "0.043417600"]
     budget_cap_usd: Money
     reserved_total_usd: Money
     requires_separate_locked_authorization: StrictBool
@@ -701,7 +717,12 @@ class LivePlanPayload(StrictModel):
         case_ids = [case.case_id for case in self.cases]
         if len(case_ids) != len(set(case_ids)):
             raise ValueError("live plan contains duplicate case IDs")
-        reserved = money(RESERVATION_PER_CASE_USD * len(self.cases))
+        expected_reservation = money(reservation_per_case_usd(self.luna))
+        if self.reservation_output_tokens != self.luna.max_output_tokens:
+            raise ValueError("reserved output tokens differ from the sealed Luna profile")
+        if self.reservation_per_case_usd != expected_reservation:
+            raise ValueError("per-case reservation differs from the sealed Luna profile")
+        reserved = money(Decimal(expected_reservation) * len(self.cases))
         if self.reserved_total_usd != reserved:
             raise ValueError("reserved_total_usd does not match planned case reservations")
         if Decimal(self.reserved_total_usd) > Decimal(self.budget_cap_usd):
@@ -721,8 +742,8 @@ class LivePlanPayload(StrictModel):
             )
             if self.output_contract.track != expected_track:
                 raise ValueError("development canary output track does not match its purpose")
-            if self.budget_cap_usd != money(CANARY_BUDGET_CAP_USD):
-                raise ValueError("development canary budget must be exactly $0.17")
+            if self.budget_cap_usd != money(canary_budget_cap_usd(self.luna)):
+                raise ValueError("development canary budget differs from its Luna profile")
             if self.requires_separate_locked_authorization:
                 raise ValueError("canary cannot claim locked-run authorization semantics")
         else:
@@ -737,6 +758,8 @@ class LivePlanPayload(StrictModel):
                 raise ValueError("locked plan must bind the frozen LLF Real v1 dataset")
             if self.output_contract.track != "llf_semantic_ast":
                 raise ValueError("locked LLF quality run requires lossless LLF semantic output")
+            if self.luna.reasoning_effort != "none":
+                raise ValueError("locked LLF plan must use reasoning effort none")
             if self.budget_cap_usd != money(LOCKED_BUDGET_CAP_USD):
                 raise ValueError("locked LLF budget must be exactly $11.80")
             if not self.requires_separate_locked_authorization:
@@ -779,10 +802,10 @@ class CanaryExecutionBindingPayload(StrictModel):
     execution: FrozenExecutionImplementation
     pricing: FrozenPricing
     reservation_input_tokens: Literal[16384]
-    reservation_output_tokens: Literal[2048]
-    reservation_per_case_usd: Literal["0.006553600"]
-    reserved_total_usd: Literal["0.163840000"]
-    budget_cap_usd: Literal["0.170000000"]
+    reservation_output_tokens: Literal[2048, 32768]
+    reservation_per_case_usd: Literal["0.006553600", "0.043417600"]
+    reserved_total_usd: Literal["0.163840000", "1.085440000"]
+    budget_cap_usd: Literal["0.170000000", "1.250000000"]
     advancement_gates_sha256: HexDigest
     requires_separate_locked_authorization: Literal[False]
     maximum_execution_count: Literal[1]
@@ -791,6 +814,25 @@ class CanaryExecutionBindingPayload(StrictModel):
     operational_rerun_policy: Literal[
         "new_public_execution_binding_fresh_authorization_and_all_attempts_disclosed"
     ]
+
+    @model_validator(mode="after")
+    def reservation_matches_luna_profile(self) -> CanaryExecutionBindingPayload:
+        reservation = reservation_per_case_usd(self.luna)
+        expected = (
+            self.luna.max_output_tokens,
+            money(reservation),
+            money(reservation * self.case_count),
+            money(canary_budget_cap_usd(self.luna)),
+        )
+        actual = (
+            self.reservation_output_tokens,
+            self.reservation_per_case_usd,
+            self.reserved_total_usd,
+            self.budget_cap_usd,
+        )
+        if actual != expected:
+            raise ValueError("execution-binding reservation differs from its Luna profile")
+        return self
 
 
 class CanaryExecutionBinding(CanaryExecutionBindingPayload):
@@ -947,7 +989,7 @@ class PendingAttemptPayload(StrictModel):
     source_sha256: HexDigest
     request_sha256: HexDigest
     attempt_started_at_utc: UtcTimestamp
-    reservation_usd: Literal["0.006553600"]
+    reservation_usd: Literal["0.006553600", "0.043417600"]
 
 
 class PendingAttempt(PendingAttemptPayload):
@@ -1054,11 +1096,11 @@ class CaseOutcomePayload(StrictModel):
             if label is not None and digest != hashlib.sha256(label.encode()).hexdigest():
                 raise ValueError("provider provenance label hash mismatch")
         if self.usage.availability == "unavailable":
-            if self.charged_cost_usd != money(RESERVATION_PER_CASE_USD):
-                raise ValueError("unknown usage must consume the full reservation")
+            if self.charged_cost_usd not in SUPPORTED_RESERVATION_PER_CASE_USD:
+                raise ValueError("unknown usage must consume one supported full reservation")
         elif self.charged_cost_usd != self.usage.total_cost_usd:
             raise ValueError("known usage charge must equal exact priced usage")
-        if Decimal(self.charged_cost_usd) > RESERVATION_PER_CASE_USD and (
+        if Decimal(self.charged_cost_usd) > MEDIUM_RESERVATION_PER_CASE_USD and (
             self.failure is None or self.failure.kind != "budget_breach"
         ):
             raise ValueError("known reservation overage must be an explicit budget breach")
@@ -1180,6 +1222,23 @@ def token_cost(token_count: int, rate: Decimal) -> Decimal:
     )
 
 
+def reservation_per_case_usd(luna: FrozenLunaConfiguration) -> Decimal:
+    """Return the conservative cache-write-plus-output reservation for one call."""
+
+    return token_cost(
+        MAX_INPUT_TOKENS_RESERVED,
+        CACHE_WRITE_INPUT_USD_PER_MILLION,
+    ) + token_cost(luna.max_output_tokens, OUTPUT_USD_PER_MILLION)
+
+
+def canary_budget_cap_usd(luna: FrozenLunaConfiguration) -> Decimal:
+    """Return the hard 25-case cap for the exact sealed reasoning profile."""
+
+    if luna.reasoning_effort == "medium":
+        return MEDIUM_CANARY_BUDGET_CAP_USD
+    return CANARY_BUDGET_CAP_USD
+
+
 def price_usage(
     *,
     uncached_input_tokens: int,
@@ -1216,18 +1275,23 @@ def unavailable_usage() -> UsageBreakdown:
     )
 
 
-def frozen_luna_configuration() -> FrozenLunaConfiguration:
+def frozen_luna_configuration(
+    reasoning_effort: ReasoningEffort = "none",
+) -> FrozenLunaConfiguration:
+    medium = reasoning_effort == "medium"
     return FrozenLunaConfiguration(
         endpoint=OPENAI_RESPONSES_ENDPOINT,
         model=LUNA_MODEL,
         store=False,
-        reasoning_effort="none",
-        max_output_tokens=MAX_OUTPUT_TOKENS,
+        reasoning_effort=reasoning_effort,
+        max_output_tokens=(MEDIUM_MAX_OUTPUT_TOKENS if medium else MAX_OUTPUT_TOKENS),
         service_tier="default",
         tools=(),
         sdk_max_retries=0,
         app_max_retries=0,
-        request_timeout_seconds=60,
+        request_timeout_seconds=(
+            MEDIUM_REQUEST_TIMEOUT_SECONDS if medium else REQUEST_TIMEOUT_SECONDS
+        ),
         execution="sequential",
         http_trust_env=False,
         follow_redirects=False,

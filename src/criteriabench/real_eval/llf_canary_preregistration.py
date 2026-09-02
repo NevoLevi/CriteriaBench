@@ -52,15 +52,12 @@ from criteriabench.real_eval.models import (
     MatchCountsModel,
 )
 from criteriabench.real_live.contracts import (
-    CANARY_BUDGET_CAP_USD,
     CANARY_CASE_COUNT,
     LLF_ENGINEERING_LIMITS,
     LLF_ENGINEERING_LIMITS_SHA256,
     LLF_PROMPT_EXAMPLE_TRIAL_IDS,
     MAX_INPUT_TOKENS_RESERVED,
-    MAX_OUTPUT_TOKENS,
     MAXIMUM_ATTEMPTS,
-    RESERVATION_PER_CASE_USD,
     CanaryExecutionBinding,
     CanaryExecutionBindingPayload,
     FrozenExecutionImplementation,
@@ -69,13 +66,16 @@ from criteriabench.real_live.contracts import (
     FrozenPricing,
     LivePlan,
     PaidAuthorization,
+    ReasoningEffort,
     caller_execution_identity_sha256,
+    canary_budget_cap_usd,
     freeze_output_contract,
     frozen_execution_implementation,
     frozen_luna_configuration,
     frozen_pricing,
     llf_semantic_output_contract,
     money,
+    reservation_per_case_usd,
 )
 from criteriabench.real_live.planning import (
     CANARY_SELECTION_ALGORITHM,
@@ -88,6 +88,10 @@ ARTIFACT_ID = "criteriabench-real-v1-llf-development-canary-25"
 ARTIFACT_PURPOSE = (
     "Pre-model development gate for deciding whether a separately authorized locked-test run "
     "may proceed; this artifact is not locked-test evidence."
+)
+MEDIUM_ARTIFACT_PURPOSE = (
+    "Pre-model paired development diagnostic for the sealed medium profile; this artifact "
+    "cannot advance the locked-none lane and is not locked-test evidence."
 )
 EXPECTED_DEVELOPMENT_CASES = 200
 EXPECTED_DEVELOPMENT_TRIALS = 86
@@ -341,13 +345,32 @@ class PlannedPaidCall(StrictModel):
     caller_execution_identity_sha256: HexDigest
     case_count: Literal[25]
     reservation_input_tokens_per_case: Literal[16384]
-    reservation_output_tokens_per_case: Literal[2048]
-    reservation_per_case_usd: Literal["0.006553600"]
-    reserved_total_usd: Literal["0.163840000"]
-    hard_budget_cap_usd: Literal["0.170000000"]
+    reservation_output_tokens_per_case: Literal[2048, 32768]
+    reservation_per_case_usd: Literal["0.006553600", "0.043417600"]
+    reserved_total_usd: Literal["0.163840000", "1.085440000"]
+    hard_budget_cap_usd: Literal["0.170000000", "1.250000000"]
     maximum_attempts_per_case: Literal[1]
     exact_plan_and_fresh_authorization_required_before_paid_execution: Literal[True]
     refresh_pricing_if_execution_is_outside_frozen_validity: Literal[True]
+
+    @model_validator(mode="after")
+    def reservation_matches_luna_profile(self) -> PlannedPaidCall:
+        reservation = reservation_per_case_usd(self.luna)
+        expected = (
+            self.luna.max_output_tokens,
+            money(reservation),
+            money(reservation * self.case_count),
+            money(canary_budget_cap_usd(self.luna)),
+        )
+        actual = (
+            self.reservation_output_tokens_per_case,
+            self.reservation_per_case_usd,
+            self.reserved_total_usd,
+            self.hard_budget_cap_usd,
+        )
+        if actual != expected:
+            raise ValueError("planned paid-call reservation differs from its Luna profile")
+        return self
 
     def verify_caller_identity(self, execution: FrozenExecutionImplementation) -> None:
         expected = caller_execution_identity_sha256(self.luna, execution)
@@ -381,7 +404,7 @@ class AdvancementGates(StrictModel):
     required_provider_service_tier: Literal["default"]
     required_provider_service_tier_count: Literal[25]
     required_provider_hash_count: Literal[25]
-    maximum_charged_total_usd: Literal["0.170000000"]
+    maximum_charged_total_usd: Literal["0.170000000", "1.250000000"]
     minimum_primary_structure_f1: Annotated[StrictFloat, Field(ge=0.5, le=1.0)]
     minimum_primary_structure_uplift_over_bm25: Annotated[StrictFloat, Field(ge=0.1, le=1.0)]
     resulting_minimum_primary_structure_f1: Annotated[StrictFloat, Field(ge=0.5, le=1.0)]
@@ -424,7 +447,12 @@ class CanaryPreregistrationPayload(StrictModel):
 
     @model_validator(mode="after")
     def cross_bindings_are_consistent(self) -> Self:
-        if self.artifact_purpose != ARTIFACT_PURPOSE:
+        expected_purpose = (
+            MEDIUM_ARTIFACT_PURPOSE
+            if self.planned_paid_call.luna.reasoning_effort == "medium"
+            else ARTIFACT_PURPOSE
+        )
+        if self.artifact_purpose != expected_purpose:
             raise ValueError("artifact purpose is not the frozen development-only claim")
         if (
             self.generation_dataset.split != "development"
@@ -549,7 +577,10 @@ class CanaryAdvancementDecision(CanaryAdvancementDecisionPayload):
 
 
 def build_llf_canary_preregistration(
-    *, dataset_dir: Path, coverage_dir: Path
+    *,
+    dataset_dir: Path,
+    coverage_dir: Path,
+    reasoning_effort: ReasoningEffort = "none",
 ) -> CanaryPreregistration:
     """Build the deterministic, provider-free 25-case development preregistration."""
 
@@ -649,7 +680,9 @@ def build_llf_canary_preregistration(
 
     contract = llf_semantic_output_contract()
     execution = frozen_execution_implementation()
-    luna = frozen_luna_configuration()
+    luna = frozen_luna_configuration(reasoning_effort)
+    reservation = reservation_per_case_usd(luna)
+    budget_cap = canary_budget_cap_usd(luna)
     planned_call = PlannedPaidCall(
         output_contract=freeze_output_contract(contract),
         luna=luna,
@@ -657,10 +690,10 @@ def build_llf_canary_preregistration(
         caller_execution_identity_sha256=caller_execution_identity_sha256(luna, execution),
         case_count=CANARY_CASE_COUNT,
         reservation_input_tokens_per_case=MAX_INPUT_TOKENS_RESERVED,
-        reservation_output_tokens_per_case=MAX_OUTPUT_TOKENS,
-        reservation_per_case_usd=money(RESERVATION_PER_CASE_USD),
-        reserved_total_usd=money(RESERVATION_PER_CASE_USD * CANARY_CASE_COUNT),
-        hard_budget_cap_usd=money(CANARY_BUDGET_CAP_USD),
+        reservation_output_tokens_per_case=luna.max_output_tokens,
+        reservation_per_case_usd=money(reservation),
+        reserved_total_usd=money(reservation * CANARY_CASE_COUNT),
+        hard_budget_cap_usd=money(budget_cap),
         maximum_attempts_per_case=MAXIMUM_ATTEMPTS,
         exact_plan_and_fresh_authorization_required_before_paid_execution=True,
         refresh_pricing_if_execution_is_outside_frozen_validity=True,
@@ -691,7 +724,7 @@ def build_llf_canary_preregistration(
         required_provider_service_tier="default",
         required_provider_service_tier_count=25,
         required_provider_hash_count=25,
-        maximum_charged_total_usd=money(CANARY_BUDGET_CAP_USD),
+        maximum_charged_total_usd=money(budget_cap),
         minimum_primary_structure_f1=0.5,
         minimum_primary_structure_uplift_over_bm25=0.1,
         resulting_minimum_primary_structure_f1=_six(
@@ -723,7 +756,9 @@ def build_llf_canary_preregistration(
     payload = CanaryPreregistrationPayload(
         schema_version=SCHEMA_VERSION,
         artifact_id=ARTIFACT_ID,
-        artifact_purpose=ARTIFACT_PURPOSE,
+        artifact_purpose=(
+            MEDIUM_ARTIFACT_PURPOSE if reasoning_effort == "medium" else ARTIFACT_PURPOSE
+        ),
         evidence_scope=EvidenceScope(
             uses_only_development_generation_split=True,
             uses_only_development_references=True,
@@ -764,8 +799,13 @@ def build_llf_canary_preregistration(
             ),
             "The 25-case canary is a go/no-go smoke test, not a precise performance estimate.",
             (
-                "Passing permits only a new, exact, separately authorized locked-test plan; "
-                "it does not authorize one."
+                "The medium profile is a paired development diagnostic only; it cannot "
+                "advance the locked-none lane."
+                if reasoning_effort == "medium"
+                else (
+                    "Passing permits only a new, exact, separately authorized locked-test "
+                    "plan; it does not authorize one."
+                )
             ),
             "The pricing snapshot must be refreshed if it is stale before any paid request.",
             (
@@ -1057,6 +1097,16 @@ def evaluate_canary_advancement(
                 requirement=requirement,
             )
         )
+
+    check(
+        "locked_profile_compatibility",
+        preregistration.planned_paid_call.luna.reasoning_effort == "none",
+        preregistration.planned_paid_call.luna.reasoning_effort,
+        (
+            "only the historical none profile may advance to separately authorized "
+            "locked-none planning"
+        ),
+    )
 
     actual_case_rows = tuple(
         (case.ordinal, case.case_id, case.trial_id, case.source_sha256) for case in report.cases
@@ -1639,6 +1689,11 @@ def _parser() -> argparse.ArgumentParser:
         command = subparsers.add_parser(name)
         command.add_argument("--dataset-dir", type=Path, required=True)
         command.add_argument("--coverage-dir", type=Path, required=True)
+        command.add_argument(
+            "--reasoning-effort",
+            choices=("none", "medium"),
+            default="none",
+        )
         if name == "build":
             command.add_argument("--output", type=Path, required=True)
         else:
@@ -1678,6 +1733,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             preregistration = build_llf_canary_preregistration(
                 dataset_dir=cast(Path, args.dataset_dir),
                 coverage_dir=cast(Path, args.coverage_dir),
+                reasoning_effort=cast(ReasoningEffort, args.reasoning_effort),
             )
             payload = preregistration_bytes(preregistration)
             if args.command == "build":

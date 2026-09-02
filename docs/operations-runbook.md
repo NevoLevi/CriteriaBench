@@ -73,7 +73,7 @@ $generationRoot = Join-Path $repoRoot 'data\real\llf'
 $coverageRoot = Join-Path $repoRoot 'docs\results'
 $artifactRoot = Join-Path $repoRoot 'artifacts\real-v1-luna'
 $reportRoot = Join-Path $artifactRoot 'reports'
-$publicPreregistration = Join-Path $coverageRoot 'llf-canary-preregistration.json'
+$publicPreregistration = Join-Path $coverageRoot 'llf-prompt-v1.1-medium-canary-preregistration.json'
 $image = '<exact-reviewed-local-tag-or-digest>'
 $runId = '<new-run-id>'
 $authorizationId = '<new-authorization-id>'
@@ -97,12 +97,14 @@ if (Test-Path -LiteralPath $publicPreregistration) {
   criteriabench-llf-canary-preregister build `
   --dataset-dir $generationRoot `
   --coverage-dir $coverageRoot `
+  --reasoning-effort medium `
   --output $publicPreregistration
 
 .\.tools\uv\uv.exe run --frozen --no-env-file `
   criteriabench-llf-canary-preregister check `
   --dataset-dir $generationRoot `
   --coverage-dir $coverageRoot `
+  --reasoning-effort medium `
   --artifact $publicPreregistration
 ```
 
@@ -121,7 +123,7 @@ The artifact must bind:
 - provider wire schema and local LLF parser;
 - evaluator/runner/dependency identity;
 - Luna configuration and price snapshot;
-- `USD 0.163840000` reserved under the exact `USD 0.170000000` cap; and
+- the medium profile: 32,768 output/reasoning tokens, a 240-second hard request timeout, `USD 1.085440000` reserved, and the exact `USD 1.250000000` cap; and
 - the complete conjunctive advancement gates.
 
 Verify that its evidence scope says model/provider called `false`, network used `false`, secret/environment read `false`, locked references opened `false`, and locked-test evidence `false`.
@@ -156,6 +158,7 @@ $planCreatedAtUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
   -GenerationRoot $generationRoot `
   -Image $image `
   -CreatedAtUtc $planCreatedAtUtc `
+  -ReasoningEffort medium `
   -PlanFileName $planFileName
 ```
 
@@ -177,8 +180,8 @@ Review at minimum:
 - purpose `development_llf_canary_25`;
 - 25 cases / 25 trials;
 - model `gpt-5.6-luna` and direct LLF output track;
-- one attempt, zero retries, 60-second deadline;
-- `USD 0.170000000` cap; and
+- one attempt, zero retries, 240-second hard request timeout, and unchanged 60-second p95 advancement SLA;
+- `USD 1.250000000` cap; and
 - creation, expiry, and rate validity times.
 
 If the price snapshot has expired or the full conservative remaining duration does not fit, stop. Do not extend an artifact by editing JSON. After independent review, type the displayed values into new variables; do not derive “reviewed” values automatically in the authorization command:
@@ -249,7 +252,7 @@ $authorizedAtUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
   -ReviewedPreregistrationSha256 $reviewedPreregistrationSha256 `
   -ReviewedExecutionBindingSha256 $reviewedExecutionBindingSha256 `
   -ReviewedCaseSetSha256 $reviewedCaseSetSha256 `
-  -ApprovedBudgetCapUsd '0.170000000' `
+  -ApprovedBudgetCapUsd '1.250000000' `
   -CanaryAcknowledgement 'I authorize this exact sealed 25-case LLF semantic paid Luna canary plan.' `
   -AuthorizedAtUtc $authorizedAtUtc `
   -AuthorizationId $authorizationId `
@@ -263,7 +266,7 @@ Authorization runs with networking disabled and requires the exact:
 - plan and artifact-byte hashes;
 - execution-binding and artifact-byte hashes;
 - image ID, case-set hash, run ID, authorization ID, and path hashes;
-- `USD 0.170000000` cap;
+- exact sealed `USD 1.250000000` cap;
 - authorization time and expiry; and
 - acknowledgement text:
 
@@ -377,12 +380,12 @@ PASS requires:
 - zero failed, unattempted, or fatal-abort cases;
 - known usage, observed latency, unique response ID, and required returned provider provenance for all 25;
 - one attempt per case and no retries;
-- charged consumption at most USD 0.17;
+- charged consumption at most the exact sealed profile cap (`USD 1.250000000` for this medium diagnostic);
 - p95 latency at most 60 seconds;
 - combined node-plus-edge F1 at least 0.50 and at least 0.10 above BM25; and
 - at least two exact trees.
 
-If any check fails, the decision is FAIL and no locked plan may be authorized or run.
+For this medium diagnostic, the operational and quality checks are still reported, but the explicit `locked_profile_compatibility` check fails by design. Its overall decision is therefore FAIL even if every measured result clears its threshold. Publish the diagnostic lineage and stop; do not use it to plan or authorize the locked-none lane.
 
 ## 10. Reconcile and publish
 
@@ -396,9 +399,11 @@ After scoring:
 
 Internal hashes are reproducible lineage, not provider attestation. Usage-priced cost is not an invoice.
 
-## PASS-gated locked planning; paid locked execution disabled
+## Locked planning requires a separate none-profile PASS; paid locked execution disabled
 
-Do not even create a locked plan unless the canary decision is sealed PASS. The only supported planning command requires the complete canary chain:
+The medium procedure ends after reconciliation and publication. The CLI rejects its lineage for locked planning. Do not reuse any medium plan, binding, authorization, report, or decision below.
+
+Only if a separately preregistered and executed `none`-profile canary produces a sealed PASS may a locked plan be created. In that future workflow, every variable below must point to that exact none-profile lineage. The supported planning command then requires its complete canary chain:
 
 ```powershell
 $lockedPlanFileName = 'llf-locked-plan.json'
@@ -423,7 +428,7 @@ Both the host wrapper and the exact network-disabled image verify the full PASS 
 
 Even after PASS, the current locked constants are insufficient as an execution plan. The 1,800-case conservative duration is 30 hours at 60 seconds per case, longer than the current four-hour plan and two-hour authorization windows. The current pricing snapshot also expires.
 
-A future paid locked phase needs refreshed official pricing, mechanically sufficient validity windows, a reviewed plan/binding protocol, and separate explicit authorization under its own acknowledgement. It is not covered by the USD 0.17 canary or any earlier general budget approval. Paid locked execution remains structurally disabled until that bounded authorization-window protocol is implemented.
+A future paid locked phase needs refreshed official pricing, mechanically sufficient validity windows, a reviewed plan/binding protocol, and separate explicit authorization under its own acknowledgement. It is not covered by either canary profile cap or any earlier general budget approval. Paid locked execution remains structurally disabled until that bounded authorization-window protocol is implemented.
 
 ## Local mock application
 

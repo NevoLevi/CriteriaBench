@@ -64,7 +64,7 @@ The static canary preregistration binds:
 - BM25 identity, predictions, and metrics;
 - prompt, provider wire schema, local parser, evaluator, and implementation hashes;
 - exact Luna request settings and token reservation;
-- the pricing snapshot and USD 0.17 cap; and
+- the pricing snapshot and exact sealed profile cap; and
 - every conjunctive advancement gate.
 
 It records that no model, network, secret, or locked-test reference was used to build it.
@@ -79,7 +79,7 @@ Fresh authorization is a separate offline operation. It repeats the preregistrat
 
 ### Paid runner
 
-The only Real-v1 provider transport calls the official OpenAI Responses endpoint for `gpt-5.6-luna`. It uses a custom HTTP client with environment/proxy trust and redirects disabled. The frozen request uses `store=false`, reasoning `none`, service tier `default`, no tools, 2,048 maximum output tokens, zero SDK/application retry, sequential execution, and a 60-second application deadline.
+The only Real-v1 provider transport calls the official OpenAI Responses endpoint for `gpt-5.6-luna`. It uses a custom HTTP client with environment/proxy trust and redirects disabled. Both sealed profiles use `store=false`, service tier `default`, no tools, zero SDK/application retry, and sequential execution. The historical/default and locked-compatible `none` profile uses 2,048 maximum output tokens and a 60-second application deadline. The versioned development-only `medium` profile uses 32,768 maximum output/reasoning tokens and a 240-second application deadline; it cannot advance the locked-none lane.
 
 The provider wire is only `{logical_form: string}`. Local code applies stricter byte/character limits and parses the LLF. Trusted code attaches ordinals, case identity, hashes, timing, usage, and safe provider provenance.
 

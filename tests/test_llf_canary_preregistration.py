@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib
 import json
 from collections.abc import Awaitable, Callable
@@ -26,16 +27,18 @@ from criteriabench.real_eval.llf_canary_preregistration import (
     preregistration_bytes,
     verify_canary_advancement_decision,
     verify_canary_execution_binding,
+    verify_canary_plan_matches_preregistration,
 )
 from criteriabench.real_eval.llf_live_score import LlfLiveScoreReport, report_bytes
-from criteriabench.real_live.contracts import LLF_WIRE_SCHEMA_SHA256
-from criteriabench.real_live.planning import select_development_canary
+from criteriabench.real_live.contracts import LLF_WIRE_SCHEMA_SHA256, llf_semantic_output_contract
+from criteriabench.real_live.planning import build_llf_canary_plan, select_development_canary
 
 ROOT = Path(__file__).resolve().parents[1]
 LLF_DATA = ROOT / "data" / "real" / "llf"
 COVERAGE_DIR = ROOT / "docs" / "results"
 MODULE_PATH = ROOT / "src" / "criteriabench" / "real_eval" / "llf_canary_preregistration.py"
-PUBLIC_PREREGISTRATION = COVERAGE_DIR / "llf-prompt-v1.1-canary-preregistration.json"
+HISTORICAL_NONE_PREREGISTRATION = COVERAGE_DIR / "llf-prompt-v1.1-canary-preregistration.json"
+PUBLIC_PREREGISTRATION = COVERAGE_DIR / "llf-prompt-v1.1-medium-canary-preregistration.json"
 
 
 @pytest.fixture(scope="module")
@@ -43,6 +46,15 @@ def preregistration() -> CanaryPreregistration:
     return build_llf_canary_preregistration(
         dataset_dir=LLF_DATA,
         coverage_dir=COVERAGE_DIR,
+    )
+
+
+@pytest.fixture(scope="module")
+def medium_preregistration() -> CanaryPreregistration:
+    return build_llf_canary_preregistration(
+        dataset_dir=LLF_DATA,
+        coverage_dir=COVERAGE_DIR,
+        reasoning_effort="medium",
     )
 
 
@@ -79,6 +91,18 @@ def test_real_canary_selection_and_bm25_numbers_are_frozen(
     assert metrics.typed_components.f1 == 0.259307
 
 
+def test_historical_none_preregistration_is_preserved_byte_for_byte() -> None:
+    raw = HISTORICAL_NONE_PREREGISTRATION.read_bytes()
+    assert len(raw) == 22_278
+    assert hashlib.sha256(raw).hexdigest() == (
+        "7eca0c2d9826f90a945e5deb1fc9391ec2c758b0499e8a07909367e9b28521d4"
+    )
+    luna = json.loads(raw)["planned_paid_call"]["luna"]
+    assert luna["reasoning_effort"] == "none"
+    assert luna["max_output_tokens"] == 2_048
+    assert luna["request_timeout_seconds"] == 60
+
+
 def test_preregistration_binds_inputs_code_contract_pricing_and_ambitious_gates(
     preregistration: CanaryPreregistration,
 ) -> None:
@@ -102,6 +126,9 @@ def test_preregistration_binds_inputs_code_contract_pricing_and_ambitious_gates(
     assert preregistration.planned_paid_call.output_contract.track == "llf_semantic_ast"
     assert preregistration.planned_paid_call.output_contract.schema_sha256 == LLF_WIRE_SCHEMA_SHA256
     assert preregistration.planned_paid_call.luna.model == "gpt-5.6-luna"
+    assert preregistration.planned_paid_call.luna.reasoning_effort == "none"
+    assert preregistration.planned_paid_call.luna.max_output_tokens == 2_048
+    assert preregistration.planned_paid_call.luna.request_timeout_seconds == 60
     assert preregistration.planned_paid_call.hard_budget_cap_usd == "0.170000000"
     assert preregistration.planned_paid_call.reserved_total_usd == "0.163840000"
     assert preregistration.planned_paid_call.maximum_attempts_per_case == 1
@@ -152,6 +179,81 @@ def test_preregistration_binds_inputs_code_contract_pricing_and_ambitious_gates(
     assert gates.maximum_p95_latency_ms == 60_000.0
     assert gates.sdk_retries == gates.app_retries == 0
     assert gates.on_any_failure == "do_not_authorize_or_run_locked_test"
+
+
+def test_medium_preregistration_binds_full_profile_budget_and_plan(
+    preregistration: CanaryPreregistration,
+    medium_preregistration: CanaryPreregistration,
+) -> None:
+    planned = medium_preregistration.planned_paid_call
+    assert planned.luna.reasoning_effort == "medium"
+    assert planned.luna.max_output_tokens == 32_768
+    assert planned.luna.request_timeout_seconds == 240
+    assert planned.reservation_output_tokens_per_case == 32_768
+    assert planned.reservation_per_case_usd == "0.043417600"
+    assert planned.reserved_total_usd == "1.085440000"
+    assert planned.hard_budget_cap_usd == "1.250000000"
+    assert medium_preregistration.advancement_gates.maximum_charged_total_usd == ("1.250000000")
+    assert medium_preregistration.advancement_gates.maximum_p95_latency_ms == 60_000.0
+    assert medium_preregistration.preregistration_sha256 != (preregistration.preregistration_sha256)
+    assert "paired development diagnostic" in medium_preregistration.artifact_purpose
+    assert "cannot advance the locked-none lane" in medium_preregistration.artifact_purpose
+    assert any(
+        "cannot advance the locked-none lane" in limitation
+        for limitation in medium_preregistration.limitations
+    )
+
+    generation = load_llf_generation_split(LLF_DATA, "development")
+    medium_plan, _ = build_llf_canary_plan(
+        generation.cases,
+        dataset=generation.dataset,
+        contract=llf_semantic_output_contract(),
+        created_at_utc="2026-09-02T12:00:00Z",
+        runtime_image_id="sha256:" + ("d" * 64),
+        reasoning_effort="medium",
+    )
+    verify_canary_plan_matches_preregistration(medium_preregistration, medium_plan)
+
+    none_plan, _ = build_llf_canary_plan(
+        generation.cases,
+        dataset=generation.dataset,
+        contract=llf_semantic_output_contract(),
+        created_at_utc="2026-09-02T12:00:00Z",
+        runtime_image_id="sha256:" + ("d" * 64),
+    )
+    with pytest.raises(ValueError, match="canary plan luna differs"):
+        verify_canary_plan_matches_preregistration(medium_preregistration, none_plan)
+
+    tampered = planned.model_dump(mode="json")
+    tampered["reservation_per_case_usd"] = "0.006553600"
+    with pytest.raises(ValueError, match="reservation differs"):
+        type(planned).model_validate(tampered)
+
+
+def test_medium_preregistration_cli_requires_explicit_matching_effort(tmp_path: Path) -> None:
+    output = tmp_path / "medium-preregistration.json"
+    common = [
+        "--dataset-dir",
+        str(LLF_DATA),
+        "--coverage-dir",
+        str(COVERAGE_DIR),
+        "--reasoning-effort",
+        "medium",
+    ]
+    assert main(["build", *common, "--output", str(output)]) == 0
+    assert main(["check", *common, "--artifact", str(output)]) == 0
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "check",
+                "--dataset-dir",
+                str(LLF_DATA),
+                "--coverage-dir",
+                str(COVERAGE_DIR),
+                "--artifact",
+                str(output),
+            ]
+        )
 
 
 def test_composition_is_aggregate_complete_and_reference_safe(
@@ -213,10 +315,11 @@ def test_builder_opens_no_locked_combined_environment_or_provider_input(
 
 def test_canonical_round_trip_tamper_rejection_and_cli(
     preregistration: CanaryPreregistration,
+    medium_preregistration: CanaryPreregistration,
     tmp_path: Path,
 ) -> None:
-    assert load_preregistration(PUBLIC_PREREGISTRATION) == preregistration
-    assert PUBLIC_PREREGISTRATION.read_bytes() == preregistration_bytes(preregistration)
+    assert load_preregistration(PUBLIC_PREREGISTRATION) == medium_preregistration
+    assert PUBLIC_PREREGISTRATION.read_bytes() == preregistration_bytes(medium_preregistration)
 
     output = tmp_path / "preregistration.json"
     assert (
@@ -440,3 +543,46 @@ async def test_gate_evaluator_passes_gold_mock_and_blocks_any_operational_failur
             failing_report,
             forged_pass,
         )
+
+
+@pytest.mark.asyncio
+async def test_medium_diagnostic_cannot_claim_locked_none_advancement(tmp_path: Path) -> None:
+    live_score_tests = importlib.import_module("tests.test_llf_live_score")
+    sealed_canary = cast(
+        Callable[..., Awaitable[Any]],
+        vars(live_score_tests)["_sealed_canary"],
+    )
+    score_canary = cast(
+        Callable[[Any], LlfLiveScoreReport],
+        vars(live_score_tests)["_score"],
+    )
+    chain = await sealed_canary(
+        tmp_path / "medium-profile-compatibility",
+        reasoning_effort="medium",
+    )
+    report = score_canary(chain)
+    chain_preregistration = load_preregistration(chain.preregistration_path)
+    plan, _ = load_live_plan(chain.run_dir / "plan.json")
+    authorization, _ = load_paid_authorization(chain.run_dir / "authorization.json")
+
+    decision = evaluate_canary_advancement(
+        chain_preregistration,
+        chain.execution_binding,
+        plan,
+        authorization,
+        report,
+    )
+
+    assert decision.advancement_status == "fail"
+    assert decision.proceed_to_separate_locked_authorization is False
+    assert [check.gate_id for check in decision.checks if not check.passed] == [
+        "locked_profile_compatibility"
+    ]
+    verify_canary_advancement_decision(
+        chain_preregistration,
+        chain.execution_binding,
+        plan,
+        authorization,
+        report,
+        decision,
+    )

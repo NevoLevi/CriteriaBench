@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory = $true)] [string]$GenerationRoot,
     [Parameter(Mandatory = $true)] [string]$Image,
     [Parameter(Mandatory = $true)] [string]$CreatedAtUtc,
+    [ValidateSet('none', 'medium')] [string]$ReasoningEffort = 'none',
     [string]$PlanFileName = 'llf-canary-plan.json'
 )
 
@@ -38,6 +39,7 @@ $dockerArgs = @(
     '--generation-root', '/run/generation',
     '--created-at-utc', $CreatedAtUtc,
     '--runtime-image-id', $imageId,
+    '--reasoning-effort', $ReasoningEffort,
     '--output', $PlanFileName
 )
 & docker @dockerArgs
@@ -52,6 +54,7 @@ Write-Output "Plan path: $planPath"
 Write-Output "Plan SHA256: $($plan.plan_sha256)"
 Write-Output "Selected case-set SHA256: $($plan.selected_case_set_sha256)"
 Write-Output "Runtime image ID: $($plan.runtime_image_id)"
+Write-Output "Reasoning effort: $($plan.luna.reasoning_effort)"
 Write-Output "Cases: $($plan.cases.Count)"
 Write-Output "Budget cap USD: $($plan.budget_cap_usd)"
 Write-Output 'Review these exact values before creating the separate one-shot execution binding.'

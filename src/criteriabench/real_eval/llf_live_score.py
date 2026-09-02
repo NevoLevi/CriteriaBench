@@ -41,9 +41,7 @@ from criteriabench.real_eval.models import (
     MatchCountsModel,
 )
 from criteriabench.real_live.contracts import (
-    MAX_OUTPUT_TOKENS,
-    REQUEST_TIMEOUT_SECONDS,
-    RESERVATION_PER_CASE_USD,
+    SUPPORTED_RESERVATION_PER_CASE_USD,
     AuthorizationClaim,
     AuthorizationConsumption,
     CanaryExecutionBinding,
@@ -132,12 +130,11 @@ class LlfCaseOperational(StrictModel):
 
     @model_validator(mode="after")
     def charge_matches_usage_availability(self) -> LlfCaseOperational:
-        expected = (
-            money(RESERVATION_PER_CASE_USD)
-            if self.usage.availability == "unavailable"
-            else self.usage.total_cost_usd
-        )
-        if self.charged_cost_usd != expected:
+        if self.usage.availability == "unavailable":
+            valid = self.charged_cost_usd in SUPPORTED_RESERVATION_PER_CASE_USD
+        else:
+            valid = self.charged_cost_usd == self.usage.total_cost_usd
+        if not valid:
             raise ValueError("reported case charge differs from sealed usage")
         return self
 
@@ -1079,6 +1076,8 @@ def _load_complete_run(
             planned.source_sha256,
         ):
             raise LlfLiveScoreError("attempt ledger identity differs from the sealed plan")
+        if attempt.reservation_usd != plan.model.reservation_per_case_usd:
+            raise LlfLiveScoreError("attempt reservation differs from the sealed plan")
         expected_external = {
             "schema_version": "real-live-external-attempt-claim-v1",
             "plan_sha256": plan.model.plan_sha256,
@@ -1122,6 +1121,19 @@ def _load_complete_run(
         )
         if actual_outcome_identity != expected_outcome_identity:
             raise LlfLiveScoreError("outcome differs from plan, attempt, or external claim")
+        expected_charge = (
+            plan.model.reservation_per_case_usd
+            if outcome.usage.availability == "unavailable"
+            else outcome.usage.total_cost_usd
+        )
+        if outcome.charged_cost_usd != expected_charge:
+            raise LlfLiveScoreError("outcome charge differs from the sealed plan and usage")
+        reservation_breached = Decimal(outcome.charged_cost_usd) > Decimal(
+            plan.model.reservation_per_case_usd
+        )
+        reports_breach = outcome.failure is not None and outcome.failure.kind == "budget_breach"
+        if reservation_breached != reports_breach:
+            raise LlfLiveScoreError("outcome budget-breach status differs from its reservation")
         started_at = parse_utc_timestamp(attempt.attempt_started_at_utc)
         try:
             verify_execution_freshness(plan.model, authorization.model, now=started_at)
@@ -1130,7 +1142,11 @@ def _load_complete_run(
         if previous_started_at is not None and started_at < previous_started_at:
             raise LlfLiveScoreError("paid-attempt timestamps are not nondecreasing")
         previous_started_at = started_at
-        _verify_attempt_outcome_timing(attempt=attempt, outcome=outcome)
+        _verify_attempt_outcome_timing(
+            attempt=attempt,
+            outcome=outcome,
+            request_timeout_seconds=plan.model.luna.request_timeout_seconds,
+        )
     expected_external_inventory = canonical_sha256(
         {
             "external_attempt_claim_hashes": tuple(
@@ -1176,6 +1192,7 @@ def _verify_attempt_outcome_timing(
     *,
     attempt: PendingAttempt,
     outcome: CaseOutcome,
+    request_timeout_seconds: int,
 ) -> None:
     started_at = parse_utc_timestamp(attempt.attempt_started_at_utc)
     finished_at = parse_utc_timestamp(outcome.outcome_finished_at_utc)
@@ -1189,7 +1206,7 @@ def _verify_attempt_outcome_timing(
         raise LlfLiveScoreError("provider outcome is missing its observed latency")
     timestamp_elapsed_ms = round((finished_at - started_at).total_seconds() * 1_000)
     tolerance_ms = 2_000
-    if outcome.total_latency_ms > round(REQUEST_TIMEOUT_SECONDS * 1_000) + tolerance_ms:
+    if outcome.total_latency_ms > round(request_timeout_seconds * 1_000) + tolerance_ms:
         raise LlfLiveScoreError("provider outcome exceeds the whole-call timeout boundary")
     if abs(timestamp_elapsed_ms - outcome.total_latency_ms) > tolerance_ms:
         raise LlfLiveScoreError("provider latency conflicts with sealed UTC timestamps")
@@ -1327,7 +1344,7 @@ def _offline_request_sha256(
                 "strict": True,
             }
         },
-        "max_output_tokens": MAX_OUTPUT_TOKENS,
+        "max_output_tokens": plan.luna.max_output_tokens,
         "service_tier": plan.luna.service_tier,
         "tools": list(plan.luna.tools),
         "store": plan.luna.store,

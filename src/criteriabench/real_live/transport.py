@@ -18,20 +18,15 @@ from pydantic import BaseModel
 from criteriabench.real_eval.integrity import canonical_sha256
 from criteriabench.real_eval.models import GenerationCase
 from criteriabench.real_live.contracts import (
-    LUNA_MODEL,
     MAX_INPUT_TOKENS_RESERVED,
-    MAX_OUTPUT_TOKENS,
-    OPENAI_API_BASE_URL,
-    REQUEST_TIMEOUT_SECONDS,
-    RESERVATION_PER_CASE_USD,
     CaseOutcomePayload,
+    FrozenLunaConfiguration,
     SanitizedFailure,
     StrictOutputContract,
     UsageBreakdown,
     caller_execution_identity_sha256,
     frozen_execution_implementation,
     frozen_luna_configuration,
-    money,
     price_usage,
     unavailable_usage,
 )
@@ -125,11 +120,16 @@ class LunaResponsesCaller:
     explicit HTTP client ignores proxy/certificate environment configuration.
     """
 
-    def __init__(self, client: Any) -> None:
+    def __init__(
+        self,
+        client: Any,
+        luna: FrozenLunaConfiguration | None = None,
+    ) -> None:
         self._client = client
+        self._luna = luna or frozen_luna_configuration()
         implementation = frozen_execution_implementation()
         self._execution_identity_sha256 = caller_execution_identity_sha256(
-            frozen_luna_configuration(), implementation
+            self._luna, implementation
         )
 
     @property
@@ -137,23 +137,29 @@ class LunaResponsesCaller:
         return self._execution_identity_sha256
 
     @classmethod
-    def from_api_key(cls, api_key: str) -> LunaResponsesCaller:
+    def from_api_key(
+        cls,
+        api_key: str,
+        luna: FrozenLunaConfiguration | None = None,
+    ) -> LunaResponsesCaller:
         if not api_key:
             raise ValueError("an explicit API key is required for live execution")
         assert_clean_openai_environment(os.environ)
+        sealed_luna = luna or frozen_luna_configuration()
         http_client = httpx.AsyncClient(
-            timeout=REQUEST_TIMEOUT_SECONDS,
-            trust_env=False,
-            follow_redirects=False,
+            timeout=sealed_luna.request_timeout_seconds,
+            trust_env=sealed_luna.http_trust_env,
+            follow_redirects=sealed_luna.follow_redirects,
         )
         return cls(
             AsyncOpenAI(
                 api_key=api_key,
-                base_url=OPENAI_API_BASE_URL,
-                timeout=REQUEST_TIMEOUT_SECONDS,
-                max_retries=0,
+                base_url=sealed_luna.endpoint.removesuffix("/responses"),
+                timeout=sealed_luna.request_timeout_seconds,
+                max_retries=sealed_luna.sdk_max_retries,
                 http_client=http_client,
-            )
+            ),
+            sealed_luna,
         )
 
     async def aclose(self) -> None:
@@ -168,7 +174,7 @@ class LunaResponsesCaller:
         case: GenerationCase,
         contract: StrictOutputContract[BaseModel],
     ) -> StructuredCallResult[BaseModel]:
-        request = build_responses_request(case, contract)
+        request = build_responses_request(case, contract, luna=self._luna)
         _enforce_prompt_reservation(request)
         try:
             response = await self._client.responses.create(**request)
@@ -211,11 +217,11 @@ class LunaResponsesCaller:
                 service_tier_sha256=service_tier_sha256,
             )
 
-        if provider_model != LUNA_MODEL:
+        if provider_model != self._luna.model:
             return response_failure("model_mismatch", retryable=False)
         if response_object != "response" or response_id_sha256 is None:
             return response_failure("response_contract", retryable=False)
-        if service_tier != "default":
+        if service_tier != self._luna.service_tier:
             return response_failure(
                 "response_contract",
                 retryable=False,
@@ -275,27 +281,32 @@ class LunaResponsesCaller:
             normalized_output_sha256=normalized_sha256,
             response_id_sha256=response_id_sha256,
             usage=usage,
-            provider_model=LUNA_MODEL,
-            provider_model_sha256=hashlib.sha256(LUNA_MODEL.encode()).hexdigest(),
+            provider_model=self._luna.model,
+            provider_model_sha256=hashlib.sha256(self._luna.model.encode()).hexdigest(),
             provider_response_object="response",
             provider_response_object_sha256=hashlib.sha256(b"response").hexdigest(),
-            provider_service_tier="default",
-            provider_service_tier_sha256=hashlib.sha256(b"default").hexdigest(),
+            provider_service_tier=self._luna.service_tier,
+            provider_service_tier_sha256=hashlib.sha256(
+                self._luna.service_tier.encode()
+            ).hexdigest(),
         )
 
 
 def build_responses_request(
     case: GenerationCase,
     contract: StrictOutputContract[BaseModel],
+    *,
+    luna: FrozenLunaConfiguration | None = None,
 ) -> dict[str, object]:
     """Serialize only criterion polarity/kind and source text for the provider."""
 
+    sealed_luna = luna or frozen_luna_configuration()
     provider_input = {
         "criterion_kind": case.criterion_kind.value,
         "criterion_text": case.source_text,
     }
     return {
-        "model": LUNA_MODEL,
+        "model": sealed_luna.model,
         "instructions": contract.instructions,
         "input": json.dumps(
             provider_input,
@@ -304,7 +315,7 @@ def build_responses_request(
             sort_keys=True,
             separators=(",", ":"),
         ),
-        "reasoning": {"effort": "none"},
+        "reasoning": {"effort": sealed_luna.reasoning_effort},
         "text": {
             "format": {
                 "type": "json_schema",
@@ -313,18 +324,20 @@ def build_responses_request(
                 "strict": True,
             }
         },
-        "max_output_tokens": MAX_OUTPUT_TOKENS,
-        "service_tier": "default",
-        "tools": [],
-        "store": False,
+        "max_output_tokens": sealed_luna.max_output_tokens,
+        "service_tier": sealed_luna.service_tier,
+        "tools": list(sealed_luna.tools),
+        "store": sealed_luna.store,
     }
 
 
 def request_sha256(
     case: GenerationCase,
     contract: StrictOutputContract[BaseModel],
+    *,
+    luna: FrozenLunaConfiguration | None = None,
 ) -> str:
-    return canonical_sha256(build_responses_request(case, contract))
+    return canonical_sha256(build_responses_request(case, contract, luna=luna))
 
 
 def usage_from_response(response: object) -> UsageBreakdown:
@@ -373,11 +386,12 @@ def outcome_payload(
     outcome_finished_at_utc: str,
     total_latency_ms: int | None,
     result: StructuredCallResult[BaseModel],
+    reservation_usd: str,
 ) -> CaseOutcomePayload:
     """Convert a bounded caller result into a sealed-artifact payload."""
 
     charged = (
-        money(RESERVATION_PER_CASE_USD)
+        reservation_usd
         if result.usage.availability == "unavailable"
         else result.usage.total_cost_usd
     )
@@ -404,7 +418,7 @@ def outcome_payload(
         "provider_service_tier": result.provider_service_tier,
         "provider_service_tier_sha256": result.provider_service_tier_sha256,
     }
-    if Decimal(charged) > RESERVATION_PER_CASE_USD:
+    if Decimal(charged) > Decimal(reservation_usd):
         return CaseOutcomePayload.model_validate(
             {
                 **common,

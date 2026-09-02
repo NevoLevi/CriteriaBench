@@ -67,13 +67,15 @@ The only enabled Real-v1 paid lane is direct LLF extraction. The request contrac
 - official Responses endpoint;
 - requested model `gpt-5.6-luna`;
 - `store=false`;
-- reasoning effort `none`;
+- one exact reasoning profile: historical/default and locked-compatible `none`, or versioned development-only `medium`;
 - service tier `default`;
 - no tools;
-- 2,048 maximum output tokens;
+- 2,048 maximum output tokens with `none`, or 32,768 maximum output/reasoning tokens with `medium`;
 - sequential execution;
 - zero SDK retries and zero application retries; and
-- a 60-second total application deadline per call.
+- a 60-second total application deadline with `none`, or 240 seconds with `medium`.
+
+The fields above are cross-validated as exact tuples: `none=(2048, 60)` and `medium=(32768, 240)`. The medium profile is a paired development diagnostic and cannot advance the locked-none lane; locked execution remains fixed to `none`.
 
 The provider returns one `logical_form` string. Local trusted code then enforces stricter size limits, parses it through the no-exec allowlist, and records only bounded safe provenance/failure fields.
 
@@ -115,7 +117,7 @@ The frozen 2026-09-02 price snapshot records:
 | Cache-write input | 0.25 |
 | Output | 1.20 |
 
-Each canary case conservatively reserves 16,384 input tokens and 2,048 output tokens, or `USD 0.006553600`. Exactly 25 cases reserve `USD 0.163840000` beneath an exact `USD 0.170000000` application authorization cap.
+The historical/default `none` canary reserves 16,384 input tokens and 2,048 output tokens, or `USD 0.006553600` per case. Its 25 cases reserve `USD 0.163840000` beneath an exact `USD 0.170000000` application authorization cap. The versioned `medium` experiment keeps the same input reservation but allows 32,768 output/reasoning tokens, reserving `USD 0.043417600` per case and `USD 1.085440000` total beneath an exact `USD 1.250000000` cap. Mixed profile tuples are rejected.
 
 The snapshot is valid only through `2026-09-02T23:59:59Z`. Planning or execution outside it must stop and use a newly reviewed snapshot. The application cap is not an OpenAI account cap. A request can be billable despite a timeout or failure, provider accounting may differ from local token categories, and other account activity is outside this repository.
 

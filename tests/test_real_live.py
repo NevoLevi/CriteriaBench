@@ -48,6 +48,7 @@ from criteriabench.real_live.contracts import (
     RESERVATION_PER_CASE_USD,
     CanaryExecutionBinding,
     CaseOutcome,
+    FrozenLunaConfiguration,
     LivePlan,
     PaidAuthorization,
     PendingAttempt,
@@ -674,6 +675,26 @@ def test_llf_canary_cap_is_exact_and_graph_paid_lane_is_disabled(tmp_path: Path)
     assert llf_plan.runtime_image_id == TEST_IMAGE_ID
     assert llf_plan.reserved_total_usd == "0.163840000"
     assert llf_plan.budget_cap_usd == "0.170000000"
+    assert llf_plan.luna.reasoning_effort == "none"
+    assert llf_plan.luna.max_output_tokens == 2_048
+    assert llf_plan.luna.request_timeout_seconds == 60
+    medium_plan, medium_selected = build_llf_canary_plan(
+        cases,
+        dataset=dataset,
+        contract=llf_semantic_output_contract(),
+        created_at_utc=NOW,
+        runtime_image_id=TEST_IMAGE_ID,
+        reasoning_effort="medium",
+    )
+    assert medium_selected == select_development_canary(cases)
+    assert medium_plan.luna.reasoning_effort == "medium"
+    assert medium_plan.luna.max_output_tokens == 32_768
+    assert medium_plan.luna.request_timeout_seconds == 240
+    assert medium_plan.reservation_output_tokens == 32_768
+    assert medium_plan.reservation_per_case_usd == "0.043417600"
+    assert medium_plan.reserved_total_usd == "1.085440000"
+    assert medium_plan.budget_cap_usd == "1.250000000"
+    assert medium_plan.plan_sha256 != llf_plan.plan_sha256
     with pytest.raises(ValueError, match="case-aware evidence validation"):
         build_graph_product_canary_plan(
             cases,
@@ -715,6 +736,39 @@ def test_locked_llf_plan_reserves_under_exact_1180_cap() -> None:
     assert plan.reserved_total_usd == "11.796480000"
     assert Decimal(plan.budget_cap_usd) == LOCKED_BUDGET_CAP_USD
     assert plan.requires_separate_locked_authorization is True
+    assert plan.luna.reasoning_effort == "none"
+    assert plan.luna.max_output_tokens == 2_048
+    assert plan.luna.request_timeout_seconds == 60
+
+
+def test_luna_profiles_preserve_historical_none_and_reject_mixed_tuples() -> None:
+    historical_none = {
+        "endpoint": "https://api.openai.com/v1/responses",
+        "model": "gpt-5.6-luna",
+        "store": False,
+        "reasoning_effort": "none",
+        "max_output_tokens": 2_048,
+        "service_tier": "default",
+        "tools": [],
+        "sdk_max_retries": 0,
+        "app_max_retries": 0,
+        "request_timeout_seconds": 60,
+        "execution": "sequential",
+        "http_trust_env": False,
+        "follow_redirects": False,
+    }
+    assert FrozenLunaConfiguration.model_validate(historical_none) == frozen_luna_configuration()
+
+    for mixed in (
+        {**historical_none, "reasoning_effort": "medium"},
+        {
+            **historical_none,
+            "reasoning_effort": "medium",
+            "max_output_tokens": 32_768,
+        },
+    ):
+        with pytest.raises(ValueError, match="must use one profile"):
+            FrozenLunaConfiguration.model_validate(mixed)
 
 
 def test_locked_authorization_is_structurally_disabled(
@@ -804,6 +858,27 @@ def test_provider_request_is_exactly_source_text_and_polarity_with_fixed_control
         assert forbidden not in serialized
 
 
+def test_medium_request_and_identities_change_only_sealed_profile_controls() -> None:
+    case = _case(1)
+    contract = llf_semantic_output_contract()
+    none_luna = frozen_luna_configuration()
+    medium_luna = frozen_luna_configuration("medium")
+    none_request = build_responses_request(case, contract, luna=none_luna)
+    medium_request = build_responses_request(case, contract, luna=medium_luna)
+    expected_medium = dict(none_request)
+    expected_medium["reasoning"] = {"effort": "medium"}
+    expected_medium["max_output_tokens"] = 32_768
+
+    assert medium_request == expected_medium
+    assert live_transport.request_sha256(
+        case, contract, luna=medium_luna
+    ) != live_transport.request_sha256(case, contract, luna=none_luna)
+    execution = frozen_execution_implementation()
+    assert caller_execution_identity_sha256(
+        medium_luna, execution
+    ) != caller_execution_identity_sha256(none_luna, execution)
+
+
 def test_usage_prices_uncached_cached_cache_write_and_output_exactly() -> None:
     response = SimpleNamespace(
         usage=SimpleNamespace(
@@ -861,6 +936,22 @@ def _response(output_text: str, **changes: object) -> object:
     }
     values.update(changes)
     return SimpleNamespace(**values)
+
+
+async def test_medium_transport_sends_full_reasoning_profile_to_mock_provider() -> None:
+    responses = FakeResponses(response=_response('{"logical_form":"cond(\\"x\\")"}'))
+    luna = frozen_luna_configuration("medium")
+    caller = LunaResponsesCaller(SimpleNamespace(responses=responses), luna)
+
+    result = await caller.call(_case(1), llf_semantic_output_contract())
+
+    assert isinstance(result, StructuredCallSuccess)
+    assert len(responses.requests) == 1
+    assert responses.requests[0]["reasoning"] == {"effort": "medium"}
+    assert responses.requests[0]["max_output_tokens"] == 32_768
+    assert caller.execution_identity_sha256 == caller_execution_identity_sha256(
+        luna, frozen_execution_implementation()
+    )
 
 
 async def test_transport_maps_failures_without_sdk_message_or_body() -> None:
@@ -988,6 +1079,31 @@ def test_sdk_override_environment_is_rejected_before_client_construction(
         LunaResponsesCaller.from_api_key("not-a-real-key")
 
 
+def test_medium_client_uses_sealed_240_second_http_and_sdk_timeouts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    http_calls: list[dict[str, object]] = []
+    sdk_calls: list[dict[str, object]] = []
+
+    def fake_http_client(**kwargs: object) -> object:
+        http_calls.append(kwargs)
+        return object()
+
+    def fake_openai(**kwargs: object) -> object:
+        sdk_calls.append(kwargs)
+        return SimpleNamespace(responses=FakeResponses())
+
+    monkeypatch.setattr(live_transport, "assert_clean_openai_environment", lambda _env: None)
+    monkeypatch.setattr(live_transport.httpx, "AsyncClient", fake_http_client)
+    monkeypatch.setattr(live_transport, "AsyncOpenAI", fake_openai)
+
+    LunaResponsesCaller.from_api_key("not-a-real-key", frozen_luna_configuration("medium"))
+
+    assert http_calls == [{"timeout": 240, "trust_env": False, "follow_redirects": False}]
+    assert sdk_calls[0]["timeout"] == 240
+    assert sdk_calls[0]["max_retries"] == 0
+
+
 def test_execution_provenance_is_package_relative_and_wheel_lock_independent(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1087,6 +1203,9 @@ def test_offline_plan_bind_and_authorization_are_separate_exact_image_phases() -
     assert "Plan SHA256" in plan_wrapper
     assert "Selected case-set SHA256" in plan_wrapper
     assert "Budget cap USD" in plan_wrapper
+    assert "ReasoningEffort" in plan_wrapper
+    assert "--reasoning-effort" in plan_wrapper
+    assert "Reasoning effort" in plan_wrapper
     assert "bind-execution" in bind_wrapper
     assert "authorize'" not in bind_wrapper
     assert "no authorization was created" in bind_wrapper
@@ -1124,7 +1243,7 @@ def test_offline_plan_bind_and_authorization_are_separate_exact_image_phases() -
     )
     assert "[string]$plan.selected_case_set_sha256 -cne $ReviewedCaseSetSha256" in authorize_wrapper
     assert "[string]$plan.budget_cap_usd -cne $ApprovedBudgetCapUsd" in authorize_wrapper
-    assert "[ValidatePattern('^0\\.170000000$')]" in authorize_wrapper
+    assert "[ValidatePattern('^(?:0\\.170000000|1\\.250000000)$')]" in authorize_wrapper
     assert LLF_CANARY_ACKNOWLEDGEMENT in authorize_wrapper
     assert "$plan.purpose -cne 'development_llf_canary_25'" in authorize_wrapper
     assert "generation_manifest.json" in plan_wrapper
@@ -1424,6 +1543,49 @@ def test_locked_plan_cli_builds_only_after_exact_pass_verifier(
     assert locked.runtime_image_id == canary_plan.runtime_image_id
 
 
+def test_medium_canary_cannot_advance_the_locked_none_lane(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, _, authorization, binding, _ = _canary(tmp_path / "medium-locked-gate")
+    generation = load_llf_generation_split(LLF_DATA, "development")
+    medium_plan, _ = build_llf_canary_plan(
+        generation.cases,
+        dataset=generation.dataset,
+        contract=llf_semantic_output_contract(),
+        created_at_utc=NOW,
+        runtime_image_id=TEST_IMAGE_ID,
+        reasoning_effort="medium",
+    )
+    args = _locked_plan_cli_arguments(tmp_path)
+    passing = SimpleNamespace(
+        advancement_status="pass",
+        proceed_to_separate_locked_authorization=True,
+    )
+    _mock_locked_chain_loaders(
+        monkeypatch,
+        plan=medium_plan,
+        authorization=authorization,
+        binding=binding,
+        decision=passing,
+    )
+    monkeypatch.setattr(
+        canary_prereg,
+        "verify_canary_advancement_decision",
+        lambda *_args: None,
+    )
+    monkeypatch.setattr(
+        cli,
+        "load_llf_generation_split",
+        lambda *_args: (_ for _ in ()).throw(
+            AssertionError("medium canary must block before the locked split is opened")
+        ),
+    )
+
+    with pytest.raises(ValueError, match="development-only"):
+        cli._create_plan(args)
+
+
 @pytest.mark.parametrize("entrypoint", ("authorize", "recover", "run"))
 @pytest.mark.parametrize(
     "attack",
@@ -1653,7 +1815,14 @@ async def test_app_level_timeout_bounds_every_whole_call(
     run_dir = tmp_path / "whole-call-timeout"
     plan, cases, authorization, binding, contract = _canary(run_dir)
     caller = HangingCaller()
-    monkeypatch.setattr(live_runner, "REQUEST_TIMEOUT_SECONDS", 0.01)
+    real_timeout = asyncio.timeout
+    observed_timeouts: list[float | None] = []
+
+    def fast_timeout(delay: float | None) -> asyncio.Timeout:
+        observed_timeouts.append(delay)
+        return real_timeout(0.01)
+
+    monkeypatch.setattr(live_runner.asyncio, "timeout", fast_timeout)
 
     summary = await asyncio.wait_for(
         run_live_plan(
@@ -1669,6 +1838,7 @@ async def test_app_level_timeout_bounds_every_whole_call(
     )
 
     assert len(caller.calls) == 25
+    assert observed_timeouts == [60] * 25
     assert summary.completed_count == 0
     assert summary.failed_count == 25
     assert all(
@@ -2105,6 +2275,31 @@ async def test_mismatched_caller_identity_fails_before_artifacts_or_provider(
             **_live_scope(run_dir, binding),
             clock=_fixed_clock,
         )
+    assert not run_dir.exists()
+
+
+async def test_reasoning_profile_mismatch_fails_before_artifacts_or_provider(
+    tmp_path: Path,
+) -> None:
+    run_dir = tmp_path / "wrong-reasoning-profile"
+    plan, cases, authorization, binding, contract = _canary(run_dir)
+    responses = FakeResponses(response=_response('{"logical_form":"cond(\\"x\\")"}'))
+    medium_caller = LunaResponsesCaller(
+        SimpleNamespace(responses=responses),
+        frozen_luna_configuration("medium"),
+    )
+
+    with pytest.raises(LiveRunError, match="caller execution identity"):
+        await run_live_plan(
+            cases,
+            plan=plan,
+            authorization=authorization,
+            contract=contract,
+            caller=medium_caller,
+            **_live_scope(run_dir, binding),
+            clock=_fixed_clock,
+        )
+    assert responses.requests == []
     assert not run_dir.exists()
 
 
@@ -2612,12 +2807,15 @@ async def test_cli_run_direct_mock_e2e_wires_verified_paths_before_client(
     monkeypatch.setattr(
         cli.LunaResponsesCaller,
         "from_api_key",
-        staticmethod(lambda key: received.setdefault("api_key", key) and fake_client),
+        staticmethod(
+            lambda key, luna: received.update({"api_key": key, "luna": luna}) or fake_client
+        ),
     )
     monkeypatch.setattr(cli, "run_live_plan", fake_run)
 
     assert await cli._run(args) == 0
     assert received["api_key"] == "test-only-key"
+    assert received["luna"] == plan.luna
     assert received["cases"] == cases
     assert received["execution_binding"] == binding
     assert received["preregistration_path"] == (tmp_path / "preregistration.json").resolve()
@@ -2791,6 +2989,8 @@ def test_live_cli_plan_opens_source_only_generation_artifact_never_gold(
             NOW,
             "--runtime-image-id",
             TEST_IMAGE_ID,
+            "--reasoning-effort",
+            "medium",
             "--generation-root",
             str(LLF_DATA),
             "--output",
@@ -2801,6 +3001,9 @@ def test_live_cli_plan_opens_source_only_generation_artifact_never_gold(
     plan = cli._create_plan(args)
 
     assert plan.purpose == "development_llf_canary_25"
+    assert plan.luna.reasoning_effort == "medium"
+    assert plan.luna.max_output_tokens == 32_768
+    assert plan.luna.request_timeout_seconds == 240
     assert {
         "generation_manifest.json",
         "generation_cases.jsonl",

@@ -23,6 +23,8 @@ from criteriabench.real_eval.llf_canary_preregistration import (
     build_canary_execution_binding,
     build_llf_canary_preregistration,
     execution_binding_bytes,
+    load_live_plan,
+    load_paid_authorization,
     preregistration_bytes,
 )
 from criteriabench.real_eval.llf_live_score import (
@@ -36,6 +38,8 @@ from criteriabench.real_eval.models import GenerationCase
 from criteriabench.real_live.contracts import (
     LLF_CANARY_ACKNOWLEDGEMENT,
     CanaryExecutionBinding,
+    CaseOutcome,
+    ReasoningEffort,
     SanitizedFailure,
     StrictOutputContract,
     UsageBreakdown,
@@ -51,7 +55,7 @@ from criteriabench.real_live.planning import (
     build_llf_canary_plan,
     run_directory_sha256,
 )
-from criteriabench.real_live.runner import run_live_plan
+from criteriabench.real_live.runner import LiveRunError, recover_live_run, run_live_plan
 from criteriabench.real_live.transport import (
     StructuredCallFailure,
     StructuredCallSuccess,
@@ -62,6 +66,7 @@ LLF_DATA = ROOT / "data" / "real" / "llf"
 COVERAGE_DIR = ROOT / "docs" / "results"
 NOW = "2026-09-02T12:00:00Z"
 FIXED_NOW = datetime(2026, 9, 2, 13, 0, 0, tzinfo=UTC)
+MEDIUM_FIXED_NOW = datetime(2026, 9, 2, 12, 10, 0, tzinfo=UTC)
 TEST_IMAGE_ID = "sha256:" + "1" * 64
 PROVIDER_MODEL = "gpt-5.6-luna"
 PROVIDER_OBJECT = "response"
@@ -93,14 +98,16 @@ class GoldOrFailureCaller:
         outputs: dict[str, LlfSemanticOutput],
         *,
         failed_case_id: str | None,
+        reasoning_effort: ReasoningEffort = "none",
     ) -> None:
         self.outputs = outputs
         self.failed_case_id = failed_case_id
+        self.reasoning_effort = reasoning_effort
 
     @property
     def execution_identity_sha256(self) -> str:
         return caller_execution_identity_sha256(
-            frozen_luna_configuration(),
+            frozen_luna_configuration(self.reasoning_effort),
             frozen_execution_implementation(),
         )
 
@@ -139,11 +146,14 @@ class GoldOrFailureCaller:
         )
 
 
-@lru_cache(maxsize=1)
-def _preregistration() -> CanaryPreregistration:
+@lru_cache(maxsize=2)
+def _preregistration(
+    reasoning_effort: ReasoningEffort = "none",
+) -> CanaryPreregistration:
     return build_llf_canary_preregistration(
         dataset_dir=LLF_DATA,
         coverage_dir=COVERAGE_DIR,
+        reasoning_effort=reasoning_effort,
     )
 
 
@@ -200,6 +210,7 @@ async def _sealed_canary(
     run_dir: Path,
     *,
     fail_first: bool = False,
+    reasoning_effort: ReasoningEffort = "none",
 ) -> SealedCanary:
     generation = load_llf_generation_split(LLF_DATA, "development")
     contract = llf_semantic_output_contract()
@@ -209,6 +220,7 @@ async def _sealed_canary(
         contract=contract,
         created_at_utc=NOW,
         runtime_image_id=TEST_IMAGE_ID,
+        reasoning_effort=reasoning_effort,
     )
     references = load_llf_scoring_references(
         LLF_DATA / "development_references.jsonl",
@@ -223,7 +235,7 @@ async def _sealed_canary(
         for reference in references.references
     }
     failed_case_id = selected[0].case_id if fail_first else None
-    preregistration = _preregistration()
+    preregistration = _preregistration(reasoning_effort)
     public_dir = run_dir.parent / f"public-{run_dir.name}"
     public_dir.mkdir(parents=True)
     preregistration_path = public_dir / "llf-canary-preregistration.json"
@@ -262,7 +274,11 @@ async def _sealed_canary(
         execution_binding=execution_binding,
         preregistration_path=preregistration_path,
         contract=contract,
-        caller=GoldOrFailureCaller(outputs, failed_case_id=failed_case_id),
+        caller=GoldOrFailureCaller(
+            outputs,
+            failed_case_id=failed_case_id,
+            reasoning_effort=reasoning_effort,
+        ),
         output_dir=run_dir,
         authorization_state_dir=authorization_state_dir,
         runtime_output_directory_sha256=run_directory_sha256(RUNTIME_OUTPUT_DIRECTORY),
@@ -270,7 +286,7 @@ async def _sealed_canary(
         authorization_state_directory_sha256=(authorization_state_directory_sha256),
         run_id=run_dir.name,
         runtime_image_id=TEST_IMAGE_ID,
-        clock=lambda: FIXED_NOW,
+        clock=lambda: MEDIUM_FIXED_NOW if reasoning_effort == "medium" else FIXED_NOW,
     )
     return SealedCanary(
         run_dir=run_dir,
@@ -346,6 +362,123 @@ async def test_25_case_live_report_is_exact_sealed_and_deterministic(
     )
     with pytest.raises(ValueError, match="operational economics"):
         LlfLiveScoreReport.model_validate(tampered)
+
+
+async def test_medium_profile_binds_authorizes_runs_and_scores(
+    tmp_path: Path,
+) -> None:
+    chain = await _sealed_canary(
+        tmp_path / "medium-canary",
+        reasoning_effort="medium",
+    )
+
+    report = _score(chain)
+    plan = json.loads((chain.run_dir / "plan.json").read_bytes())
+    attempts = [json.loads(path.read_bytes()) for path in chain.run_dir.glob("attempt-*.json")]
+
+    assert plan["luna"]["reasoning_effort"] == "medium"
+    assert plan["luna"]["max_output_tokens"] == 32_768
+    assert plan["luna"]["request_timeout_seconds"] == 240
+    assert plan["reservation_per_case_usd"] == "0.043417600"
+    assert plan["reserved_total_usd"] == "1.085440000"
+    assert plan["budget_cap_usd"] == "1.250000000"
+    assert chain.execution_binding.luna == frozen_luna_configuration("medium")
+    assert chain.execution_binding.reservation_output_tokens == 32_768
+    assert chain.execution_binding.reservation_per_case_usd == "0.043417600"
+    assert chain.execution_binding.reserved_total_usd == "1.085440000"
+    assert chain.execution_binding.budget_cap_usd == "1.250000000"
+    assert len(attempts) == 25
+    assert {attempt["reservation_usd"] for attempt in attempts} == {"0.043417600"}
+    assert report.operational.completed_count == 25
+    assert report.operational.failed_count == 0
+    assert report.metrics.exact_match_count == 25
+
+
+async def test_medium_recovery_uses_sealed_reservation_and_rejects_resigned_none_claim(
+    tmp_path: Path,
+) -> None:
+    chain = await _sealed_canary(
+        tmp_path / "medium-recovery",
+        reasoning_effort="medium",
+    )
+    plan, _ = load_live_plan(chain.run_dir / "plan.json")
+    authorization, _ = load_paid_authorization(chain.run_dir / "authorization.json")
+    generation = load_llf_generation_split(LLF_DATA, "development")
+    cases_by_id = {case.case_id: case for case in generation.cases}
+    selected = tuple(cases_by_id[planned.case_id] for planned in plan.cases)
+    contract = llf_semantic_output_contract()
+
+    for path in (*chain.run_dir.glob("attempt-*.json"), *chain.run_dir.glob("case-*.json")):
+        path.unlink()
+    (chain.run_dir / "summary.json").unlink()
+
+    recovery = recover_live_run(
+        selected,
+        plan=plan,
+        authorization=authorization,
+        execution_binding=chain.execution_binding,
+        preregistration_path=chain.preregistration_path,
+        contract=contract,
+        output_dir=chain.run_dir,
+        authorization_state_dir=chain.authorization_state_dir,
+        runtime_output_directory_sha256=run_directory_sha256(RUNTIME_OUTPUT_DIRECTORY),
+        host_run_directory_sha256=chain.host_run_directory_sha256,
+        authorization_state_directory_sha256=(chain.authorization_state_directory_sha256),
+        run_id=chain.run_dir.name,
+        runtime_image_id=TEST_IMAGE_ID,
+        now=MEDIUM_FIXED_NOW,
+    )
+
+    assert recovery.summary is not None
+    assert recovery.summary.terminal_state == "completed"
+    assert recovery.summary.completed_count == 0
+    assert recovery.summary.failed_count == 25
+    assert recovery.remaining_case_count == 0
+    outcomes = tuple(
+        CaseOutcome.model_validate_json(path.read_bytes())
+        for path in sorted(chain.run_dir.glob("case-*.json"))
+    )
+    assert len(outcomes) == 25
+    assert {outcome.failure.kind for outcome in outcomes if outcome.failure is not None} == {
+        "interrupted_unknown"
+    }
+    assert {outcome.charged_cost_usd for outcome in outcomes} == {"0.043417600"}
+
+    for path in (*chain.run_dir.glob("attempt-*.json"), *chain.run_dir.glob("case-*.json")):
+        path.unlink()
+    (chain.run_dir / "summary.json").unlink()
+    external_path = chain.authorization_state_dir / (
+        f"attempt-{authorization.authorization_sha256}-0001.json"
+    )
+    document = json.loads(external_path.read_bytes())
+    pending = document["pending"]
+    pending["reservation_usd"] = "0.006553600"
+    pending.pop("pending_sha256")
+    pending["pending_sha256"] = canonical_sha256(pending)
+    document.pop("external_attempt_claim_sha256")
+    document["external_attempt_claim_sha256"] = canonical_sha256(document)
+    external_path.write_bytes(
+        (json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    )
+
+    with pytest.raises(LiveRunError, match="external paid-attempt claim differs"):
+        recover_live_run(
+            selected,
+            plan=plan,
+            authorization=authorization,
+            execution_binding=chain.execution_binding,
+            preregistration_path=chain.preregistration_path,
+            contract=contract,
+            output_dir=chain.run_dir,
+            authorization_state_dir=chain.authorization_state_dir,
+            runtime_output_directory_sha256=run_directory_sha256(RUNTIME_OUTPUT_DIRECTORY),
+            host_run_directory_sha256=chain.host_run_directory_sha256,
+            authorization_state_directory_sha256=(chain.authorization_state_directory_sha256),
+            run_id=chain.run_dir.name,
+            runtime_image_id=TEST_IMAGE_ID,
+            now=MEDIUM_FIXED_NOW,
+        )
+    assert not (chain.run_dir / "attempt-0001.json").exists()
 
 
 async def test_failed_outcome_scores_as_empty_in_every_primary_count(

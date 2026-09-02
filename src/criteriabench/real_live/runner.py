@@ -27,8 +27,6 @@ else:
 from criteriabench.real_eval.integrity import canonical_sha256
 from criteriabench.real_eval.models import GenerationCase
 from criteriabench.real_live.contracts import (
-    REQUEST_TIMEOUT_SECONDS,
-    RESERVATION_PER_CASE_USD,
     AuthorizationClaim,
     AuthorizationClaimPayload,
     AuthorizationConsumption,
@@ -383,11 +381,12 @@ async def run_live_plan(
                 (Decimal(outcome.charged_cost_usd) for outcome in outcomes.values()),
                 start=Decimal(0),
             )
-            if charged + RESERVATION_PER_CASE_USD > Decimal(plan.budget_cap_usd):
+            reservation = Decimal(plan.reservation_per_case_usd)
+            if charged + reservation > Decimal(plan.budget_cap_usd):
                 raise BudgetGuardError(
                     "next case reservation would exceed the exact authorized budget cap"
                 )
-            request_digest = request_sha256(case, contract)
+            request_digest = request_sha256(case, contract, luna=plan.luna)
             call_started_at = clock()
             verify_execution_freshness(plan, authorization, now=call_started_at)
             verify_execution_window_capacity(
@@ -414,7 +413,7 @@ async def run_live_plan(
             store.write_pending(pending_attempt)
             started = perf_counter()
             try:
-                async with asyncio.timeout(REQUEST_TIMEOUT_SECONDS):
+                async with asyncio.timeout(plan.luna.request_timeout_seconds):
                     result = await caller.call(case, contract)
                 if not isinstance(result, (StructuredCallSuccess, StructuredCallFailure)):
                     result = _runner_failure(type(result).__name__)
@@ -437,6 +436,7 @@ async def run_live_plan(
                     outcome_finished_at_utc=outcome_finished_at_utc,
                     total_latency_ms=latency_ms,
                     result=result,
+                    reservation_usd=plan.reservation_per_case_usd,
                 )
             except Exception as error:
                 payload = _internal_integrity_payload(
@@ -452,8 +452,13 @@ async def run_live_plan(
                     total_latency_ms=latency_ms,
                     result=result,
                     safe_type_name=type(error).__name__,
+                    reservation_usd=plan.reservation_per_case_usd,
                 )
-            payload = _reject_duplicate_response_id(payload, tuple(outcomes.values()))
+            payload = _reject_duplicate_response_id(
+                payload,
+                tuple(outcomes.values()),
+                reservation_usd=plan.reservation_per_case_usd,
+            )
             outcome = _seal_outcome(payload)
             _verify_attempt_outcome_chronology(
                 plan,
@@ -563,8 +568,11 @@ class RunArtifactStore:
             )
             if identity != expected_identity or outcome.ordinal in outcomes:
                 raise LiveRunError("case outcome identity or ordinal is invalid")
-            if outcome.request_sha256 != request_sha256(cases[outcome.ordinal - 1], contract):
+            if outcome.request_sha256 != request_sha256(
+                cases[outcome.ordinal - 1], contract, luna=plan.luna
+            ):
                 raise LiveRunError("case outcome request hash differs from the current sealed case")
+            _verify_outcome_charge(plan, outcome)
             attempt_path = self.root / f"attempt-{outcome.ordinal:04d}.json"
             if not attempt_path.is_file() or attempt_path.is_symlink():
                 raise LiveRunError("case outcome is missing its append-only attempt artifact")
@@ -640,8 +648,12 @@ class RunArtifactStore:
             filename_ordinal = int(attempt_path.stem.removeprefix("attempt-"))
             if filename_ordinal != attempt.ordinal or attempt.ordinal in attempts:
                 raise LiveRunError("attempt artifact filename/ordinal is invalid")
-            if attempt.request_sha256 != request_sha256(cases[attempt.ordinal - 1], contract):
+            if attempt.request_sha256 != request_sha256(
+                cases[attempt.ordinal - 1], contract, luna=plan.luna
+            ):
                 raise LiveRunError("attempt request hash differs from the current sealed case")
+            if attempt.reservation_usd != plan.reservation_per_case_usd:
+                raise LiveRunError("attempt reservation differs from the sealed plan")
             attempts[attempt.ordinal] = attempt
         return attempts
 
@@ -720,6 +732,8 @@ class RunArtifactStore:
         planned = plan.cases[pending.ordinal - 1]
         if pending.case_id != planned.case_id or pending.source_sha256 != planned.source_sha256:
             raise LiveRunError("attempt identity differs from the sealed plan")
+        if pending.reservation_usd != plan.reservation_per_case_usd:
+            raise LiveRunError("attempt reservation differs from the sealed plan")
         return pending
 
     @staticmethod
@@ -941,7 +955,8 @@ def _reconcile_external_attempt_claims(
         if (
             pending.case_id != case.case_id
             or pending.source_sha256 != case.source_sha256
-            or pending.request_sha256 != request_sha256(case, contract)
+            or pending.request_sha256 != request_sha256(case, contract, luna=plan.luna)
+            or pending.reservation_usd != plan.reservation_per_case_usd
         ):
             raise LiveRunError("external paid-attempt claim differs from its sealed case")
         started_at = parse_utc_timestamp(pending.attempt_started_at_utc)
@@ -1009,10 +1024,26 @@ def _verify_attempt_outcome_chronology(
     # Both artifact timestamps intentionally use whole UTC seconds.  One second
     # of quantization on each edge plus a small sealing allowance is explicit.
     tolerance_ms = 2_000
-    if outcome.total_latency_ms > round(REQUEST_TIMEOUT_SECONDS * 1_000) + tolerance_ms:
+    if outcome.total_latency_ms > round(plan.luna.request_timeout_seconds * 1_000) + tolerance_ms:
         raise LiveRunError("provider outcome exceeds the whole-call timeout boundary")
     if abs(timestamp_elapsed_ms - outcome.total_latency_ms) > tolerance_ms:
         raise LiveRunError("provider latency conflicts with sealed UTC call timestamps")
+
+
+def _verify_outcome_charge(plan: LivePlan, outcome: CaseOutcome) -> None:
+    expected_charge = (
+        plan.reservation_per_case_usd
+        if outcome.usage.availability == "unavailable"
+        else outcome.usage.total_cost_usd
+    )
+    if outcome.charged_cost_usd != expected_charge:
+        raise LiveRunError("case outcome charge differs from the sealed plan and usage")
+    reservation_breached = Decimal(outcome.charged_cost_usd) > Decimal(
+        plan.reservation_per_case_usd
+    )
+    reports_breach = outcome.failure is not None and outcome.failure.kind == "budget_breach"
+    if reservation_breached != reports_breach:
+        raise LiveRunError("case outcome budget-breach status differs from its reservation")
 
 
 class ExclusiveRunLock(AbstractContextManager["ExclusiveRunLock"]):
@@ -1078,7 +1109,7 @@ def _seal_pending(
         source_sha256=case.source_sha256,
         request_sha256=request_digest,
         attempt_started_at_utc=attempt_started_at_utc,
-        reservation_usd=money(RESERVATION_PER_CASE_USD),
+        reservation_usd=plan.reservation_per_case_usd,
     )
     body = payload.model_dump(mode="json")
     return PendingAttempt.model_validate({**body, "pending_sha256": canonical_sha256(body)})
@@ -1180,7 +1211,7 @@ def _interrupted_outcome(
         total_latency_ms=None,
         status="failed",
         usage=unavailable_usage(),
-        charged_cost_usd=money(RESERVATION_PER_CASE_USD),
+        charged_cost_usd=plan.reservation_per_case_usd,
         response_id_sha256=None,
         provider_model=None,
         provider_model_sha256=None,
@@ -1238,16 +1269,13 @@ def _internal_integrity_payload(
     total_latency_ms: int,
     result: StructuredCallResult[BaseModel],
     safe_type_name: str,
+    reservation_usd: str,
 ) -> CaseOutcomePayload:
     """Preserve trusted known usage if ancillary outcome conversion fails."""
 
     usage = result.usage if isinstance(result.usage, UsageBreakdown) else unavailable_usage()
-    charged = (
-        usage.total_cost_usd
-        if usage.availability == "complete"
-        else money(RESERVATION_PER_CASE_USD)
-    )
-    breach = Decimal(charged) > RESERVATION_PER_CASE_USD
+    charged = usage.total_cost_usd if usage.availability == "complete" else reservation_usd
+    breach = Decimal(charged) > Decimal(reservation_usd)
     failure = SanitizedFailure(
         kind="budget_breach" if breach else "response_contract",
         retryable=False,
@@ -1327,13 +1355,15 @@ def _seal_outcome(payload: CaseOutcomePayload) -> CaseOutcome:
 def _reject_duplicate_response_id(
     payload: CaseOutcomePayload,
     prior_outcomes: Sequence[CaseOutcome],
+    *,
+    reservation_usd: str,
 ) -> CaseOutcomePayload:
     response_id_sha256 = payload.response_id_sha256
     if response_id_sha256 is None or all(
         outcome.response_id_sha256 != response_id_sha256 for outcome in prior_outcomes
     ):
         return payload
-    if Decimal(payload.charged_cost_usd) > RESERVATION_PER_CASE_USD:
+    if Decimal(payload.charged_cost_usd) > Decimal(reservation_usd):
         return payload
     body = payload.model_dump(mode="json")
     return CaseOutcomePayload.model_validate(

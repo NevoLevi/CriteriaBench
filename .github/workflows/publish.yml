@@ -120,8 +120,9 @@ jobs:
           uv run --frozen --no-env-file criteriabench-llf-canary-preregister build \
             --dataset-dir data/real/llf \
             --coverage-dir docs/results \
-            --output artifacts/llf-canary-preregistration.json
-          cmp artifacts/llf-canary-preregistration.json docs/results/llf-prompt-v1.1-canary-preregistration.json
+            --reasoning-effort medium \
+            --output artifacts/llf-medium-canary-preregistration.json
+          cmp artifacts/llf-medium-canary-preregistration.json docs/results/llf-prompt-v1.1-medium-canary-preregistration.json
       - name: Verify infrastructure
         shell: pwsh
         run: |

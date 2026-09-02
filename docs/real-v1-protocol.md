@@ -77,7 +77,7 @@ Real v1 currently defines only two LLF-native systems:
 
 BM25 uses NFKC/casefold Unicode tokenization, Okapi BM25 with `k1=1.2` and `b=0.75`, exact polarity matching, and case-ID tie breaking. A development target excludes every candidate from its own trial; a test target can retrieve only from the 200 development cases.
 
-The direct Luna request is frozen to the official Responses endpoint, `store=false`, reasoning effort `none`, `max_output_tokens=2048`, service tier `default`, no tools, no redirects, no HTTP proxy/environment trust, zero SDK retries, zero application retries, sequential calls, and a 60-second application-level deadline per request. Five prompt examples are development-only. The model sees criterion text and inclusion/exclusion kind, not reference labels or case identity.
+The direct Luna request is frozen to the official Responses endpoint, `store=false`, service tier `default`, no tools, no redirects, no HTTP proxy/environment trust, zero SDK retries, zero application retries, and sequential calls. The historical/default and locked-compatible `none` profile fixes `max_output_tokens=2048` with a 60-second application deadline. The versioned development-only `medium` profile fixes `max_output_tokens=32768` with a 240-second application deadline; it cannot advance the locked-none lane. Five prompt examples are development-only. The model sees criterion text and inclusion/exclusion kind, not reference labels or case identity.
 
 `gpt-5.6-luna` is a requested alias, not a dated immutable weight snapshot. The run records the requested model and the returned provider model, response object, service tier, response-ID hash, usage, and latency for every successful response.
 
@@ -118,7 +118,7 @@ The canary is a **development-only readiness gate**, not an unbiased performance
 
 One exact execution binding must then be published before authorization. It binds the static preregistration bytes, exact plan bytes and hash, image ID, case set, configuration, output and external-state path hashes, intended run ID, intended authorization ID, and one-execution policy.
 
-The canary reserves `USD 0.006553600` per case and `USD 0.163840000` total under an exact `USD 0.170000000` application cap. The reservation assumes 16,384 input tokens and 2,048 output tokens per case at the frozen rates.
+The historical/default `none` profile reserves `USD 0.006553600` per case and `USD 0.163840000` total under an exact `USD 0.170000000` application cap, using 16,384 input and 2,048 output tokens per case. The versioned `medium` development experiment uses the same input reservation, 32,768 output/reasoning tokens, `USD 0.043417600` per case, `USD 1.085440000` total, and an exact `USD 1.250000000` cap. It uses the same 25 cases for a paired diagnostic but changes reasoning effort and the nonbinding output ceiling together; it cannot isolate those effects and is neither independent test evidence nor a production-performance estimate. The locked lane remains `none` and medium advancement into it is prohibited.
 
 Advancement is the conjunction of every gate:
 
@@ -127,7 +127,7 @@ Advancement is the conjunction of every gate:
 3. usage and latency are observed for all 25 cases;
 4. all 25 have unique response IDs and complete returned provider model/object provenance consistent with the frozen contract;
 5. each case has exactly one permitted attempt; SDK and application retries are zero;
-6. charged authorization consumption is no more than USD 0.17;
+6. charged authorization consumption is no more than the exact sealed profile cap;
 7. p95 latency is no more than 60,000 ms;
 8. combined node-plus-edge F1 is at least `0.50` and at least `0.10` above the frozen BM25 comparator; and
 9. at least 2 of 25 trees are exact.
@@ -177,11 +177,11 @@ The exact canary acknowledgement is:
 
 > I authorize this exact sealed 25-case LLF semantic paid Luna canary plan.
 
-This acknowledgement is valid only with the reviewed plan, execution binding, case-set hash, image ID, path bindings, run/authorization IDs, expiry, and USD 0.17 cap. Earlier general budget approval is not reused as the execution artifact.
+This acknowledgement is valid only with the reviewed plan, execution binding, case-set hash, image ID, path bindings, run/authorization IDs, expiry, and the exact sealed profile cap (`USD 0.170000000` for `none` or `USD 1.250000000` for `medium`). Earlier general budget approval is not reused as the execution artifact.
 
 ## Locked-test rule
 
-Canary PASS permits only creation and review of a new locked-test plan. It does not authorize a locked run.
+Only a `none`-profile canary PASS permits creation and review of a new locked-test plan. It does not authorize a locked run. A `medium` diagnostic receives a failing locked-profile compatibility check by design even when all operational and quality checks pass.
 
 The current code reserves 1,800 cases under an `USD 11.800000000` application cap, but no locked plan is presently executable or authorized. The current four-hour plan and two-hour authorization lifetimes cannot cover the conservative worst case of `1,800 × 60 seconds = 30 hours`; the current price validity also expires. After a canary pass, locked execution therefore needs refreshed pricing, a redesigned mechanically sufficient validity window, a new exact plan, and separate explicit authorization.
 

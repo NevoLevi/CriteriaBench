@@ -18,7 +18,7 @@ param(
     [ValidatePattern('^[0-9a-f]{64}$')]
     [string]$ReviewedCaseSetSha256,
     [Parameter(Mandatory = $true)]
-    [ValidatePattern('^0\.170000000$')]
+    [ValidatePattern('^(?:0\.170000000|1\.250000000)$')]
     [string]$ApprovedBudgetCapUsd,
     [Parameter(Mandatory = $true)]
     [ValidateSet('I authorize this exact sealed 25-case LLF semantic paid Luna canary plan.')]

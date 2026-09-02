@@ -20,7 +20,6 @@ from criteriabench.real_eval.integrity import (
 )
 from criteriabench.real_eval.models import GenerationCase, GenerationDatasetBinding
 from criteriabench.real_live.contracts import (
-    CANARY_BUDGET_CAP_USD,
     CANARY_CASE_COUNT,
     GRAPH_PRODUCT_CANARY_ACKNOWLEDGEMENT,
     LLF_CANARY_ACKNOWLEDGEMENT,
@@ -29,8 +28,6 @@ from criteriabench.real_live.contracts import (
     LOCKED_BUDGET_CAP_USD,
     LOCKED_CASE_COUNT,
     MAX_INPUT_TOKENS_RESERVED,
-    MAX_OUTPUT_TOKENS,
-    RESERVATION_PER_CASE_USD,
     CanaryExecutionBinding,
     LivePlan,
     LivePlanPayload,
@@ -38,13 +35,16 @@ from criteriabench.real_live.contracts import (
     PaidAuthorizationPayload,
     PlannedCase,
     PlanPurpose,
+    ReasoningEffort,
     StrictOutputContract,
+    canary_budget_cap_usd,
     freeze_output_contract,
     frozen_execution_implementation,
     frozen_luna_configuration,
     frozen_pricing,
     money,
     parse_utc_timestamp,
+    reservation_per_case_usd,
 )
 
 CANARY_SELECTION_ALGORITHM = "polarity-length-tertile-trial-stratified-sha256-v1"
@@ -116,6 +116,7 @@ def build_llf_canary_plan(
     contract: StrictOutputContract[BaseModel],
     created_at_utc: str,
     runtime_image_id: str,
+    reasoning_effort: ReasoningEffort = "none",
     expires_at_utc: str | None = None,
 ) -> tuple[LivePlan, tuple[GenerationCase, ...]]:
     """Build the apples-to-apples LLF semantic-AST development canary."""
@@ -133,7 +134,8 @@ def build_llf_canary_plan(
         expires_at_utc=expires_at_utc,
         purpose="development_llf_canary_25",
         selection_algorithm=CANARY_SELECTION_ALGORITHM,
-        budget_cap_usd=money(CANARY_BUDGET_CAP_USD),
+        reasoning_effort=reasoning_effort,
+        budget_cap_usd=money(canary_budget_cap_usd(frozen_luna_configuration(reasoning_effort))),
         requires_separate_locked_authorization=False,
     )
     return plan, selected
@@ -183,6 +185,7 @@ def build_locked_llf_plan(
         expires_at_utc=expires_at_utc,
         purpose="locked_llf_test",
         selection_algorithm=LOCKED_SELECTION_ALGORITHM,
+        reasoning_effort="none",
         budget_cap_usd=money(LOCKED_BUDGET_CAP_USD),
         requires_separate_locked_authorization=True,
     )
@@ -578,10 +581,13 @@ def _build_plan(
     expires_at_utc: str | None,
     purpose: PlanPurpose,
     selection_algorithm: str,
+    reasoning_effort: ReasoningEffort,
     budget_cap_usd: str,
     requires_separate_locked_authorization: bool,
 ) -> LivePlan:
     selected_sha256 = case_set_sha256(cases)
+    luna = frozen_luna_configuration(reasoning_effort)
+    reservation = reservation_per_case_usd(luna)
     created_at = parse_utc_timestamp(created_at_utc)
     expires_at = (
         parse_utc_timestamp(expires_at_utc)
@@ -599,14 +605,14 @@ def _build_plan(
         selected_case_set_sha256=selected_sha256,
         selection_algorithm=selection_algorithm,
         output_contract=freeze_output_contract(contract),
-        luna=frozen_luna_configuration(),
+        luna=luna,
         execution_implementation=frozen_execution_implementation(),
         pricing=frozen_pricing(),
         reservation_input_tokens=MAX_INPUT_TOKENS_RESERVED,
-        reservation_output_tokens=MAX_OUTPUT_TOKENS,
-        reservation_per_case_usd=money(RESERVATION_PER_CASE_USD),
+        reservation_output_tokens=luna.max_output_tokens,
+        reservation_per_case_usd=money(reservation),
         budget_cap_usd=budget_cap_usd,
-        reserved_total_usd=money(RESERVATION_PER_CASE_USD * len(cases)),
+        reserved_total_usd=money(reservation * len(cases)),
         requires_separate_locked_authorization=requires_separate_locked_authorization,
         cases=tuple(
             PlannedCase(
