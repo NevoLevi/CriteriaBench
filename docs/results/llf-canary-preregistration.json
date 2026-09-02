@@ -210,11 +210,11 @@
     "execution": {
       "cli_sha256": "b323f6a63828d052ed9c3b279e22fe27dd065e9d55d8afbc041c40a870acb311",
       "contracts_sha256": "2c67b978452e630ca7097d0936dee8f9d6b9e848644acb703af2309d46836270",
-      "implementation_sha256": "46a59346d073b558ecb71b742f8e4b6e24d50ca14ac2584be037e234c12d29a8",
+      "implementation_sha256": "c945daa8d3c6497fc47456c67cfc1331b9deecb8243feb1bf6d48edfed9ea555",
       "openai_sdk_version": "2.54.0",
-      "package_python_inventory_sha256": "ff95d21d1b7d462835417f43f5eb78e0345595faef3b23f429f467137aa3fc35",
+      "package_python_inventory_sha256": "951d5e265b153119833dc76fa0b8ead8a9428f91eb5b7a7910025eba5faac3e3",
       "planning_sha256": "9fc72abb4a1762356d6d37f0b299b2c060dbdb5922555674d07412677ec06783",
-      "runner_sha256": "398c0d583545788e1276581fe81f1930a069d4b9c6b755ff575b3c0be3c0b987",
+      "runner_sha256": "8d0dca8dab73ee93a4822c9f2fce0ab4f944f60aca582eb77bc151e6e153c73a",
       "schema_version": "real-live-execution-implementation-v1",
       "transport_sha256": "4e7d15633696c43b5c53bed8a4108378705710b0c8d04313b9a54a0fb4c73866",
       "uv_lock_sha256": "e4600c744265aaee6781afcbe9f8176bbe025424891dbf685bd258bc7d5dcc0b"
@@ -234,7 +234,7 @@
     "No clinical-validity or deployment-safety claim follows from this structural LLF benchmark."
   ],
   "planned_paid_call": {
-    "caller_execution_identity_sha256": "ab417f3f815bcfff8ff8b7ab24711c294e85a91cebbfbf84f1fd0035cacad0b8",
+    "caller_execution_identity_sha256": "fb6fc05f9715fa8bc728720ee30e9f37b95da9b1a6e58510928fd4b638e345b3",
     "case_count": 25,
     "exact_plan_and_fresh_authorization_required_before_paid_execution": true,
     "hard_budget_cap_usd": "0.170000000",
@@ -282,7 +282,7 @@
     "reservation_per_case_usd": "0.006553600",
     "reserved_total_usd": "0.163840000"
   },
-  "preregistration_sha256": "83cff18146063cb09a78d93dec774f5d877f5e99f1fd31e7abd7b55d06495eb3",
+  "preregistration_sha256": "e01264722de9dfea006821498fa8907818429aac045c9771b8dc03d8ecf867f4",
   "schema_version": "llf-canary-preregistration-v1",
   "selection": {
     "algorithm": "polarity-length-tertile-trial-stratified-sha256-v1",

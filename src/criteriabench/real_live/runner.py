@@ -6,6 +6,7 @@ import asyncio
 import hashlib
 import json
 import os
+import sys
 from collections.abc import Callable, Sequence
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
@@ -17,6 +18,11 @@ from typing import BinaryIO
 from uuid import uuid4
 
 from pydantic import BaseModel
+
+if sys.platform == "win32":
+    import msvcrt
+else:
+    import fcntl
 
 from criteriabench.real_eval.integrity import canonical_sha256
 from criteriabench.real_eval.models import GenerationCase
@@ -1025,16 +1031,12 @@ class ExclusiveRunLock(AbstractContextManager["ExclusiveRunLock"]):
             file.flush()
         file.seek(0)
         try:
-            if os.name == "nt":
-                import msvcrt
-
+            if sys.platform == "win32":
                 msvcrt.locking(file.fileno(), msvcrt.LK_NBLCK, 1)
             else:
-                import fcntl
-
-                fcntl.flock(  # type: ignore[attr-defined]
+                fcntl.flock(
                     file.fileno(),
-                    fcntl.LOCK_EX | fcntl.LOCK_NB,  # type: ignore[attr-defined]
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
                 )
         except OSError as error:
             file.close()
@@ -1048,16 +1050,12 @@ class ExclusiveRunLock(AbstractContextManager["ExclusiveRunLock"]):
         file = self._file
         try:
             file.seek(0)
-            if os.name == "nt":
-                import msvcrt
-
+            if sys.platform == "win32":
                 msvcrt.locking(file.fileno(), msvcrt.LK_UNLCK, 1)
             else:
-                import fcntl
-
-                fcntl.flock(  # type: ignore[attr-defined]
+                fcntl.flock(
                     file.fileno(),
-                    fcntl.LOCK_UN,  # type: ignore[attr-defined]
+                    fcntl.LOCK_UN,
                 )
         finally:
             file.close()

@@ -75,7 +75,8 @@ jobs:
         run: |
           uv run --frozen --no-env-file ruff check .
           uv run --frozen --no-env-file ruff format --check .
-          uv run --frozen --no-env-file mypy src
+          uv run --frozen --no-env-file mypy --platform linux src
+          uv run --frozen --no-env-file mypy --platform win32 src
           uv run --frozen --no-env-file pytest -m integration
           uv run --frozen --no-env-file pytest -m "not live and not integration" --cov=criteriabench --cov-fail-under=75
       - name: Frozen synthetic benchmark smoke

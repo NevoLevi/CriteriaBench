@@ -66,7 +66,9 @@ jobs:
       - name: Ruff formatting
         run: uv run --frozen --no-env-file ruff format --check .
       - name: Mypy
-        run: uv run --frozen --no-env-file mypy src
+        run: |
+          uv run --frozen --no-env-file mypy --platform linux src
+          uv run --frozen --no-env-file mypy --platform win32 src
       - name: Real PostgreSQL and Redis integrations
         run: uv run --frozen --no-env-file pytest -m integration
       - name: Mock-only unit and contract tests
