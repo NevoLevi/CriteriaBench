@@ -136,7 +136,7 @@ jobs:
             --dataset-dir data/real/llf \
             --coverage-dir docs/results \
             --output artifacts/llf-canary-preregistration.json
-          cmp artifacts/llf-canary-preregistration.json docs/results/llf-canary-preregistration.json
+          cmp artifacts/llf-canary-preregistration.json docs/results/llf-prompt-v1.1-canary-preregistration.json
       - name: Upload Real v1 LLF integrity evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -200,7 +200,7 @@ jobs:
           uv run --frozen --no-env-file criteriabench-llf-canary-preregister check
           --dataset-dir data/real/llf
           --coverage-dir docs/results
-          --artifact docs/results/llf-canary-preregistration.json
+          --artifact docs/results/llf-prompt-v1.1-canary-preregistration.json
 
   dependency-review:
     name: Dependency review

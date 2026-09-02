@@ -121,7 +121,7 @@ jobs:
             --dataset-dir data/real/llf \
             --coverage-dir docs/results \
             --output artifacts/llf-canary-preregistration.json
-          cmp artifacts/llf-canary-preregistration.json docs/results/llf-canary-preregistration.json
+          cmp artifacts/llf-canary-preregistration.json docs/results/llf-prompt-v1.1-canary-preregistration.json
       - name: Verify infrastructure
         shell: pwsh
         run: |

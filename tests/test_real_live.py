@@ -18,7 +18,11 @@ import pytest
 from pydantic import BaseModel
 
 from criteriabench.real.llf import load_llf_records
-from criteriabench.real.llf_semantics import LlfSemanticOutput
+from criteriabench.real.llf_semantics import (
+    LlfSemanticOutput,
+    LlfStringNode,
+    parse_llf_semantic,
+)
 from criteriabench.real_eval import llf_canary_preregistration as canary_prereg
 from criteriabench.real_eval.integrity import canonical_sha256, case_set_sha256, source_sha256
 from criteriabench.real_eval.llf_binding import load_llf_generation_split
@@ -580,6 +584,36 @@ def test_prompt_vocabulary_is_derived_only_from_development_references() -> None
     assert set(LLF_DEVELOPMENT_DIRECT_CALLS) == set(vocabulary["direct_call_names"])
     assert set(LLF_DEVELOPMENT_METHOD_ATTRIBUTES) == set(vocabulary["method_call_names"])
     assert set(LLF_DEVELOPMENT_BARE_SYMBOLS) == set(vocabulary["bare_symbol_names"])
+
+
+def test_llf_prompt_card_constrains_known_v1_failure_modes() -> None:
+    contract = llf_semantic_output_contract()
+    instructions = contract.instructions
+
+    assert contract.contract_id == "llf-semantic-ast-v1.1-prompt-card"
+    assert "criterion_kind only identifies the source section" in instructions
+    assert "It never adds or removes neg(...)" in instructions
+    assert "one contiguous\n  substring of criterion_text" in instructions
+    assert "Never paraphrase, singularize, normalize" in instructions
+    assert "Use union(A, B, ...) for alternative criterion or concept expressions" in instructions
+    assert "Reserve direct and(...) and or(...)" in instructions
+    assert "combining eq(...) filter or temporal" in instructions
+    assert "contraindication(...) contains a typed concept expression" in instructions
+    assert "never translate unstable as .stable()" in instructions
+
+
+def test_prompt_exact_literal_rule_is_supported_by_all_development_references() -> None:
+    literal_count = 0
+    for record in load_llf_records(LLF_DATA / "records.jsonl"):
+        if record.split != "development":
+            continue
+        parsed = parse_llf_semantic(record.logical_form, source_name=record.case_id)
+        for node in parsed.nodes:
+            if isinstance(node, LlfStringNode):
+                assert node.value in record.raw_text
+                literal_count += 1
+
+    assert literal_count == 585
 
 
 def test_few_shot_examples_are_exact_development_records_and_trials_are_excluded() -> None:

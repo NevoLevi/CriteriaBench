@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LLF_DATA = ROOT / "data" / "real" / "llf"
 COVERAGE_DIR = ROOT / "docs" / "results"
 MODULE_PATH = ROOT / "src" / "criteriabench" / "real_eval" / "llf_canary_preregistration.py"
-PUBLIC_PREREGISTRATION = COVERAGE_DIR / "llf-canary-preregistration.json"
+PUBLIC_PREREGISTRATION = COVERAGE_DIR / "llf-prompt-v1.1-canary-preregistration.json"
 
 
 @pytest.fixture(scope="module")

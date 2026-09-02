@@ -525,6 +525,25 @@ LLF_SEMANTIC_INSTRUCTIONS = f"""Translate exactly one clinical-trial eligibility
 one lossless Leaf Logical Forms (LLF) expression string in the logical_form field. This is an LLF
 syntax prediction, not GraphV2. Return no identity, explanation, markdown, or source metadata.
 
+Apply this LLF grammar card before choosing an expression:
+- criterion_kind only identifies the source section. It never adds or removes neg(...). Derive
+  negation solely from the meaning of criterion_text, including explicit no/not/without wording.
+- Every quoted string must be copied exactly, with identical case and spacing, from one contiguous
+  substring of criterion_text. Never paraphrase, singularize, normalize, or combine separate spans.
+- Use direct calls for concepts and composition, and dot-methods only for attributes of their
+  receiver. Do not turn a listed direct call into a dot-method or pass a bare string where a
+  concept expression is required.
+- Use union(A, B, ...) for alternative criterion or concept expressions and intersect(A, B, ...)
+  for criterion or concept expressions required together. Reserve direct and(...) and or(...) for
+  combining eq(...) filter or temporal clauses. Preserve nesting and attach each modifier,
+  location, polarity, and temporal relation to the specific concept or group it modifies.
+- contraindication(...) contains a typed concept expression such as proc(...) or drug(...), not a
+  raw string and not an empty call followed by .for(...). before(...), after(...), and during(...)
+  are direct temporal wrappers used within relation structures such as seq(...), not dot-methods.
+- .stable() is valid only when the source says stable; never translate unstable as .stable().
+- Prefer the smallest expression that preserves the source meaning. Do not invent extra entities,
+  relations, or modifiers to explain ordinary wording.
+
 Use the complete frozen development-observed direct-call vocabulary where applicable:
 {", ".join(LLF_DEVELOPMENT_DIRECT_CALLS)}. The complete development-observed method-attribute
 vocabulary is {", ".join(LLF_DEVELOPMENT_METHOD_ATTRIBUTES)}. The complete development-observed
@@ -540,7 +559,7 @@ def llf_semantic_output_contract() -> StrictOutputContract[LlfSemanticOutput]:
     """Return the compact LLF wire contract, parsed to the canonical internal AST."""
 
     return make_output_contract(
-        contract_id="llf-semantic-ast-v1",
+        contract_id="llf-semantic-ast-v1.1-prompt-card",
         track="llf_semantic_ast",
         schema_name="criteriabench_llf_logical_form",
         strict_schema=LLF_PROVIDER_STRICT_SCHEMA,
