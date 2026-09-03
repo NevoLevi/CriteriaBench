@@ -2,11 +2,11 @@
 
 CriteriaBench is a reproducible benchmark for turning real clinical-trial eligibility criteria into structured logical forms. Real v1 contains **2,000 human-annotated criteria from 885 ClinicalTrials.gov trials**. Its frozen split has **200 development cases from 86 trials** and **1,800 locked-test cases from 799 different trials**; no trial appears in both splits.
 
-The project is deliberately honest about its current state: the data, safe parser, evaluator, retrieval baseline, human-agreement analysis, and guarded live runner are implemented. The one-shot `gpt-5.6-luna` development canary is preregistered and pending. **No Real-v1 Luna result, locked-test result, or related charge exists yet.**
+The data, safe parser, evaluator, retrieval baseline, human-agreement analysis, and guarded live runner are implemented. The public runner was used for two sealed 25-case development configurations: `gpt-5.6-luna` at `none` and `medium` reasoning. A separately sealed local diagnostic harness ran `gpt-5.6-terra` at `medium` on the identical source-only subset. All three runs completed. The 1,800-case locked test has not run. Raw provider responses, credentials, per-case predictions, and scored reports are intentionally not published.
 
 > **Research and engineering only.** CriteriaBench is not a medical device, patient-matching system, or clinical decision tool. It evaluates structural reproduction of public annotations.
 
-Last factual review: **2026-09-02**.
+Last factual review: **2026-09-03**.
 
 ## Real v1 at a glance
 
@@ -20,11 +20,11 @@ Last factual review: **2026-09-02**.
 | Retrieval baseline | Deterministic polarity-matched BM25 over development references. On all 200 development cases with the target trial excluded: 8 exact trees, node F1 `0.369699`, edge F1 `0.213939`, and combined node-plus-edge F1 `0.293919` |
 | Frozen 25-case comparator | The preregistered development canary subset gives BM25 1/25 exact and combined node-plus-edge F1 `0.202918` |
 | Human agreement | 20 cases × 3 annotations; 57/60 annotations parse, yielding 54/60 pairs. Case-macro exact agreement is `0.466667`, node F1 `0.879308`, edge F1 `0.788692`, and typed-component F1 `0.880009`; 7/20 cases have full three-way exact consensus |
-| Luna | Direct LLF lane only: the provider returns `{ "logical_form": "..." }`, then local bounded code parses and scores it. The actual 25-case call has not run yet |
+| Live model comparison | Two sealed Luna configurations from the public runner and one separately sealed local Terra diagnostic completed on the same 25-case source-only subset. Each used direct structured-output generation followed by local bounded parsing and offline evaluation; no locked-test result or public production service is claimed |
 | GraphV2 | A future product/evidence contract. Paid GraphV2 execution is structurally disabled and is not part of Real v1 |
 | Synthetic suite | Preserved as a deterministic legacy regression for old application plumbing; it is not headline model-quality evidence |
 
-The full-development BM25 numbers are descriptive development evidence, not a held-out estimate. The 25-case canary is also a readiness gate, not a performance estimate.
+The full-development BM25 numbers are descriptive development evidence, not a held-out estimate. The completed 25-case runs are development diagnostics, not held-out performance estimates.
 
 ## What the benchmark asks
 
@@ -47,7 +47,7 @@ flowchart LR
     U["Pinned public LLF corpus"] --> S["Trial-disjoint split"]
     S --> G["Source-only generation files"]
     S --> R["Physically separate references"]
-    G --> B["BM25 or sealed Luna runner"]
+    G --> B["BM25 or sealed public Luna runner"]
     B --> P["Append-only attempts and outcomes"]
     P --> O["Network-disabled scorer"]
     R --> O
@@ -58,11 +58,11 @@ The benchmark separates prediction from scoring at both the file and process bou
 
 Human agreement provides context for annotation variability. It is not a model ceiling and does not establish clinical correctness.
 
-## One-shot Luna canary
+## Completed live development comparison
 
-The preregistered canary selects 25 development cases from 25 distinct trials, excludes prompt-example trials, and balances criterion kind and source length. The historical/default `none` profile reserves `USD 0.163840000` under a `USD 0.170000000` cap with 2,048 output tokens and a 60-second request timeout. The current versioned `medium` experiment reserves `USD 1.085440000` under a `USD 1.250000000` cap with 32,768 output/reasoning tokens and a 240-second request timeout. Both profiles allow one attempt per case, zero SDK retries, zero application retries, and sequential execution.
+The public runner produced the Luna-`none` and Luna-`medium` runs. Terra-`medium` used a separately sealed local diagnostic harness that is not included in this public repository. All three used the same preregistered 25-case development subset: 25 distinct trials, no prompt-example trials, balanced by criterion kind and source length. Across the three configurations, all 75 planned calls completed with known usage, zero application retries, and no application-cap breach.
 
-The medium run is a paired development diagnostic on the same 25 cases. It changes reasoning effort and the nonbinding output ceiling together, so it cannot isolate which control caused a score change and it is not a held-out or production-performance estimate. Its p95 advancement SLA remains 60 seconds, even though the larger request timeout lets a slow call complete and be scored.
+The configurations differ in model family, reasoning effort, and output ceiling, so the comparison cannot isolate a single causal factor. Automated structural scoring was supplemented by exploratory model-based semantic review with the per-case candidate identity mapping hidden. These are development diagnostics, not held-out or production-performance estimates.
 
 Advancement requires every frozen gate to pass together:
 
@@ -73,9 +73,9 @@ Advancement requires every frozen gate to pass together:
 - combined node-plus-edge F1 at least `0.50` and at least `0.10` above the frozen BM25 comparator; and
 - at least 2 exact canonical-tree matches.
 
-Failure of any gate prohibits the locked run. The `medium` diagnostic always fails the explicit `locked_profile_compatibility` gate, regardless of its quality metrics, because the locked lane remains `none`. A quality failure requires a new versioned configuration and preregistration; it cannot be retried until a favourable sample appears. An operational rerun requires a new public execution binding, fresh authorization, and disclosure of every attempt.
+Failure of any frozen gate prohibits the locked run. Only the locked-compatible Luna-`none` profile can be used for advancement; the `medium` configurations are development diagnostics and cannot supply that permission, even if their operational and quality checks pass. A new or changed configuration requires a new versioned preregistration rather than repeated sampling until a favourable result appears.
 
-Only a passing `none`-profile canary would permit planning—not executing—the locked test. The current `medium` experiment may be published only as a paired development diagnostic; it cannot supply that permission. The existing locked constants (`1,800` cases and an `USD 11.80` application cap) are not a current authorization: the frozen rate window expires, and a conservative `1,800 × 60 seconds = 30 hours` cannot fit the current four-hour plan and two-hour authorization windows. A locked run therefore requires refreshed pricing, a mechanically valid new plan, and separate explicit user authorization after a qualifying canary pass.
+The locked-test lane remains unexecuted. Any future locked run requires refreshed official pricing, a mechanically sufficient plan and validity window, and separate explicit user authorization; none of the completed development diagnostics constitutes that authorization.
 
 The requested model name is an alias and can change behind the same name. Artifacts record requested and returned model identity, response object, service tier, usage, latency, response-ID hashes, and pricing assumptions. Provider-dashboard reconciliation remains an independent required check.
 
@@ -105,13 +105,13 @@ The public evidence artifacts include:
 - [development coverage](docs/results/llf-semantic-coverage-development.json); and
 - [locked-test coverage](docs/results/llf-semantic-coverage-test.json).
 
-No Azure login is needed for the direct OpenAI canary. At execution time, the operator enters the API key at a hidden PowerShell prompt; the Real-v1 wrapper sends it to one container process over standard input. The key is never an argument, file, Docker environment value, committed dotenv value, or artifact.
+No Azure login was needed for the direct model runs. For each run, the operator entered the API key at a hidden PowerShell prompt; the wrapper passed it only to the container process over standard input. The key was never an argument, file, Docker environment value, committed dotenv value, or artifact.
 
 ## Legacy application and deployment engineering
 
 The repository also contains a FastAPI/PostgreSQL/Redis mock extraction service, Prometheus metrics, Docker Compose, Kustomize/kind, Helm, Terraform, and GitHub Actions. API and worker paths are mock-only and should remain local or private because the API is unauthenticated.
 
-On 2026-09-01, the earlier system demonstrated its plumbing with one local and one no-ingress Azure Container Apps synthetic Luna smoke, plus an ephemeral mock-only AKS deployment that was destroyed after verification. Those dated exercises support claims about guarded execution, containers, queues, health checks, identity-backed secret references, and teardown. They do **not** support a Real-v1 quality result, clinical validation, or a public production service claim.
+On 2026-09-01, the project separately validated its infrastructure with one local and one no-ingress Azure Container Apps synthetic Luna smoke, plus an ephemeral mock-only AKS deployment that was destroyed after verification. Those dated exercises support claims about guarded execution, containers, queues, health checks, identity-backed secret references, and teardown. They do **not** support a Real-v1 quality result, clinical validation, or a public production service claim.
 
 Run the local mock stack with the safe wrapper:
 
@@ -148,6 +148,6 @@ A stronger future extension would use newly collected post-cutoff trials, indepe
 
 ## Honest portfolio summary
 
-> Built a trial-disjoint benchmark over 2,000 real human-annotated clinical-trial criteria, including a no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically isolated references, structural scoring, and a hash-bound one-shot LLM execution protocol with explicit cost and failure gates.
+> Built a trial-disjoint benchmark over 2,000 real human-annotated clinical-trial criteria, including a no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically isolated references, structural scoring, and sealed live LLM evaluation across three development configurations. Separately validated the containerized mock API/worker stack on ephemeral AKS and a no-ingress Container Apps synthetic-model smoke job.
 
-Until a result is published, add: **“The Luna development canary is preregistered and pending; no live result or charge is claimed.”** Do not claim model improvement, contamination-resistant generalization, production deployment, or clinical validity.
+This supports benchmark, evaluation, and cloud-delivery claims. It does not support claims of model superiority, contamination-resistant generalization, public production deployment, or clinical validity.

@@ -1,8 +1,8 @@
 # Operations runbook
 
-This runbook separates reproducible offline work from the one-shot paid Luna canary. The Real-v1 canary has not run, and no locked-test run is authorized.
+This runbook separates reproducible offline work from explicitly authorized paid development canaries. The public Luna runner completed two sealed 25-case configurations; a separately sealed local Terra diagnostic completed on the same subset. No locked-test run is authorized or executed.
 
-The reviewed PowerShell wrappers below are the supported operator interface. They fail closed on existing outputs and mismatched paths, hashes, image IDs, expiry, or artifact lineage. At the time of this document, no Real-v1 plan, execution binding, paid authorization, provider attempt, or charge exists.
+The reviewed PowerShell wrappers below document the public Luna runner; the Terra diagnostic used a separate local harness that is not included in this repository. The public wrappers fail closed on existing outputs and mismatched paths, hashes, image IDs, expiry, or artifact lineage. Development execution artifacts are retained privately without credentials; the public repository intentionally excludes provider responses, per-case predictions, and scored reports.
 
 ## Prerequisites
 

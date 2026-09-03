@@ -2,14 +2,14 @@
 
 CriteriaBench is a public-data research benchmark plus a local mock service demonstration. It is not a medical device, clinical decision system, public production API, or safe processor for patient data.
 
-The Real-v1 Luna canary is pending. No Real-v1 model result or charge exists yet.
+The public Luna runner completed two sealed 25-case development configurations; a separately sealed local Terra diagnostic completed on the same subset. Raw provider responses, credentials, per-case predictions, and scored reports remain private; the 1,800-case locked test has not run.
 
 ## Current trust boundary
 
 | Surface | Allowed | Prohibited or not claimed |
 |---|---|---|
 | Real-v1 offline tools | Import, bounded LLF parsing, BM25, agreement, preregistration, integrity checks, scoring | Provider calls, secret access, runtime locked-test use |
-| Real-v1 paid runner | One exact, source-only, explicitly authorized Luna benchmark | Runtime gold, arbitrary models/endpoints, tools, retries, unattended service, GraphV2 |
+| Real-v1 paid runner | Versioned, source-only, explicitly authorized Luna development canaries; the Terra comparison used a separate local diagnostic harness | Runtime gold, arbitrary endpoints, tools, retries, unattended service, GraphV2 |
 | API and worker | Local/private mock extraction and evaluation | Paid provider, public exposure, sensitive input, exactly-once claim |
 | CI | Frozen offline checks, image build/scan/publish, artifact reproduction | API keys, live model generation, paid benchmark |
 | Local Compose/kind/Helm | Disposable mock demonstration on loopback/private cluster | Production database, backups, tenant isolation, public ingress |
@@ -60,9 +60,9 @@ Scoring runs later with Docker network mode `none`, a read-only sealed run mount
 
 This protects against runtime gold leakage. It does not prove that a model never saw the public LLF corpus during training.
 
-## Frozen provider call
+## Frozen public-runner provider call
 
-The only enabled Real-v1 paid lane is direct LLF extraction. The request contract fixes:
+The public Luna runner's only enabled Real-v1 paid lane is direct LLF extraction. Its request contract fixes:
 
 - official Responses endpoint;
 - requested model `gpt-5.6-luna`;

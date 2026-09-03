@@ -79,7 +79,9 @@ Fresh authorization is a separate offline operation. It repeats the preregistrat
 
 ### Paid runner
 
-The only Real-v1 provider transport calls the official OpenAI Responses endpoint for `gpt-5.6-luna`. It uses a custom HTTP client with environment/proxy trust and redirects disabled. Both sealed profiles use `store=false`, service tier `default`, no tools, zero SDK/application retry, and sequential execution. The historical/default and locked-compatible `none` profile uses 2,048 maximum output tokens and a 60-second application deadline. The versioned development-only `medium` profile uses 32,768 maximum output/reasoning tokens and a 240-second application deadline; it cannot advance the locked-none lane.
+The only Real-v1 provider transport in this public repository calls the official OpenAI Responses endpoint for `gpt-5.6-luna`. It uses a custom HTTP client with environment/proxy trust and redirects disabled. Both sealed profiles use `store=false`, service tier `default`, no tools, zero SDK/application retry, and sequential execution. The historical/default and locked-compatible `none` profile uses 2,048 maximum output tokens and a 60-second application deadline. The versioned development-only `medium` profile uses 32,768 maximum output/reasoning tokens and a 240-second application deadline; it cannot advance the locked-none lane.
+
+The Terra-`medium` comparison mentioned in the README used a separately sealed local diagnostic harness. That harness is not implemented by the public Luna runner documented here.
 
 The provider wire is only `{logical_form: string}`. Local code applies stricter byte/character limits and parses the LLF. Trusted code attaches ordinals, case identity, hashes, timing, usage, and safe provider provenance.
 
@@ -141,7 +143,7 @@ On 2026-09-01, an explicitly approved mock-only AKS proof exercised health/readi
 
 A separate no-ingress Azure Container Apps Job demonstrated one bounded synthetic Luna execution with a user-assigned managed identity and Key Vault secret reference. It was an earlier one-case transport/provenance smoke, not Real-v1 quality evidence or a public service.
 
-These artifacts remain useful demonstrations of container, Terraform, managed-identity, secret-reference, and cleanup engineering. They do not authorize or execute the Real-v1 canary. Direct Real-v1 inference requires no Azure login.
+These artifacts remain useful demonstrations of container, Terraform, managed-identity, secret-reference, and cleanup engineering. They did not execute the later Real-v1 development canaries and do not authorize the locked test. Direct Real-v1 inference requires no Azure login.
 
 ## Trust and claim boundaries
 

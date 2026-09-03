@@ -1,6 +1,6 @@
 # CriteriaBench Real v1 protocol
 
-Status: **pre-execution protocol freeze**. The real corpus, split, parser, scorer, BM25 comparator, human-agreement analysis, guarded runner, and canonical static preregistration exist. The preregistration reproduces byte-for-byte and is committed with this protocol before any plan. The 25-case Luna canary has not run. This document contains no Real-v1 model result.
+Status: **historical pre-execution protocol freeze**. This document preserves the state and rules recorded before any paid development run. Two Luna configurations from the public runner and one separately sealed local Terra diagnostic were later completed on the same 25-case subset; see the repository README for current status. This document contains no scored model result, and the 1,800-case locked test has not run.
 
 ## Research question
 
