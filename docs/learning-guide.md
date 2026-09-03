@@ -6,7 +6,7 @@ This guide explains the infrastructure around CriteriaBench for someone who alre
 
 CriteriaBench has two distinct mental models.
 
-The **Real-v1 benchmark** takes a pinned public LLF corpus through a source-only generation boundary, a safe no-exec semantic parser, deterministic BM25 and human-agreement analysis, a sealed one-shot Luna runner, and a network-disabled scorer. It does not use PostgreSQL or Redis and it never exposes a public inference endpoint.
+The **Real-v1 benchmark** takes a pinned public LLF corpus through a source-only generation boundary, a safe no-exec semantic parser, deterministic BM25 and human-agreement analysis, a sealed one-shot Luna runner, and a network-disabled scorer. It does not use PostgreSQL or Redis and it never exposes a public inference endpoint. The Terra comparison used a separately sealed local diagnostic harness, not the public Luna runner described in this guide.
 
 The **legacy application demonstration** has two ordinary Python processes:
 
@@ -167,7 +167,7 @@ Never put high-cardinality IDs, source text, prompts, credentials, or exception 
 
 ## Security and cost reasoning
 
-The API, worker, CI, Compose, kind/Helm workloads, and historical AKS proof remain mock-only. Current paid evaluation is isolated to the Real-v1 direct Luna runner: static preregistration, exact offline plan, public one-execution binding, fresh authorization, an external append-only claim/attempt ledger, one provider attempt per case, network-disabled scoring, and a conjunctive decision. The API key enters only through a hidden prompt and standard input. Azure login is not involved.
+The API, worker, CI, Compose, kind/Helm workloads, and historical AKS proof remain mock-only. The public paid-evaluation path is isolated to the Real-v1 direct Luna runner: static preregistration, exact offline plan, public one-execution binding, fresh authorization, an external append-only claim/attempt ledger, one provider attempt per case, network-disabled scoring, and a conjunctive decision. The separate Terra diagnostic followed its own sealed local path. The API key enters only through a hidden prompt and standard input. Azure login is not involved.
 
 The older no-ingress Container Apps Job remains dated one-case synthetic transport/infrastructure evidence. Its user-assigned identity and Key Vault secret reference are useful engineering proof, not Real-v1 quality evidence or current authorization.
 
@@ -206,9 +206,9 @@ The Container Apps proof implements Key Vault integration and a user-assigned ma
 
 Supported now:
 
-> Built a trial-disjoint evaluation benchmark over 2,000 real human-annotated clinical-trial criteria, with a bounded no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically separated gold data, structural metrics, and a hash-bound one-shot LLM execution protocol.
+> Built a trial-disjoint evaluation benchmark over 2,000 real human-annotated clinical-trial criteria, with a bounded no-exec semantic parser, deterministic BM25 comparator, human-agreement analysis, physically separated gold data, structural metrics, and sealed live evaluation across three development configurations.
 
-Until the live result is published, immediately add: **“The Luna development canary is preregistered and pending; no live result or charge is claimed.”**
+The live development comparison is complete: two configurations used the public Luna runner and Terra used a separate local diagnostic harness. Raw provider responses, per-case predictions, and scored reports remain private. Do not claim a locked-test result or model superiority.
 
 The legacy systems-engineering claim is also supported:
 
@@ -222,4 +222,4 @@ For the dated bounded cloud proof:
 
 > Provisioned a Terraform-managed, no-ingress Azure Container Apps Job using a user-assigned identity, Key Vault secret references, an immutable container digest, and bounded execution/cost guards; verified one successful synthetic LLM execution as infrastructure plumbing.
 
-Do not broaden this into “customer-facing production service,” “clinically validated,” “production Kubernetes operations,” “exactly once,” “OpenTelemetry tracing,” “GitHub-to-Azure OIDC,” “remote Terraform state,” “contamination-resistant,” or “improved model accuracy.” The public benchmark may have appeared in model pretraining, the Luna name is a drifting alias, and the actual Real-v1 call has not run. Earlier one-case synthetic successes demonstrate guarded plumbing, not model quality.
+Do not broaden this into “customer-facing production service,” “clinically validated,” “production Kubernetes operations,” “exactly once,” “OpenTelemetry tracing,” “GitHub-to-Azure OIDC,” “remote Terraform state,” “contamination-resistant,” or “improved model accuracy.” The public benchmark may have appeared in model pretraining, model names are drifting aliases, and the completed development runs are not held-out clinical evidence. Earlier one-case synthetic successes demonstrate guarded plumbing, not model quality.

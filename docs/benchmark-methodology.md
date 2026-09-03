@@ -1,6 +1,6 @@
 # Benchmark methodology
 
-CriteriaBench Real v1 evaluates whether a system can reproduce human-authored Leaf Logical Forms (LLF) from real clinical-trial eligibility criteria. This page explains the implemented data, parser, baselines, agreement analysis, metrics, and interpretation rules. The actual Luna canary is pending.
+CriteriaBench Real v1 evaluates whether a system can reproduce human-authored Leaf Logical Forms (LLF) from real clinical-trial eligibility criteria. This page explains the implemented data, parser, baselines, agreement analysis, metrics, and interpretation rules. Two sealed Luna configurations from the public runner and one separately sealed local Terra diagnostic completed on the same 25-case subset; their raw responses, predictions, and scored reports are intentionally not published.
 
 ## Evaluation unit
 
